@@ -216,7 +216,11 @@ session **or** a named one-shot, never neither.
 **Navigation and layout**
 - [x] Reorder main tabs to: Calendar → Sessions → Campaigns → Systems → Stats → Year Review
 - [x] Hide the Quick Add strip on Stats and Year Review tabs, since it is unrelated to analysis views
-- [ ] Discuss tab layout polish — make tabs neater, and consider grouping, stacking, or rearranging for desktop/mobile
+- [x] Discuss tab layout polish — make tabs neater, and consider grouping, stacking, or rearranging for desktop/mobile
+  - Option A: keep one row on desktop, wrap naturally on mobile.
+  - Option B: split primary views (`Calendar`, `Sessions`) from admin/analysis (`Campaigns`, `Systems`, `Stats`, `Year Review`).
+  - Option C: use a compact mobile segmented control or dropdown for secondary tabs.
+  - Chosen: merge Calendar and Sessions into one `Sessions` workspace; group Campaigns/Systems under `Manage`; group Monthly/Year Review under `Stats`.
 
 **Visual polish**
 - [x] Reduce campaign/session chip text weight in Sessions and Calendar views so names do not read as overly bold
@@ -224,11 +228,11 @@ session **or** a named one-shot, never neither.
 - [x] Replace default browser select arrows with custom aligned arrows that fit the padded dark fields
 - [x] Add a browser tab favicon
 - [x] Do a broader UI pass on spacing, mobile modal behavior, table density, and button/icon styling
-- [ ] Campaigns table — align the `Actions` header consistently with the other table headers
+- [x] Campaigns table — align the `Actions` header consistently with the other table headers
 
 **Color clarity**
 - [x] Implement derived campaign shades from each system's base color so campaigns using the same system stay related but are visually distinguishable
-- [ ] Systems tab — expose derived campaign/one-shot shades, possibly under edit or as a preview
+- [x] Systems tab — expose derived campaign/one-shot shades, possibly under edit or as a preview
 
 ---
 

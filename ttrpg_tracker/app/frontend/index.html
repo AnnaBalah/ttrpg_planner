@@ -10,7 +10,6 @@
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">Session Log</p>
         <h1>TTRPG Tracker</h1>
       </div>
       <div class="summary" aria-live="polite">
@@ -21,12 +20,9 @@
 
     <main>
       <nav class="tabs" aria-label="App sections">
-        <button class="tab-button is-active" type="button" data-tab="calendar">Calendar</button>
-        <button class="tab-button" type="button" data-tab="sessions">Sessions</button>
-        <button class="tab-button" type="button" data-tab="campaigns">Campaigns</button>
-        <button class="tab-button" type="button" data-tab="systems">Systems</button>
+        <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
+        <button class="tab-button" type="button" data-tab="manage">Manage</button>
         <button class="tab-button" type="button" data-tab="stats">Stats</button>
-        <button class="tab-button" type="button" data-tab="year">Year Review</button>
       </nav>
 
       <section class="quick-add" aria-label="Campaign quick add">
@@ -37,181 +33,198 @@
         <div class="quick-grid" id="quick-add-list"></div>
       </section>
 
-      <section class="panel" id="sessions-panel" data-panel="sessions">
-        <div class="section-heading">
-          <h2>Sessions</h2>
-          <p id="status">Loading...</p>
-        </div>
-        <div class="toolbar" aria-label="Session filters">
-          <label>
-            Search
-            <input id="search" type="search" placeholder="Campaign, GM, or system" />
-          </label>
-          <label>
-            Campaign
-            <select id="campaign-filter"></select>
-          </label>
-          <label>
-            GM
-            <select id="gm-filter"></select>
-          </label>
-          <label>
-            System
-            <select id="system-filter"></select>
-          </label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th><button type="button" data-sort="date">Date</button></th>
-                <th><button type="button" data-sort="display_name">Campaign / One-shot</button></th>
-                <th><button type="button" data-sort="gm">GM</button></th>
-                <th><button type="button" data-sort="system_name">System</button></th>
-                <th>Kind</th>
-                <th>Link</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="sessions-body"></tbody>
-          </table>
-        </div>
+      <section class="panel is-active" id="sessions-panel" data-panel="sessions">
+        <section class="embedded-panel" id="calendar-panel">
+          <div class="section-heading calendar-heading">
+            <div>
+              <h2>Calendar</h2>
+              <p id="calendar-status">Month view</p>
+            </div>
+            <div class="calendar-controls">
+              <button type="button" id="calendar-prev" aria-label="Previous month">&lsaquo;</button>
+              <strong id="calendar-title">Month</strong>
+              <button type="button" id="calendar-next" aria-label="Next month">&rsaquo;</button>
+              <button type="button" id="calendar-today">Today</button>
+            </div>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div class="calendar-agenda" id="calendar-agenda"></div>
+        </section>
+
+        <section class="embedded-panel">
+          <div class="section-heading">
+            <h2>Sessions</h2>
+            <p id="status">Loading...</p>
+          </div>
+          <div class="toolbar" aria-label="Session filters">
+            <label>
+              Search
+              <input id="search" type="search" placeholder="Campaign, GM, or system" />
+            </label>
+            <label>
+              Campaign
+              <select id="campaign-filter"></select>
+            </label>
+            <label>
+              GM
+              <select id="gm-filter"></select>
+            </label>
+            <label>
+              System
+              <select id="system-filter"></select>
+            </label>
+          </div>
+          <div class="table-wrap sessions-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th><button type="button" data-sort="date">Date</button></th>
+                  <th><button type="button" data-sort="display_name">Campaign / One-shot</button></th>
+                  <th><button type="button" data-sort="gm">GM</button></th>
+                  <th><button type="button" data-sort="system_name">System</button></th>
+                  <th>Kind</th>
+                  <th>Link</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-body"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
-      <section class="panel is-active" id="calendar-panel" data-panel="calendar">
-        <div class="section-heading calendar-heading">
-          <div>
-            <h2>Calendar</h2>
-            <p id="calendar-status">Month view</p>
+      <section class="panel" id="manage-panel" data-panel="manage">
+        <nav class="subtabs" aria-label="Management sections">
+          <button class="subtab-button is-active" type="button" data-subtab="campaigns">Campaigns</button>
+          <button class="subtab-button" type="button" data-subtab="systems">Systems</button>
+        </nav>
+
+        <section class="subpanel is-active" id="campaigns-panel" data-subpanel="campaigns">
+          <div class="section-heading">
+            <h2>Campaigns</h2>
+            <p id="campaign-status">Templates</p>
           </div>
-          <div class="calendar-controls">
-            <button type="button" id="calendar-prev" aria-label="Previous month">‹</button>
-            <strong id="calendar-title">Month</strong>
-            <button type="button" id="calendar-next" aria-label="Next month">›</button>
-            <button type="button" id="calendar-today">Today</button>
+          <form class="editor" id="campaign-form">
+            <input type="hidden" id="campaign-id" />
+            <label>
+              Name
+              <input id="campaign-name" required />
+            </label>
+            <label>
+              Default GM
+              <input id="campaign-gm" list="gm-options" required />
+            </label>
+            <label>
+              System
+              <select id="campaign-system" required></select>
+            </label>
+            <label>
+              Default link
+              <input id="campaign-link" type="url" />
+            </label>
+            <label class="checkbox">
+              <input id="campaign-archived" type="checkbox" />
+              Archived
+            </label>
+            <div class="form-actions campaign-actions">
+              <button class="primary" type="submit">Save Campaign</button>
+              <button type="button" id="clear-campaign">Reset</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>GM</th>
+                  <th>System</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="campaigns-body"></tbody>
+            </table>
           </div>
-        </div>
-        <div class="calendar-weekdays" aria-hidden="true">
-          <span>Mon</span>
-          <span>Tue</span>
-          <span>Wed</span>
-          <span>Thu</span>
-          <span>Fri</span>
-          <span>Sat</span>
-          <span>Sun</span>
-        </div>
-        <div class="calendar-grid" id="calendar-grid"></div>
-        <div class="calendar-agenda" id="calendar-agenda"></div>
+        </section>
+
+        <section class="subpanel" id="systems-panel" data-subpanel="systems">
+          <div class="section-heading">
+            <h2>Systems</h2>
+            <p id="system-status">Managed list</p>
+          </div>
+          <form class="editor editor-compact" id="system-form">
+            <input type="hidden" id="system-id" />
+            <label>
+              Name
+              <input id="system-name" required />
+            </label>
+            <label>
+              Primary color
+              <input id="system-color" type="color" value="#58b6a9" required />
+            </label>
+            <div class="form-actions">
+              <button class="primary" type="submit">Save System</button>
+              <button type="button" id="clear-system">Clear</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Color</th>
+                  <th>Derived shades</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="systems-body"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
       <section class="panel" id="stats-panel" data-panel="stats">
-        <div class="section-heading stats-heading">
-          <div>
-            <h2>Monthly Stats</h2>
-            <p id="stats-status">Selected month</p>
-          </div>
-          <label class="month-picker">
-            Month
-            <input id="stats-month" type="month" />
-          </label>
-        </div>
-        <div id="stats-content"></div>
-      </section>
+        <nav class="subtabs" aria-label="Stats sections">
+          <button class="subtab-button is-active" type="button" data-subtab="monthly">Monthly</button>
+          <button class="subtab-button" type="button" data-subtab="year">Year Review</button>
+        </nav>
 
-      <section class="panel" id="year-panel" data-panel="year">
-        <div class="section-heading stats-heading">
-          <div>
-            <h2>Year in Review</h2>
-            <p id="year-status">Selected year</p>
+        <section class="subpanel is-active" data-subpanel="monthly">
+          <div class="section-heading stats-heading">
+            <div>
+              <h2>Monthly Stats</h2>
+              <p id="stats-status">Selected month</p>
+            </div>
+            <label class="month-picker">
+              Month
+              <input id="stats-month" type="month" />
+            </label>
           </div>
-          <label class="year-picker">
-            Year
-            <select id="year-select"></select>
-          </label>
-        </div>
-        <div id="year-content"></div>
-      </section>
+          <div id="stats-content"></div>
+        </section>
 
-      <section class="panel" id="campaigns-panel" data-panel="campaigns">
-        <div class="section-heading">
-          <h2>Campaigns</h2>
-          <p id="campaign-status">Templates</p>
-        </div>
-        <form class="editor" id="campaign-form">
-          <input type="hidden" id="campaign-id" />
-          <label>
-            Name
-            <input id="campaign-name" required />
-          </label>
-          <label>
-            Default GM
-            <input id="campaign-gm" list="gm-options" required />
-          </label>
-          <label>
-            System
-            <select id="campaign-system" required></select>
-          </label>
-          <label>
-            Default link
-            <input id="campaign-link" type="url" />
-          </label>
-          <label class="checkbox">
-            <input id="campaign-archived" type="checkbox" />
-            Archived
-          </label>
-          <div class="form-actions campaign-actions">
-            <button class="primary" type="submit">Save Campaign</button>
-            <button type="button" id="clear-campaign">Reset</button>
+        <section class="subpanel" data-subpanel="year">
+          <div class="section-heading stats-heading">
+            <div>
+              <h2>Year in Review</h2>
+              <p id="year-status">Selected year</p>
+            </div>
+            <label class="year-picker">
+              Year
+              <select id="year-select"></select>
+            </label>
           </div>
-        </form>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>GM</th>
-                <th>System</th>
-                <th>Status</th>
-                <th class="actions-heading">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="campaigns-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel" id="systems-panel" data-panel="systems">
-        <div class="section-heading">
-          <h2>Systems</h2>
-          <p id="system-status">Managed list</p>
-        </div>
-        <form class="editor editor-compact" id="system-form">
-          <input type="hidden" id="system-id" />
-          <label>
-            Name
-            <input id="system-name" required />
-          </label>
-          <label>
-            Primary color
-            <input id="system-color" type="color" value="#58b6a9" required />
-          </label>
-          <div class="form-actions">
-            <button class="primary" type="submit">Save System</button>
-            <button type="button" id="clear-system">Clear</button>
-          </div>
-        </form>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Color</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="systems-body"></tbody>
-          </table>
-        </div>
+          <div id="year-content"></div>
+        </section>
       </section>
 
       <section class="export-bar" aria-label="Backup export">

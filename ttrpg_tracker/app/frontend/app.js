@@ -22,6 +22,8 @@ const state = {
 const els = {
   tabs: document.querySelectorAll(".tab-button"),
   panels: document.querySelectorAll("[data-panel]"),
+  subtabButtons: document.querySelectorAll(".subtab-button"),
+  subpanels: document.querySelectorAll("[data-subpanel]"),
   sessionCount: document.querySelector("#session-count"),
   status: document.querySelector("#status"),
   search: document.querySelector("#search"),
@@ -387,18 +389,24 @@ function renderCampaigns() {
 
 function renderSystems() {
   if (state.systems.length === 0) {
-    els.systemsBody.innerHTML = `<tr><td class="empty" colspan="3">No systems yet.</td></tr>`;
+    els.systemsBody.innerHTML = `<tr><td class="empty" colspan="4">No systems yet.</td></tr>`;
     return;
   }
 
   els.systemsBody.innerHTML = state.systems
     .map((system) => {
+      const shades = systemShadePreview(system);
       return `
         <tr>
           <td data-label="Name">${escapeHtml(system.name)}</td>
           <td data-label="Color">
             <span class="swatch" style="background:${escapeAttribute(system.color)}"></span>
             ${escapeHtml(system.color)}
+          </td>
+          <td data-label="Derived shades">
+            <div class="shade-list">
+              ${shades.length ? shades.map(shadePreview).join("") : `<span class="muted">None yet</span>`}
+            </div>
           </td>
           <td data-label="Actions" class="actions">
             <button type="button" data-edit-system="${system.id}">Edit</button>
@@ -504,6 +512,8 @@ function handleDocumentClick(event) {
 
   if (target.matches("[data-tab]")) {
     setActiveTab(target.dataset.tab);
+  } else if (target.matches("[data-subtab]")) {
+    setSubtab(target.dataset.subtab, target.closest("[data-panel]"));
   } else if (target.matches("[data-sort]")) {
     setSort(target.dataset.sort);
   } else if (target.id === "calendar-prev") {
@@ -565,7 +575,20 @@ function handleDocumentChange(event) {
 function setActiveTab(tab) {
   els.tabs.forEach((button) => button.classList.toggle("is-active", button.dataset.tab === tab));
   els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === tab));
-  els.quickAdd.hidden = tab === "stats" || tab === "year";
+  els.quickAdd.hidden = tab !== "sessions";
+  const activePanel = document.querySelector(`[data-panel="${tab}"]`);
+  if (activePanel && activePanel.querySelector(".subtab-button") && !activePanel.querySelector(".subpanel.is-active")) {
+    setSubtab(activePanel.querySelector(".subtab-button").dataset.subtab, activePanel);
+  }
+}
+
+function setSubtab(subtab, container = document) {
+  container.querySelectorAll(".subtab-button").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.subtab === subtab);
+  });
+  container.querySelectorAll("[data-subpanel]").forEach((panel) => {
+    panel.classList.toggle("is-active", panel.dataset.subpanel === subtab);
+  });
 }
 
 function setSort(key) {
@@ -809,7 +832,8 @@ async function saveCampaign(event) {
 
 function editCampaign(id) {
   const campaign = findById(state.campaigns, id);
-  setActiveTab("campaigns");
+  setActiveTab("manage");
+  setSubtab("campaigns", document.querySelector("#manage-panel"));
   document.querySelector("#campaign-id").value = campaign.id;
   document.querySelector("#campaign-name").value = campaign.name;
   document.querySelector("#campaign-gm").value = campaign.default_gm;
@@ -875,7 +899,8 @@ async function saveSystem(event) {
 
 function editSystem(id) {
   const system = findById(state.systems, id);
-  setActiveTab("systems");
+  setActiveTab("manage");
+  setSubtab("systems", document.querySelector("#manage-panel"));
   document.querySelector("#system-id").value = system.id;
   document.querySelector("#system-name").value = system.name;
   document.querySelector("#system-color").value = system.color;
@@ -1013,6 +1038,38 @@ function campaignColor(campaign) {
   );
 }
 
+function systemShadePreview(system) {
+  const campaignShades = state.campaigns
+    .filter((campaign) => campaign.system_id === system.id)
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id)
+    .map((campaign) => ({
+      label: campaign.name,
+      color: campaignColor(campaign),
+    }));
+  const oneShotShades = unique(state.sessions
+    .filter((session) => !session.campaign_id && session.system_id === system.id)
+    .map((session) => session.display_name))
+    .map((name) => {
+      const session = state.sessions.find((item) => {
+        return !item.campaign_id && item.system_id === system.id && item.display_name === name;
+      });
+      return {
+        label: name,
+        color: session ? sessionColor(session) : system.color,
+      };
+    });
+  return [...campaignShades, ...oneShotShades];
+}
+
+function shadePreview(shade) {
+  return `
+    <span class="shade-chip" title="${escapeAttribute(shade.label)}">
+      <span style="background:${escapeAttribute(shade.color)}"></span>
+      ${escapeHtml(shade.label)}
+    </span>
+  `;
+}
+
 function campaignShadeIndex(campaignId, systemId) {
   const campaignIds = state.campaigns
     .filter((campaign) => campaign.system_id === systemId)
@@ -1040,17 +1097,19 @@ function deriveCampaignColor(hex, index) {
   }
   const steps = [
     { saturation: 0, lightness: 0 },
-    { saturation: -4, lightness: 10 },
-    { saturation: 8, lightness: -8 },
-    { saturation: -10, lightness: -14 },
-    { saturation: 12, lightness: 14 },
-    { saturation: -16, lightness: 3 },
+    { saturation: -16, lightness: 18 },
+    { saturation: 18, lightness: -16 },
+    { saturation: -24, lightness: -24 },
+    { saturation: 24, lightness: 22 },
+    { saturation: -34, lightness: 6 },
+    { saturation: 34, lightness: -28 },
+    { saturation: -8, lightness: 30 },
   ];
   const step = steps[index % steps.length];
   return hslToHex(
     hsl.h,
-    clamp(hsl.s + step.saturation, 35, 88),
-    clamp(hsl.l + step.lightness, 34, 72),
+    clamp(hsl.s + step.saturation, 28, 94),
+    clamp(hsl.l + step.lightness, 24, 82),
   );
 }
 

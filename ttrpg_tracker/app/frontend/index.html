@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TTRPG Tracker</title>
+    <link rel="icon" href="https://fraternitysororitysvg.com/assets/images/products/Dungeons-and-Dragons-SVG.png" type="image/png" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
@@ -20,12 +21,12 @@
 
     <main>
       <nav class="tabs" aria-label="App sections">
-        <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
-        <button class="tab-button" type="button" data-tab="calendar">Calendar</button>
-        <button class="tab-button" type="button" data-tab="stats">Stats</button>
-        <button class="tab-button" type="button" data-tab="year">Year Review</button>
+        <button class="tab-button is-active" type="button" data-tab="calendar">Calendar</button>
+        <button class="tab-button" type="button" data-tab="sessions">Sessions</button>
         <button class="tab-button" type="button" data-tab="campaigns">Campaigns</button>
         <button class="tab-button" type="button" data-tab="systems">Systems</button>
+        <button class="tab-button" type="button" data-tab="stats">Stats</button>
+        <button class="tab-button" type="button" data-tab="year">Year Review</button>
       </nav>
 
       <section class="quick-add" aria-label="Campaign quick add">
@@ -36,7 +37,7 @@
         <div class="quick-grid" id="quick-add-list"></div>
       </section>
 
-      <section class="panel is-active" id="sessions-panel" data-panel="sessions">
+      <section class="panel" id="sessions-panel" data-panel="sessions">
         <div class="section-heading">
           <h2>Sessions</h2>
           <p id="status">Loading...</p>
@@ -77,7 +78,7 @@
         </div>
       </section>
 
-      <section class="panel" id="calendar-panel" data-panel="calendar">
+      <section class="panel is-active" id="calendar-panel" data-panel="calendar">
         <div class="section-heading calendar-heading">
           <div>
             <h2>Calendar</h2>
@@ -158,9 +159,9 @@
             <input id="campaign-archived" type="checkbox" />
             Archived
           </label>
-          <div class="form-actions">
+          <div class="form-actions campaign-actions">
             <button class="primary" type="submit">Save Campaign</button>
-            <button type="button" id="clear-campaign">Clear</button>
+            <button type="button" id="clear-campaign">Reset</button>
           </div>
         </form>
         <div class="table-wrap">
@@ -171,7 +172,7 @@
                 <th>GM</th>
                 <th>System</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions-heading">Actions</th>
               </tr>
             </thead>
             <tbody id="campaigns-body"></tbody>
@@ -271,11 +272,11 @@
             GM
             <input id="session-gm" list="gm-options" required />
           </label>
-          <label>
+          <label class="system-select-field">
             System
             <select id="session-system" required></select>
           </label>
-          <div class="field-group" id="session-new-system-fields">
+          <div class="new-system-row" id="session-new-system-fields">
             <label>
               New system
               <input id="session-new-system-name" />
@@ -298,6 +299,20 @@
         <div class="form-actions">
           <button class="primary" type="submit">Save Session</button>
           <button type="button" id="delete-session">Delete</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="confirm-dialog">
+      <form method="dialog" class="modal confirm-modal" id="confirm-form">
+        <div>
+          <p class="eyebrow">Confirm</p>
+          <h2 id="confirm-title">Delete session?</h2>
+        </div>
+        <p id="confirm-message">This cannot be undone.</p>
+        <div class="form-actions confirm-actions">
+          <button type="button" id="confirm-cancel">Cancel</button>
+          <button class="danger-button" type="submit" id="confirm-ok">Delete</button>
         </div>
       </form>
     </dialog>

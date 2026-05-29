@@ -325,15 +325,17 @@ def update_session(session_id: int, payload: SessionUpdate) -> SessionRead:
         if not item:
             raise HTTPException(status_code=404, detail="Session not found")
         updates = payload.model_dump(exclude_unset=True)
-        merged = SessionCreate(
-            campaign_id=updates.get("campaign_id", item.campaign_id),
-            name=updates.get("name", item.name),
-            date=updates.get("date", item.date),
-            gm=updates.get("gm", item.gm),
-            system_id=updates.get("system_id", item.system_id),
-            link=updates.get("link", item.link),
-            notes=updates.get("notes", item.notes),
-        )
+        merged_data = {
+            "campaign_id": item.campaign_id,
+            "name": item.name,
+            "date": item.date,
+            "gm": item.gm,
+            "system_id": item.system_id,
+            "link": item.link,
+            "notes": item.notes,
+        }
+        merged_data.update(updates)
+        merged = SessionCreate(**merged_data)
         replacement = build_session(db, merged)
         for key, value in replacement.model_dump(exclude={"id", "created_at"}).items():
             setattr(item, key, value)

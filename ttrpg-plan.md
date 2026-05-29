@@ -211,6 +211,53 @@ session **or** a named one-shot, never neither.
 
 ---
 
+## Phase 6 — Interface Polish
+
+**Navigation and layout**
+- [x] Reorder main tabs to: Calendar → Sessions → Campaigns → Systems → Stats → Year Review
+- [x] Hide the Quick Add strip on Stats and Year Review tabs, since it is unrelated to analysis views
+- [ ] Discuss tab layout polish — make tabs neater, and consider grouping, stacking, or rearranging for desktop/mobile
+
+**Visual polish**
+- [x] Reduce campaign/session chip text weight in Sessions and Calendar views so names do not read as overly bold
+- [x] Fix Quick Add `+` icon centering inside the circular icon
+- [x] Replace default browser select arrows with custom aligned arrows that fit the padded dark fields
+- [x] Add a browser tab favicon
+- [x] Do a broader UI pass on spacing, mobile modal behavior, table density, and button/icon styling
+- [ ] Campaigns table — align the `Actions` header consistently with the other table headers
+
+**Color clarity**
+- [x] Implement derived campaign shades from each system's base color so campaigns using the same system stay related but are visually distinguishable
+- [ ] Systems tab — expose derived campaign/one-shot shades, possibly under edit or as a preview
+
+---
+
+## Phase 7 — Visual Identity & Delight
+
+- [ ] Beautify the UI with a consistent icon/emoji language for tabs, actions, empty states, and key controls
+- [ ] Decide whether to use emoji, text symbols, or an icon library consistently across the app
+- [ ] Add subtle visual personality without reducing table/calendar scanability
+
+---
+
+## Phase 8 — Calendar & Session UX
+
+- [ ] Add calendar quality-of-life refinements such as month density cues, jump-to-month with sessions, or a compact year overview
+- [ ] Improve Quick Add flow with a true one-tap save path for campaign defaults plus an edit-before-save option
+- [ ] Review the add/edit session modal for fewer steps, clearer defaults, and better mobile ergonomics
+
+---
+
+## Future Additions
+
+- [ ] Deployment guide — add `DEPLOY.md` with NAS/home-server setup, Tailscale/LAN notes, Docker volume persistence verification, and safe exposure guidance
+- [ ] Automatic backups — add timestamped JSON backup endpoint or scheduled backup script, in addition to manual export
+- [ ] Import/admin tooling — add a reset-and-reimport command or admin action for early development and data cleanup
+- [ ] Tests — add backend tests for import, delete guards, export, and core API behavior; consider lightweight frontend tests later
+- [ ] Stats discussion — brainstorm what else would be useful to track before adding more charts
+
+---
+
 ## Decisions (resolved)
 
 1. **Remote access / login — no app login.** LAN-direct at home, Tailscale away. Network handles

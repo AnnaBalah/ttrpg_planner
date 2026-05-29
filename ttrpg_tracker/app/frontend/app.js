@@ -41,11 +41,17 @@ const els = {
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
   systemsBody: document.querySelector("#systems-body"),
+  quickAdd: document.querySelector(".quick-add"),
   quickAddList: document.querySelector("#quick-add-list"),
   toast: document.querySelector("#toast"),
   sessionDialog: document.querySelector("#session-dialog"),
   sessionForm: document.querySelector("#session-form"),
   sessionDialogTitle: document.querySelector("#session-dialog-title"),
+  confirmDialog: document.querySelector("#confirm-dialog"),
+  confirmForm: document.querySelector("#confirm-form"),
+  confirmTitle: document.querySelector("#confirm-title"),
+  confirmMessage: document.querySelector("#confirm-message"),
+  confirmOk: document.querySelector("#confirm-ok"),
   campaignForm: document.querySelector("#campaign-form"),
   systemForm: document.querySelector("#system-form"),
   gmOptions: document.querySelector("#gm-options"),
@@ -79,6 +85,7 @@ els.yearSelect.addEventListener("change", (event) => {
   renderYearReview();
 });
 els.sessionForm.addEventListener("submit", saveSession);
+els.confirmForm.addEventListener("submit", handleConfirmSubmit);
 els.campaignForm.addEventListener("submit", saveCampaign);
 els.systemForm.addEventListener("submit", saveSystem);
 
@@ -169,7 +176,6 @@ function renderSessions() {
 function renderCalendar() {
   const month = state.calendarDate;
   const monthStart = startOfMonth(month);
-  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
   const startOffset = (monthStart.getDay() + 6) % 7;
   const gridStart = addDays(monthStart, -startOffset);
   const monthSessions = state.sessions.filter((session) => isSameMonth(parseISODate(session.date), monthStart));
@@ -242,12 +248,12 @@ function renderMonthlyStats() {
   const campaignRows = groupedCountRows(
     sessions,
     (session) => session.campaign_id ? session.display_name : "One-shots",
-    (session) => session.system_color,
+    (session) => sessionColor(session),
   );
   const systemRows = groupedCountRows(
     sessions,
     (session) => session.system_name,
-    (session) => session.system_color,
+    (session) => sessionColor(session),
   );
   const topCampaign = campaignRows[0];
   const topSystem = systemRows[0];
@@ -303,7 +309,7 @@ function renderYearReview() {
   const campaignRows = groupedCountRows(
     sessions,
     (session) => session.campaign_id ? session.display_name : "One-shots",
-    (session) => session.system_color,
+    (session) => sessionColor(session),
   );
   const systemRows = groupedCountRows(
     sessions,
@@ -364,7 +370,7 @@ function renderCampaigns() {
           <td data-label="Name">${escapeHtml(campaign.name)}</td>
           <td data-label="GM">${escapeHtml(campaign.default_gm)}</td>
           <td data-label="System">
-            <span class="swatch" style="background:${escapeAttribute(campaign.system_color)}"></span>
+            <span class="swatch" style="background:${escapeAttribute(campaignColor(campaign))}"></span>
             ${escapeHtml(campaign.system_name)}
           </td>
           <td data-label="Status">${status}</td>
@@ -416,6 +422,7 @@ function populateSystemSelects() {
   const regularOptions = state.systems.map((system) => [String(system.id), system.name]);
   fillSelect(document.querySelector("#campaign-system"), regularOptions);
   fillSelect(document.querySelector("#session-system"), [
+    ["", "Pick a system"],
     ...regularOptions,
     ["__new", "+ New system"],
   ]);
@@ -440,7 +447,7 @@ function sessionRow(session) {
     <tr>
       <td data-label="Date">${formatDate(session.date)}</td>
       <td data-label="${kind}">
-        <span class="chip" style="background:${escapeAttribute(session.system_color)}">
+        <span class="chip" style="background:${escapeAttribute(sessionColor(session))}">
           ${escapeHtml(session.display_name)}
         </span>
       </td>
@@ -522,7 +529,9 @@ function handleDocumentClick(event) {
     els.sessionDialog.close();
   } else if (target.id === "delete-session") {
     const id = Number(document.querySelector("#session-id").value);
-    if (id) deleteSession(id);
+    if (id) requestDeleteSession(id);
+  } else if (target.id === "confirm-cancel") {
+    closeConfirmDialog();
   } else if (target.matches("[data-edit-campaign]")) {
     editCampaign(Number(target.dataset.editCampaign));
   } else if (target.matches("[data-archive-campaign]")) {
@@ -545,6 +554,7 @@ function handleDocumentClick(event) {
 function handleDocumentChange(event) {
   if (event.target.id === "session-kind") {
     syncSessionKind();
+    syncSessionKindDefaults();
   } else if (event.target.id === "session-campaign") {
     applyCampaignDefaults(Number(event.target.value));
   } else if (event.target.id === "session-system") {
@@ -555,6 +565,7 @@ function handleDocumentChange(event) {
 function setActiveTab(tab) {
   els.tabs.forEach((button) => button.classList.toggle("is-active", button.dataset.tab === tab));
   els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === tab));
+  els.quickAdd.hidden = tab === "stats" || tab === "year";
 }
 
 function setSort(key) {
@@ -606,12 +617,9 @@ function openSessionDialog(options = {}) {
     document.querySelector("#session-campaign").value = String(options.campaignId);
     applyCampaignDefaults(options.campaignId);
   } else {
-    document.querySelector("#session-kind").value = state.campaigns.length ? "campaign" : "one-shot";
-    const campaign = state.campaigns.find((item) => !item.archived);
-    if (campaign) {
-      document.querySelector("#session-campaign").value = String(campaign.id);
-      applyCampaignDefaults(campaign.id);
-    }
+    document.querySelector("#session-kind").value = "one-shot";
+    document.querySelector("#session-gm").value = "";
+    document.querySelector("#session-system").value = "";
   }
 
   if (options.date) {
@@ -630,19 +638,34 @@ function syncSessionKind() {
   });
 }
 
+function syncSessionKindDefaults() {
+  const kind = document.querySelector("#session-kind").value;
+  if (kind === "campaign") {
+    const campaignId = Number(document.querySelector("#session-campaign").value);
+    if (campaignId) {
+      applyCampaignDefaults(campaignId, { onlyEmpty: true });
+    }
+  } else if (kind === "new-campaign") {
+    const gmInput = document.querySelector("#session-new-campaign-gm");
+    if (!gmInput.value.trim()) {
+      gmInput.value = document.querySelector("#session-gm").value.trim();
+    }
+  }
+}
+
 function syncNewSystemFields() {
   document.querySelector("#session-new-system-fields").hidden =
     document.querySelector("#session-system").value !== "__new";
 }
 
-function applyCampaignDefaults(campaignId) {
+function applyCampaignDefaults(campaignId, options = {}) {
   const campaign = state.campaigns.find((item) => item.id === campaignId);
   if (!campaign) {
     return;
   }
-  document.querySelector("#session-gm").value = campaign.default_gm;
-  document.querySelector("#session-system").value = String(campaign.system_id);
-  document.querySelector("#session-link").value = campaign.default_link ?? "";
+  setValue("#session-gm", campaign.default_gm, options);
+  setValue("#session-system", String(campaign.system_id), options);
+  setValue("#session-link", campaign.default_link ?? "", options);
   syncNewSystemFields();
 }
 
@@ -714,10 +737,19 @@ async function resolveSessionSystemId() {
   return system.id;
 }
 
+function requestDeleteSession(id) {
+  const session = findById(state.sessions, id);
+  openConfirmDialog({
+    title: "Delete session?",
+    message: session
+      ? `${session.display_name} on ${formatDate(session.date)} will be removed permanently.`
+      : "This session will be removed permanently.",
+    confirmLabel: "Delete",
+    onConfirm: () => deleteSession(id),
+  });
+}
+
 async function deleteSession(id) {
-  if (!window.confirm("Delete this session?")) {
-    return;
-  }
   try {
     await api(`/api/sessions/${id}`, { method: "DELETE" });
     state.sessions = state.sessions.filter((session) => session.id !== id);
@@ -726,6 +758,28 @@ async function deleteSession(id) {
     showToast("Session deleted");
   } catch (error) {
     showToast(error.message, true);
+  }
+}
+
+function openConfirmDialog({ title, message, confirmLabel, onConfirm }) {
+  els.confirmTitle.textContent = title;
+  els.confirmMessage.textContent = message;
+  els.confirmOk.textContent = confirmLabel;
+  els.confirmDialog.onConfirm = onConfirm;
+  els.confirmDialog.showModal();
+}
+
+function closeConfirmDialog() {
+  els.confirmDialog.onConfirm = null;
+  els.confirmDialog.close();
+}
+
+async function handleConfirmSubmit(event) {
+  event.preventDefault();
+  const onConfirm = els.confirmDialog.onConfirm;
+  closeConfirmDialog();
+  if (onConfirm) {
+    await onConfirm();
   }
 }
 
@@ -914,7 +968,7 @@ function calendarChip(session) {
   return `
     <button
       class="calendar-chip"
-      style="background:${escapeAttribute(session.system_color)}"
+      style="background:${escapeAttribute(sessionColor(session))}"
       type="button"
       data-calendar-session="${session.id}"
       title="${escapeAttribute(session.display_name)}"
@@ -940,6 +994,145 @@ function groupedCountRows(sessions, labelFor, colorFor) {
   return [...groups.values()].sort((a, b) => {
     return b.count - a.count || a.label.localeCompare(b.label);
   });
+}
+
+function sessionColor(session) {
+  if (session.campaign_id) {
+    return deriveCampaignColor(
+      session.system_color,
+      campaignShadeIndex(session.campaign_id, session.system_id),
+    );
+  }
+  return deriveCampaignColor(session.system_color, oneShotShadeIndex(session));
+}
+
+function campaignColor(campaign) {
+  return deriveCampaignColor(
+    campaign.system_color,
+    campaignShadeIndex(campaign.id, campaign.system_id),
+  );
+}
+
+function campaignShadeIndex(campaignId, systemId) {
+  const campaignIds = state.campaigns
+    .filter((campaign) => campaign.system_id === systemId)
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id)
+    .map((campaign) => campaign.id);
+  const index = campaignIds.indexOf(campaignId);
+  return index >= 0 ? index : stableNumber(campaignId);
+}
+
+function oneShotShadeIndex(session) {
+  const campaignCount = state.campaigns.filter((campaign) => {
+    return campaign.system_id === session.system_id;
+  }).length;
+  const oneShotNames = unique(state.sessions
+    .filter((item) => !item.campaign_id && item.system_id === session.system_id)
+    .map((item) => item.display_name));
+  const index = oneShotNames.indexOf(session.display_name);
+  return campaignCount + 1 + (index >= 0 ? index : stableNumber(session.display_name));
+}
+
+function deriveCampaignColor(hex, index) {
+  const hsl = hexToHsl(hex);
+  if (!hsl) {
+    return hex;
+  }
+  const steps = [
+    { saturation: 0, lightness: 0 },
+    { saturation: -4, lightness: 10 },
+    { saturation: 8, lightness: -8 },
+    { saturation: -10, lightness: -14 },
+    { saturation: 12, lightness: 14 },
+    { saturation: -16, lightness: 3 },
+  ];
+  const step = steps[index % steps.length];
+  return hslToHex(
+    hsl.h,
+    clamp(hsl.s + step.saturation, 35, 88),
+    clamp(hsl.l + step.lightness, 34, 72),
+  );
+}
+
+function hexToHsl(hex) {
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!match) {
+    return null;
+  }
+  const red = Number.parseInt(match[1], 16) / 255;
+  const green = Number.parseInt(match[2], 16) / 255;
+  const blue = Number.parseInt(match[3], 16) / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  let hue = 0;
+  let saturation = 0;
+  const lightness = (max + min) / 2;
+
+  if (max !== min) {
+    const delta = max - min;
+    saturation = lightness > 0.5
+      ? delta / (2 - max - min)
+      : delta / (max + min);
+    if (max === red) {
+      hue = (green - blue) / delta + (green < blue ? 6 : 0);
+    } else if (max === green) {
+      hue = (blue - red) / delta + 2;
+    } else {
+      hue = (red - green) / delta + 4;
+    }
+    hue /= 6;
+  }
+
+  return {
+    h: Math.round(hue * 360),
+    s: Math.round(saturation * 100),
+    l: Math.round(lightness * 100),
+  };
+}
+
+function hslToHex(hue, saturation, lightness) {
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const x = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - chroma / 2;
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+
+  if (hue < 60) {
+    red = chroma;
+    green = x;
+  } else if (hue < 120) {
+    red = x;
+    green = chroma;
+  } else if (hue < 180) {
+    green = chroma;
+    blue = x;
+  } else if (hue < 240) {
+    green = x;
+    blue = chroma;
+  } else if (hue < 300) {
+    red = x;
+    blue = chroma;
+  } else {
+    red = chroma;
+    blue = x;
+  }
+
+  return `#${[red, green, blue]
+    .map((value) => Math.round((value + m) * 255).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function stableNumber(value) {
+  return String(value).split("").reduce((sum, character) => {
+    return sum + character.charCodeAt(0);
+  }, 0);
 }
 
 function statsChart(title, rows) {
@@ -1094,6 +1287,13 @@ function upsert(items, item) {
 function valueOrNull(selector) {
   const value = document.querySelector(selector).value.trim();
   return value || null;
+}
+
+function setValue(selector, value, options = {}) {
+  const input = document.querySelector(selector);
+  if (!options.onlyEmpty || !input.value.trim()) {
+    input.value = value;
+  }
 }
 
 function showToast(message, isError = false) {

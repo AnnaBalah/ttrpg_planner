@@ -34,6 +34,8 @@ const els = {
   calendarStatus: document.querySelector("#calendar-status"),
   calendarGrid: document.querySelector("#calendar-grid"),
   calendarAgenda: document.querySelector("#calendar-agenda"),
+  calendarPrevSession: document.querySelector("#calendar-prev-session"),
+  calendarNextSession: document.querySelector("#calendar-next-session"),
   statsStatus: document.querySelector("#stats-status"),
   statsMonth: document.querySelector("#stats-month"),
   statsContent: document.querySelector("#stats-content"),
@@ -48,6 +50,7 @@ const els = {
   toast: document.querySelector("#toast"),
   sessionDialog: document.querySelector("#session-dialog"),
   sessionForm: document.querySelector("#session-form"),
+  sessionSubmit: document.querySelector("#session-form button[type='submit']"),
   sessionDialogTitle: document.querySelector("#session-dialog-title"),
   confirmDialog: document.querySelector("#confirm-dialog"),
   confirmForm: document.querySelector("#confirm-form"),
@@ -157,11 +160,19 @@ function renderQuickAdd() {
   els.quickAddList.innerHTML = activeCampaigns
     .map((campaign) => {
       return `
-        <button class="quick-card" type="button" data-quick-add="${campaign.id}">
-          <span class="plus">+</span>
-          <span>${escapeHtml(campaign.name)}</span>
-          <small>${escapeHtml(campaign.system_name)} / ${escapeHtml(campaign.default_gm)}</small>
-        </button>
+        <article class="quick-card">
+          <div class="quick-card-main">
+            <span class="plus" aria-hidden="true">+</span>
+            <div>
+              <strong>${escapeHtml(campaign.name)}</strong>
+              <small>${escapeHtml(campaign.system_name)} / ${escapeHtml(campaign.default_gm)}</small>
+            </div>
+          </div>
+          <div class="quick-card-actions">
+            <button class="primary" type="button" data-quick-save="${campaign.id}">Log today</button>
+            <button class="quick-edit-button" type="button" data-quick-edit="${campaign.id}" title="Edit before logging" aria-label="Edit ${escapeAttribute(campaign.name)} before logging">Edit</button>
+          </div>
+        </article>
       `;
     })
     .join("");
@@ -193,14 +204,26 @@ function renderCalendar() {
   const gridStart = addDays(monthStart, -startOffset);
   const monthSessions = state.sessions.filter((session) => isSameMonth(parseISODate(session.date), monthStart));
   const sessionsByDate = groupSessionsByDate(state.sessions);
+  const previousPlayedMonth = findPlayedMonth(-1);
+  const nextPlayedMonth = findPlayedMonth(1);
 
   els.calendarTitle.textContent = new Intl.DateTimeFormat(undefined, {
     month: "long",
     year: "numeric",
   }).format(monthStart);
-  els.calendarStatus.textContent = monthSessions.length === 1
-    ? "1 session this month"
-    : `${monthSessions.length} sessions this month`;
+  els.calendarStatus.textContent = monthSessions.length === 0
+    ? "No sessions this month"
+    : monthSessions.length === 1
+      ? "1 session this month"
+      : `${monthSessions.length} sessions across ${unique(monthSessions.map((session) => session.date)).length} days`;
+  els.calendarPrevSession.disabled = !previousPlayedMonth;
+  els.calendarNextSession.disabled = !nextPlayedMonth;
+  els.calendarPrevSession.title = previousPlayedMonth
+    ? `Jump to ${monthLabel(previousPlayedMonth)}`
+    : "No earlier played month";
+  els.calendarNextSession.title = nextPlayedMonth
+    ? `Jump to ${monthLabel(nextPlayedMonth)}`
+    : "No later played month";
 
   els.calendarGrid.innerHTML = Array.from({ length: 42 }, (_, index) => {
     const day = addDays(gridStart, index);
@@ -208,8 +231,9 @@ function renderCalendar() {
     const daySessions = sessionsByDate.get(iso) ?? [];
     const isOutside = !isSameMonth(day, monthStart);
     const isCurrent = iso === today();
+    const density = calendarDensityClass(daySessions.length);
     return `
-      <article class="calendar-day ${isOutside ? "is-outside" : ""} ${isCurrent ? "is-today" : ""}" data-calendar-cell="${iso}">
+      <article class="calendar-day ${density} ${isOutside ? "is-outside" : ""} ${isCurrent ? "is-today" : ""}" data-calendar-cell="${iso}">
         <button class="calendar-date" type="button" data-calendar-day="${iso}">
           <span>${day.getDate()}</span>
           <small>${daySessions.length ? `${daySessions.length}` : ""}</small>
@@ -440,9 +464,12 @@ function populateSystemSelects() {
 function populateCampaignSelect() {
   fillSelect(
     document.querySelector("#session-campaign"),
-    state.campaigns
-      .filter((campaign) => !campaign.archived)
-      .map((campaign) => [String(campaign.id), campaign.name]),
+    [
+      ["", "Pick a campaign"],
+      ...state.campaigns
+        .filter((campaign) => !campaign.archived)
+        .map((campaign) => [String(campaign.id), campaign.name]),
+    ],
   );
 }
 
@@ -521,6 +548,10 @@ function handleDocumentClick(event) {
     moveCalendar(-1);
   } else if (target.id === "calendar-next") {
     moveCalendar(1);
+  } else if (target.id === "calendar-prev-session") {
+    jumpToPlayedMonth(-1);
+  } else if (target.id === "calendar-next-session") {
+    jumpToPlayedMonth(1);
   } else if (target.id === "calendar-today") {
     state.calendarDate = startOfMonth(new Date());
     renderCalendar();
@@ -530,8 +561,10 @@ function handleDocumentClick(event) {
     openSessionDialog({ sessionId: Number(target.dataset.calendarSession) });
   } else if (target.id === "add-session") {
     openSessionDialog();
-  } else if (target.matches("[data-quick-add]")) {
-    openSessionDialog({ campaignId: Number(target.dataset.quickAdd) });
+  } else if (target.matches("[data-quick-save]")) {
+    quickSaveCampaign(Number(target.dataset.quickSave), target);
+  } else if (target.matches("[data-quick-edit]")) {
+    openSessionDialog({ campaignId: Number(target.dataset.quickEdit) });
   } else if (target.matches("[data-edit-session]")) {
     openSessionDialog({ sessionId: Number(target.dataset.editSession) });
   } else if (target.matches("[data-delete-session-row]")) {
@@ -611,12 +644,54 @@ function moveCalendar(delta) {
   renderCalendar();
 }
 
+function jumpToPlayedMonth(direction) {
+  const month = findPlayedMonth(direction);
+  if (!month) {
+    return;
+  }
+  state.calendarDate = parseMonthKey(month);
+  renderCalendar();
+}
+
+function findPlayedMonth(direction) {
+  const months = unique(state.sessions.map((session) => session.date.slice(0, 7)));
+  const current = monthKey(state.calendarDate);
+  if (direction < 0) {
+    return months.reverse().find((month) => month < current);
+  }
+  return months.find((month) => month > current);
+}
+
+function monthKey(date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${date.getFullYear()}-${month}`;
+}
+
+function parseMonthKey(value) {
+  const [year, month] = value.split("-").map(Number);
+  return new Date(year, month - 1, 1);
+}
+
+function calendarDensityClass(count) {
+  if (count >= 3) {
+    return "has-sessions density-high";
+  }
+  if (count === 2) {
+    return "has-sessions density-medium";
+  }
+  if (count === 1) {
+    return "has-sessions density-low";
+  }
+  return "";
+}
+
 function openSessionDialog(options = {}) {
   els.sessionForm.reset();
   document.querySelector("#session-id").value = "";
   document.querySelector("#session-date").value = today();
   document.querySelector("#delete-session").hidden = true;
   els.sessionDialogTitle.textContent = "Add Session";
+  els.sessionSubmit.textContent = "Save Session";
 
   if (options.sessionId) {
     const session = findById(state.sessions, options.sessionId);
@@ -628,6 +703,7 @@ function openSessionDialog(options = {}) {
     document.querySelector("#session-notes").value = session.notes ?? "";
     document.querySelector("#delete-session").hidden = false;
     els.sessionDialogTitle.textContent = "Edit Session";
+    els.sessionSubmit.textContent = "Save Changes";
 
     if (session.campaign_id) {
       document.querySelector("#session-kind").value = "campaign";
@@ -642,6 +718,7 @@ function openSessionDialog(options = {}) {
     applyCampaignDefaults(options.campaignId);
   } else {
     document.querySelector("#session-kind").value = "one-shot";
+    document.querySelector("#session-campaign").value = "";
     document.querySelector("#session-gm").value = "";
     document.querySelector("#session-system").value = "";
   }
@@ -653,6 +730,19 @@ function openSessionDialog(options = {}) {
   syncSessionKind();
   syncNewSystemFields();
   els.sessionDialog.showModal();
+  focusSessionDialog();
+}
+
+function focusSessionDialog() {
+  window.requestAnimationFrame(() => {
+    const kind = document.querySelector("#session-kind").value;
+    const selector = kind === "campaign"
+      ? "#session-campaign"
+      : kind === "new-campaign"
+        ? "#session-new-campaign-name"
+        : "#session-name";
+    document.querySelector(selector)?.focus();
+  });
 }
 
 function syncSessionKind() {
@@ -691,6 +781,40 @@ function applyCampaignDefaults(campaignId, options = {}) {
   setValue("#session-system", String(campaign.system_id), options);
   setValue("#session-link", campaign.default_link ?? "", options);
   syncNewSystemFields();
+}
+
+async function quickSaveCampaign(campaignId, button) {
+  const campaign = findById(state.campaigns, campaignId);
+  if (!campaign) {
+    return;
+  }
+
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = "Logging...";
+
+  try {
+    const saved = await api("/api/sessions", {
+      method: "POST",
+      body: {
+        campaign_id: campaign.id,
+        name: null,
+        date: today(),
+        gm: campaign.default_gm,
+        system_id: campaign.system_id,
+        link: campaign.default_link ?? null,
+        notes: null,
+      },
+    });
+    upsert(state.sessions, saved);
+    await refreshLists();
+    showToast(`Logged ${campaign.name} for today`);
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
 }
 
 async function saveSession(event) {

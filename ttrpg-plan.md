@@ -248,9 +248,12 @@ session **or** a named one-shot, never neither.
 
 ## Phase 8 — Calendar & Session UX
 
-- [ ] Add calendar quality-of-life refinements such as month density cues, jump-to-month with sessions, or a compact year overview
-- [ ] Improve Quick Add flow with a true one-tap save path for campaign defaults plus an edit-before-save option
-- [ ] Review the add/edit session modal for fewer steps, clearer defaults, and better mobile ergonomics
+- [x] Add calendar quality-of-life refinements such as month density cues, jump-to-month with sessions, or a compact year overview
+  - Added day density cues plus previous/next played-month jumps.
+- [x] Improve Quick Add flow with a true one-tap save path for campaign defaults plus an edit-before-save option
+  - Quick Add cards now offer `Log today` and `Edit first`.
+- [x] Review the add/edit session modal for fewer steps, clearer defaults, and better mobile ergonomics
+  - Added context-aware submit labels and first-field focus for add/edit flows.
 
 ---
 

@@ -183,11 +183,11 @@ session **or** a named one-shot, never neither.
 
 ## Phase 3 — Calendar View
 
-- [ ] Monthly grid calendar — 7-column grid, current month by default
-- [ ] Sessions appear as colored name chips (truncated) on their date cells
-- [ ] Click a day → quick-add modal opens with that date pre-filled
-- [ ] Previous / next month navigation
-- [ ] Mobile calendar — on a narrow screen, switch to a scrollable agenda/list (a 7-col grid is unreadable on a phone)
+- [x] Monthly grid calendar — 7-column grid, current month by default
+- [x] Sessions appear as colored name chips (truncated) on their date cells
+- [x] Click a day → quick-add modal opens with that date pre-filled
+- [x] Previous / next month navigation
+- [x] Mobile calendar — on a narrow screen, switch to a scrollable agenda/list (a 7-col grid is unreadable on a phone)
 
 ---
 

@@ -1,9 +1,10 @@
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => toISODate(new Date());
 
 const state = {
   sessions: [],
   campaigns: [],
   systems: [],
+  calendarDate: startOfMonth(new Date()),
   sortKey: "date",
   sortDirection: "desc",
   search: "",
@@ -23,6 +24,10 @@ const els = {
   campaignFilter: document.querySelector("#campaign-filter"),
   gmFilter: document.querySelector("#gm-filter"),
   systemFilter: document.querySelector("#system-filter"),
+  calendarTitle: document.querySelector("#calendar-title"),
+  calendarStatus: document.querySelector("#calendar-status"),
+  calendarGrid: document.querySelector("#calendar-grid"),
+  calendarAgenda: document.querySelector("#calendar-agenda"),
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
   systemsBody: document.querySelector("#systems-body"),
@@ -82,6 +87,7 @@ function renderAll() {
   renderFilters();
   renderQuickAdd();
   renderSessions();
+  renderCalendar();
   renderCampaigns();
   renderSystems();
   renderGmOptions();
@@ -136,6 +142,59 @@ function renderSessions() {
   }
 
   els.sessionsBody.innerHTML = rows.map(sessionRow).join("");
+}
+
+function renderCalendar() {
+  const month = state.calendarDate;
+  const monthStart = startOfMonth(month);
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+  const startOffset = (monthStart.getDay() + 6) % 7;
+  const gridStart = addDays(monthStart, -startOffset);
+  const monthSessions = state.sessions.filter((session) => isSameMonth(parseISODate(session.date), monthStart));
+  const sessionsByDate = groupSessionsByDate(state.sessions);
+
+  els.calendarTitle.textContent = new Intl.DateTimeFormat(undefined, {
+    month: "long",
+    year: "numeric",
+  }).format(monthStart);
+  els.calendarStatus.textContent = monthSessions.length === 1
+    ? "1 session this month"
+    : `${monthSessions.length} sessions this month`;
+
+  els.calendarGrid.innerHTML = Array.from({ length: 42 }, (_, index) => {
+    const day = addDays(gridStart, index);
+    const iso = toISODate(day);
+    const daySessions = sessionsByDate.get(iso) ?? [];
+    const isOutside = !isSameMonth(day, monthStart);
+    const isCurrent = iso === today();
+    return `
+      <article class="calendar-day ${isOutside ? "is-outside" : ""} ${isCurrent ? "is-today" : ""}" data-calendar-cell="${iso}">
+        <button class="calendar-date" type="button" data-calendar-day="${iso}">
+          <span>${day.getDate()}</span>
+          <small>${daySessions.length ? `${daySessions.length}` : ""}</small>
+        </button>
+        <div class="calendar-chips">
+          ${daySessions.map(calendarChip).join("")}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  if (monthSessions.length === 0) {
+    els.calendarAgenda.innerHTML = `<p class="empty">No sessions this month.</p>`;
+    return;
+  }
+
+  els.calendarAgenda.innerHTML = monthSessions
+    .sort((a, b) => a.date.localeCompare(b.date) || a.display_name.localeCompare(b.display_name))
+    .map((session) => `
+      <button class="agenda-row" type="button" data-calendar-session="${session.id}">
+        <span>${formatDate(session.date)}</span>
+        <strong>${escapeHtml(session.display_name)}</strong>
+        <small>${escapeHtml(session.system_name)} / ${escapeHtml(session.gm)}</small>
+      </button>
+    `)
+    .join("");
 }
 
 function renderCampaigns() {
@@ -277,6 +336,10 @@ function compareSessions(a, b) {
 function handleDocumentClick(event) {
   const target = event.target.closest("button");
   if (!target) {
+    const calendarCell = event.target.closest("[data-calendar-cell]");
+    if (calendarCell) {
+      openSessionDialog({ date: calendarCell.dataset.calendarCell });
+    }
     return;
   }
 
@@ -284,6 +347,17 @@ function handleDocumentClick(event) {
     setActiveTab(target.dataset.tab);
   } else if (target.matches("[data-sort]")) {
     setSort(target.dataset.sort);
+  } else if (target.id === "calendar-prev") {
+    moveCalendar(-1);
+  } else if (target.id === "calendar-next") {
+    moveCalendar(1);
+  } else if (target.id === "calendar-today") {
+    state.calendarDate = startOfMonth(new Date());
+    renderCalendar();
+  } else if (target.matches("[data-calendar-day]")) {
+    openSessionDialog({ date: target.dataset.calendarDay });
+  } else if (target.matches("[data-calendar-session]")) {
+    openSessionDialog({ sessionId: Number(target.dataset.calendarSession) });
   } else if (target.id === "add-session") {
     openSessionDialog();
   } else if (target.matches("[data-quick-add]")) {
@@ -341,6 +415,15 @@ function setSort(key) {
   renderSessions();
 }
 
+function moveCalendar(delta) {
+  state.calendarDate = new Date(
+    state.calendarDate.getFullYear(),
+    state.calendarDate.getMonth() + delta,
+    1,
+  );
+  renderCalendar();
+}
+
 function openSessionDialog(options = {}) {
   els.sessionForm.reset();
   document.querySelector("#session-id").value = "";
@@ -377,6 +460,10 @@ function openSessionDialog(options = {}) {
       document.querySelector("#session-campaign").value = String(campaign.id);
       applyCampaignDefaults(campaign.id);
     }
+  }
+
+  if (options.date) {
+    document.querySelector("#session-date").value = options.date;
   }
 
   syncSessionKind();
@@ -669,6 +756,60 @@ function formatDate(value) {
     month: "short",
     day: "numeric",
   }).format(new Date(year, month - 1, day));
+}
+
+function calendarChip(session) {
+  return `
+    <button
+      class="calendar-chip"
+      style="background:${escapeAttribute(session.system_color)}"
+      type="button"
+      data-calendar-session="${session.id}"
+      title="${escapeAttribute(session.display_name)}"
+    >
+      ${escapeHtml(session.display_name)}
+    </button>
+  `;
+}
+
+function groupSessionsByDate(sessions) {
+  const groups = new Map();
+  for (const session of sessions) {
+    if (!groups.has(session.date)) {
+      groups.set(session.date, []);
+    }
+    groups.get(session.date).push(session);
+  }
+  for (const items of groups.values()) {
+    items.sort((a, b) => a.display_name.localeCompare(b.display_name));
+  }
+  return groups;
+}
+
+function startOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function addDays(date, days) {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function isSameMonth(left, right) {
+  return left.getFullYear() === right.getFullYear() && left.getMonth() === right.getMonth();
+}
+
+function parseISODate(value) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toISODate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function unique(values) {

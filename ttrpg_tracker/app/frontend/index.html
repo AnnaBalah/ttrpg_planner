@@ -21,6 +21,7 @@
     <main>
       <nav class="tabs" aria-label="App sections">
         <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
+        <button class="tab-button" type="button" data-tab="calendar">Calendar</button>
         <button class="tab-button" type="button" data-tab="campaigns">Campaigns</button>
         <button class="tab-button" type="button" data-tab="systems">Systems</button>
       </nav>
@@ -72,6 +73,32 @@
             <tbody id="sessions-body"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="panel" id="calendar-panel" data-panel="calendar">
+        <div class="section-heading calendar-heading">
+          <div>
+            <h2>Calendar</h2>
+            <p id="calendar-status">Month view</p>
+          </div>
+          <div class="calendar-controls">
+            <button type="button" id="calendar-prev" aria-label="Previous month">‹</button>
+            <strong id="calendar-title">Month</strong>
+            <button type="button" id="calendar-next" aria-label="Next month">›</button>
+            <button type="button" id="calendar-today">Today</button>
+          </div>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+          <span>Sun</span>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="calendar-agenda" id="calendar-agenda"></div>
       </section>
 
       <section class="panel" id="campaigns-panel" data-panel="campaigns">

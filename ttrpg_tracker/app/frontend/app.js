@@ -1,10 +1,12 @@
 const today = () => toISODate(new Date());
+const currentMonth = () => today().slice(0, 7);
 
 const state = {
   sessions: [],
   campaigns: [],
   systems: [],
   calendarDate: startOfMonth(new Date()),
+  statsMonth: currentMonth(),
   sortKey: "date",
   sortDirection: "desc",
   search: "",
@@ -28,6 +30,9 @@ const els = {
   calendarStatus: document.querySelector("#calendar-status"),
   calendarGrid: document.querySelector("#calendar-grid"),
   calendarAgenda: document.querySelector("#calendar-agenda"),
+  statsStatus: document.querySelector("#stats-status"),
+  statsMonth: document.querySelector("#stats-month"),
+  statsContent: document.querySelector("#stats-content"),
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
   systemsBody: document.querySelector("#systems-body"),
@@ -59,6 +64,11 @@ els.systemFilter.addEventListener("change", (event) => {
   state.filters.system = event.target.value;
   renderSessions();
 });
+els.statsMonth.value = state.statsMonth;
+els.statsMonth.addEventListener("change", (event) => {
+  state.statsMonth = event.target.value || currentMonth();
+  renderMonthlyStats();
+});
 els.sessionForm.addEventListener("submit", saveSession);
 els.campaignForm.addEventListener("submit", saveCampaign);
 els.systemForm.addEventListener("submit", saveSystem);
@@ -88,6 +98,7 @@ function renderAll() {
   renderQuickAdd();
   renderSessions();
   renderCalendar();
+  renderMonthlyStats();
   renderCampaigns();
   renderSystems();
   renderGmOptions();
@@ -195,6 +206,61 @@ function renderCalendar() {
       </button>
     `)
     .join("");
+}
+
+function renderMonthlyStats() {
+  const sessions = state.sessions
+    .filter((session) => session.date.startsWith(state.statsMonth))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const label = monthLabel(state.statsMonth);
+  els.statsStatus.textContent = sessions.length === 1
+    ? `1 session in ${label}`
+    : `${sessions.length} sessions in ${label}`;
+  els.statsMonth.value = state.statsMonth;
+
+  if (sessions.length === 0) {
+    els.statsContent.innerHTML = `
+      <div class="empty-state">
+        <strong>${escapeHtml(label)}</strong>
+        <p>No sessions logged for this month.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const campaignRows = groupedCountRows(
+    sessions,
+    (session) => session.campaign_id ? session.display_name : "One-shots",
+    (session) => session.system_color,
+  );
+  const systemRows = groupedCountRows(
+    sessions,
+    (session) => session.system_name,
+    (session) => session.system_color,
+  );
+  const topCampaign = campaignRows[0];
+  const topSystem = systemRows[0];
+
+  els.statsContent.innerHTML = `
+    <div class="stats-summary">
+      <div class="stat-tile">
+        <span>Total</span>
+        <strong>${sessions.length}</strong>
+      </div>
+      <div class="stat-tile">
+        <span>Top campaign</span>
+        <strong>${escapeHtml(topCampaign.label)}</strong>
+      </div>
+      <div class="stat-tile">
+        <span>Top system</span>
+        <strong>${escapeHtml(topSystem.label)}</strong>
+      </div>
+    </div>
+    <div class="stats-grid">
+      ${statsChart("Campaigns", campaignRows)}
+      ${statsChart("Systems", systemRows)}
+    </div>
+  `;
 }
 
 function renderCampaigns() {
@@ -770,6 +836,60 @@ function calendarChip(session) {
       ${escapeHtml(session.display_name)}
     </button>
   `;
+}
+
+function groupedCountRows(sessions, labelFor, colorFor) {
+  const groups = new Map();
+  for (const session of sessions) {
+    const label = labelFor(session);
+    if (!groups.has(label)) {
+      groups.set(label, {
+        label,
+        count: 0,
+        color: colorFor(session),
+      });
+    }
+    groups.get(label).count += 1;
+  }
+  return [...groups.values()].sort((a, b) => {
+    return b.count - a.count || a.label.localeCompare(b.label);
+  });
+}
+
+function statsChart(title, rows) {
+  const max = Math.max(...rows.map((row) => row.count));
+  return `
+    <section class="chart-panel">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="bar-list">
+        ${rows.map((row) => statsBar(row, max)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function statsBar(row, max) {
+  const width = Math.max(10, Math.round((row.count / max) * 100));
+  const label = row.count === 1 ? "1 session" : `${row.count} sessions`;
+  return `
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span>${escapeHtml(row.label)}</span>
+        <strong>${label}</strong>
+      </div>
+      <div class="bar-track" aria-hidden="true">
+        <span style="width:${width}%; background:${escapeAttribute(row.color)}"></span>
+      </div>
+    </div>
+  `;
+}
+
+function monthLabel(value) {
+  const [year, month] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat(undefined, {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(year, month - 1, 1));
 }
 
 function groupSessionsByDate(sessions) {

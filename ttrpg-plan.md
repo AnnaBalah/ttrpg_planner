@@ -193,11 +193,11 @@ session **or** a named one-shot, never neither.
 
 ## Phase 4 — Monthly Stats
 
-- [ ] Stats tab — defaults to current month
-- [ ] Session count for selected month + breakdown by campaign and system (one-shots shown as their own "One-shots" group)
-- [ ] Visual bar chart — most played games/campaigns that month (bars in their derived system shades)
-- [ ] Month picker to browse history
-- [ ] Empty state — clear message for months with no sessions
+- [x] Stats tab — defaults to current month
+- [x] Session count for selected month + breakdown by campaign and system (one-shots shown as their own "One-shots" group)
+- [x] Visual bar chart — most played games/campaigns that month (bars in their derived system shades)
+- [x] Month picker to browse history
+- [x] Empty state — clear message for months with no sessions
 
 ---
 

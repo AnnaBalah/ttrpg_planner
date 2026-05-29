@@ -302,6 +302,125 @@ main {
   white-space: nowrap;
 }
 
+.stats-heading {
+  align-items: center;
+}
+
+.month-picker {
+  width: 13rem;
+}
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.stat-tile {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 5.5rem;
+  align-content: center;
+  border: 1px solid var(--line);
+  background: #151f2d;
+  padding: 0.85rem;
+}
+
+.stat-tile span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.stat-tile strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.chart-panel {
+  border: 1px solid var(--line);
+  background: #151f2d;
+  padding: 1rem;
+}
+
+.chart-panel h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+.bar-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.bar-row {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bar-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bar-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-meta strong {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.bar-track {
+  height: 0.85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--field);
+}
+
+.bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.empty-state {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 14rem;
+  place-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state strong {
+  font-size: 1.2rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .plus {
   display: grid;
   place-items: center;
@@ -579,6 +698,15 @@ dialog::backdrop {
     grid-template-columns: 1fr;
     gap: 0.15rem;
     padding: 0.85rem 1rem;
+  }
+
+  .month-picker {
+    width: 100%;
+  }
+
+  .stats-summary,
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
   .toolbar,

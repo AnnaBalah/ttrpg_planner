@@ -22,6 +22,7 @@
       <nav class="tabs" aria-label="App sections">
         <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
         <button class="tab-button" type="button" data-tab="calendar">Calendar</button>
+        <button class="tab-button" type="button" data-tab="stats">Stats</button>
         <button class="tab-button" type="button" data-tab="campaigns">Campaigns</button>
         <button class="tab-button" type="button" data-tab="systems">Systems</button>
       </nav>
@@ -99,6 +100,20 @@
         </div>
         <div class="calendar-grid" id="calendar-grid"></div>
         <div class="calendar-agenda" id="calendar-agenda"></div>
+      </section>
+
+      <section class="panel" id="stats-panel" data-panel="stats">
+        <div class="section-heading stats-heading">
+          <div>
+            <h2>Monthly Stats</h2>
+            <p id="stats-status">Selected month</p>
+          </div>
+          <label class="month-picker">
+            Month
+            <input id="stats-month" type="month" />
+          </label>
+        </div>
+        <div id="stats-content"></div>
       </section>
 
       <section class="panel" id="campaigns-panel" data-panel="campaigns">

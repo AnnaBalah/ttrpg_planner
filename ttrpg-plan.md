@@ -203,11 +203,11 @@ session **or** a named one-shot, never neither.
 
 ## Phase 5 — Year in Review
 
-- [ ] Annual stats page — total sessions, breakdown by campaign / system / GM (one-shots as their own "One-shots" group)
-- [ ] Sessions-per-month bar chart — 12-bar overview of the year
-- [ ] Highlights — most active month, most played campaign, longest gap between sessions
-- [ ] "Games I ran vs. played" — derived from GM = `Anna` (you flagged tracking who GM'd)
-- [ ] Year picker — browse any past year
+- [x] Annual stats page — total sessions, breakdown by campaign / system / GM (one-shots as their own "One-shots" group)
+- [x] Sessions-per-month bar chart — 12-bar overview of the year
+- [x] Highlights — most active month, most played campaign, longest gap between sessions
+- [x] "Games I ran vs. played" — derived from GM = `Anna` (you flagged tracking who GM'd)
+- [x] Year picker — browse any past year
 
 ---
 

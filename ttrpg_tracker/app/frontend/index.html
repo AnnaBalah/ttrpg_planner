@@ -23,6 +23,7 @@
         <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
         <button class="tab-button" type="button" data-tab="calendar">Calendar</button>
         <button class="tab-button" type="button" data-tab="stats">Stats</button>
+        <button class="tab-button" type="button" data-tab="year">Year Review</button>
         <button class="tab-button" type="button" data-tab="campaigns">Campaigns</button>
         <button class="tab-button" type="button" data-tab="systems">Systems</button>
       </nav>
@@ -114,6 +115,20 @@
           </label>
         </div>
         <div id="stats-content"></div>
+      </section>
+
+      <section class="panel" id="year-panel" data-panel="year">
+        <div class="section-heading stats-heading">
+          <div>
+            <h2>Year in Review</h2>
+            <p id="year-status">Selected year</p>
+          </div>
+          <label class="year-picker">
+            Year
+            <select id="year-select"></select>
+          </label>
+        </div>
+        <div id="year-content"></div>
       </section>
 
       <section class="panel" id="campaigns-panel" data-panel="campaigns">

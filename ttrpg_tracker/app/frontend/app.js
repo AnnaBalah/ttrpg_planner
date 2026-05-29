@@ -1,5 +1,6 @@
 const today = () => toISODate(new Date());
 const currentMonth = () => today().slice(0, 7);
+const currentYear = () => today().slice(0, 4);
 
 const state = {
   sessions: [],
@@ -7,6 +8,7 @@ const state = {
   systems: [],
   calendarDate: startOfMonth(new Date()),
   statsMonth: currentMonth(),
+  reviewYear: currentYear(),
   sortKey: "date",
   sortDirection: "desc",
   search: "",
@@ -33,6 +35,9 @@ const els = {
   statsStatus: document.querySelector("#stats-status"),
   statsMonth: document.querySelector("#stats-month"),
   statsContent: document.querySelector("#stats-content"),
+  yearStatus: document.querySelector("#year-status"),
+  yearSelect: document.querySelector("#year-select"),
+  yearContent: document.querySelector("#year-content"),
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
   systemsBody: document.querySelector("#systems-body"),
@@ -69,6 +74,10 @@ els.statsMonth.addEventListener("change", (event) => {
   state.statsMonth = event.target.value || currentMonth();
   renderMonthlyStats();
 });
+els.yearSelect.addEventListener("change", (event) => {
+  state.reviewYear = event.target.value || currentYear();
+  renderYearReview();
+});
 els.sessionForm.addEventListener("submit", saveSession);
 els.campaignForm.addEventListener("submit", saveCampaign);
 els.systemForm.addEventListener("submit", saveSystem);
@@ -99,6 +108,8 @@ function renderAll() {
   renderSessions();
   renderCalendar();
   renderMonthlyStats();
+  renderYearOptions();
+  renderYearReview();
   renderCampaigns();
   renderSystems();
   renderGmOptions();
@@ -259,6 +270,81 @@ function renderMonthlyStats() {
     <div class="stats-grid">
       ${statsChart("Campaigns", campaignRows)}
       ${statsChart("Systems", systemRows)}
+    </div>
+  `;
+}
+
+function renderYearOptions() {
+  const years = unique([
+    currentYear(),
+    ...state.sessions.map((session) => session.date.slice(0, 4)),
+  ]).sort((a, b) => b.localeCompare(a));
+  fillSelect(els.yearSelect, years.map((year) => [year, year]), state.reviewYear);
+}
+
+function renderYearReview() {
+  const sessions = state.sessions
+    .filter((session) => session.date.startsWith(state.reviewYear))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  els.yearStatus.textContent = sessions.length === 1
+    ? `1 session in ${state.reviewYear}`
+    : `${sessions.length} sessions in ${state.reviewYear}`;
+
+  if (sessions.length === 0) {
+    els.yearContent.innerHTML = `
+      <div class="empty-state">
+        <strong>${escapeHtml(state.reviewYear)}</strong>
+        <p>No sessions logged for this year.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const campaignRows = groupedCountRows(
+    sessions,
+    (session) => session.campaign_id ? session.display_name : "One-shots",
+    (session) => session.system_color,
+  );
+  const systemRows = groupedCountRows(
+    sessions,
+    (session) => session.system_name,
+    (session) => session.system_color,
+  );
+  const gmRows = groupedCountRows(
+    sessions,
+    (session) => session.gm,
+    () => "var(--accent-2)",
+  );
+  const monthlyRows = monthlyCountRows(sessions, state.reviewYear);
+  const topMonth = [...monthlyRows].sort((a, b) => b.count - a.count)[0];
+  const ranCount = sessions.filter((session) => session.gm === "Anna").length;
+  const playedCount = sessions.length - ranCount;
+
+  els.yearContent.innerHTML = `
+    <div class="stats-summary review-summary">
+      <div class="stat-tile">
+        <span>Total</span>
+        <strong>${sessions.length}</strong>
+      </div>
+      <div class="stat-tile">
+        <span>Most active month</span>
+        <strong>${escapeHtml(topMonth.shortLabel)}</strong>
+      </div>
+      <div class="stat-tile">
+        <span>Most played</span>
+        <strong>${escapeHtml(campaignRows[0].label)}</strong>
+      </div>
+      <div class="stat-tile">
+        <span>Longest gap</span>
+        <strong>${longestGapLabel(sessions)}</strong>
+      </div>
+    </div>
+    <div class="stats-grid review-grid">
+      ${yearMonthChart(monthlyRows)}
+      ${ranPlayedPanel(ranCount, playedCount)}
+      ${statsChart("Campaigns", campaignRows)}
+      ${statsChart("Systems", systemRows)}
+      ${statsChart("GMs", gmRows)}
     </div>
   `;
 }
@@ -882,6 +968,62 @@ function statsBar(row, max) {
       </div>
     </div>
   `;
+}
+
+function yearMonthChart(rows) {
+  const max = Math.max(...rows.map((row) => row.count), 1);
+  return `
+    <section class="chart-panel wide-panel">
+      <h3>Sessions Per Month</h3>
+      <div class="month-bars">
+        ${rows.map((row) => `
+          <div class="month-bar">
+            <span class="month-bar-track" aria-hidden="true">
+              <span style="height:${Math.max(6, Math.round((row.count / max) * 100))}%"></span>
+            </span>
+            <strong>${row.shortLabel}</strong>
+            <small>${row.count}</small>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function ranPlayedPanel(ranCount, playedCount) {
+  const rows = [
+    { label: "Ran", count: ranCount, color: "var(--accent)" },
+    { label: "Played", count: playedCount, color: "var(--accent-2)" },
+  ];
+  return statsChart("Games I Ran vs. Played", rows);
+}
+
+function monthlyCountRows(sessions, year) {
+  const formatter = new Intl.DateTimeFormat(undefined, { month: "short" });
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = String(index + 1).padStart(2, "0");
+    const date = new Date(Number(year), index, 1);
+    return {
+      label: new Intl.DateTimeFormat(undefined, { month: "long" }).format(date),
+      shortLabel: formatter.format(date),
+      count: sessions.filter((session) => session.date.startsWith(`${year}-${month}`)).length,
+      color: "var(--accent)",
+    };
+  });
+}
+
+function longestGapLabel(sessions) {
+  if (sessions.length < 2) {
+    return "0 days";
+  }
+  let longest = 0;
+  for (let index = 1; index < sessions.length; index += 1) {
+    const previous = parseISODate(sessions[index - 1].date);
+    const current = parseISODate(sessions[index].date);
+    const days = Math.round((current - previous) / 86_400_000);
+    longest = Math.max(longest, days);
+  }
+  return longest === 1 ? "1 day" : `${longest} days`;
 }
 
 function monthLabel(value) {

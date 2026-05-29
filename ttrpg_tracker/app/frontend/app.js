@@ -145,7 +145,12 @@ function renderFilters() {
 function renderQuickAdd() {
   const activeCampaigns = state.campaigns.filter((campaign) => !campaign.archived);
   if (activeCampaigns.length === 0) {
-    els.quickAddList.innerHTML = `<p class="empty">No active campaigns.</p>`;
+    els.quickAddList.innerHTML = emptyState(
+      "📜",
+      "No active campaigns",
+      "Create or unarchive a campaign to make quick add useful.",
+      "compact",
+    );
     return;
   }
 
@@ -168,7 +173,13 @@ function renderSessions() {
   els.status.textContent = rows.length === state.sessions.length ? "Ready" : `${rows.length} shown`;
 
   if (rows.length === 0) {
-    els.sessionsBody.innerHTML = `<tr><td class="empty" colspan="7">No sessions found.</td></tr>`;
+    els.sessionsBody.innerHTML = `
+      <tr>
+        <td class="empty" colspan="7">
+          ${emptyState("🕯️", "No sessions found", "Try clearing filters or add a new session.", "compact")}
+        </td>
+      </tr>
+    `;
     return;
   }
 
@@ -211,7 +222,12 @@ function renderCalendar() {
   }).join("");
 
   if (monthSessions.length === 0) {
-    els.calendarAgenda.innerHTML = `<p class="empty">No sessions this month.</p>`;
+    els.calendarAgenda.innerHTML = emptyState(
+      "🗓️",
+      "No sessions this month",
+      "Tap a date to schedule the next one.",
+      "compact",
+    );
     return;
   }
 
@@ -239,10 +255,7 @@ function renderMonthlyStats() {
 
   if (sessions.length === 0) {
     els.statsContent.innerHTML = `
-      <div class="empty-state">
-        <strong>${escapeHtml(label)}</strong>
-        <p>No sessions logged for this month.</p>
-      </div>
+      ${emptyState("🌙", label, "No sessions logged for this month.")}
     `;
     return;
   }
@@ -262,18 +275,9 @@ function renderMonthlyStats() {
 
   els.statsContent.innerHTML = `
     <div class="stats-summary">
-      <div class="stat-tile">
-        <span>Total</span>
-        <strong>${sessions.length}</strong>
-      </div>
-      <div class="stat-tile">
-        <span>Top campaign</span>
-        <strong>${escapeHtml(topCampaign.label)}</strong>
-      </div>
-      <div class="stat-tile">
-        <span>Top system</span>
-        <strong>${escapeHtml(topSystem.label)}</strong>
-      </div>
+      ${statTile("🎲", "Sessions Logged", sessions.length)}
+      ${statTile("⭐", "Most Played", topCampaign.label)}
+      ${statTile("🧭", "Favorite System", topSystem.label)}
     </div>
     <div class="stats-grid">
       ${statsChart("Campaigns", campaignRows)}
@@ -300,10 +304,7 @@ function renderYearReview() {
 
   if (sessions.length === 0) {
     els.yearContent.innerHTML = `
-      <div class="empty-state">
-        <strong>${escapeHtml(state.reviewYear)}</strong>
-        <p>No sessions logged for this year.</p>
-      </div>
+      ${emptyState("🏕️", state.reviewYear, "No sessions logged for this year.")}
     `;
     return;
   }
@@ -330,22 +331,10 @@ function renderYearReview() {
 
   els.yearContent.innerHTML = `
     <div class="stats-summary review-summary">
-      <div class="stat-tile">
-        <span>Total</span>
-        <strong>${sessions.length}</strong>
-      </div>
-      <div class="stat-tile">
-        <span>Most active month</span>
-        <strong>${escapeHtml(topMonth.shortLabel)}</strong>
-      </div>
-      <div class="stat-tile">
-        <span>Most played</span>
-        <strong>${escapeHtml(campaignRows[0].label)}</strong>
-      </div>
-      <div class="stat-tile">
-        <span>Longest gap</span>
-        <strong>${longestGapLabel(sessions)}</strong>
-      </div>
+      ${statTile("🎲", "Sessions Logged", sessions.length)}
+      ${statTile("🗓️", "Busiest Month", topMonth.shortLabel)}
+      ${statTile("⭐", "Most Played", campaignRows[0].label)}
+      ${statTile("⏳", "Longest Break", longestGapLabel(sessions))}
     </div>
     <div class="stats-grid review-grid">
       ${yearMonthChart(monthlyRows)}
@@ -359,7 +348,13 @@ function renderYearReview() {
 
 function renderCampaigns() {
   if (state.campaigns.length === 0) {
-    els.campaignsBody.innerHTML = `<tr><td class="empty" colspan="5">No campaigns yet.</td></tr>`;
+    els.campaignsBody.innerHTML = `
+      <tr>
+        <td class="empty" colspan="5">
+          ${emptyState("📜", "No campaigns yet", "Add a campaign template to speed up session logging.", "compact")}
+        </td>
+      </tr>
+    `;
     return;
   }
 
@@ -389,7 +384,13 @@ function renderCampaigns() {
 
 function renderSystems() {
   if (state.systems.length === 0) {
-    els.systemsBody.innerHTML = `<tr><td class="empty" colspan="4">No systems yet.</td></tr>`;
+    els.systemsBody.innerHTML = `
+      <tr>
+        <td class="empty" colspan="4">
+          ${emptyState("🎲", "No systems yet", "Add a system and pick its primary color.", "compact")}
+        </td>
+      </tr>
+    `;
     return;
   }
 
@@ -1194,11 +1195,35 @@ function stableNumber(value) {
   }, 0);
 }
 
+function emptyState(icon, title, message, variant = "") {
+  const classes = ["empty-state"];
+  if (variant) {
+    classes.push(`empty-state-${variant}`);
+  }
+  return `
+    <div class="${classes.join(" ")}">
+      <span class="empty-icon" aria-hidden="true">${icon}</span>
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(message)}</p>
+    </div>
+  `;
+}
+
+function statTile(icon, label, value) {
+  return `
+    <div class="stat-tile">
+      <span class="stat-icon" aria-hidden="true">${icon}</span>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
 function statsChart(title, rows) {
   const max = Math.max(...rows.map((row) => row.count));
   return `
     <section class="chart-panel">
-      <h3>${escapeHtml(title)}</h3>
+      <h3><span aria-hidden="true">${chartIcon(title)}</span>${escapeHtml(title)}</h3>
       <div class="bar-list">
         ${rows.map((row) => statsBar(row, max)).join("")}
       </div>
@@ -1226,7 +1251,7 @@ function yearMonthChart(rows) {
   const max = Math.max(...rows.map((row) => row.count), 1);
   return `
     <section class="chart-panel wide-panel">
-      <h3>Sessions Per Month</h3>
+      <h3><span aria-hidden="true">🗓️</span>Sessions Per Month</h3>
       <div class="month-bars">
         ${rows.map((row) => `
           <div class="month-bar">
@@ -1248,6 +1273,16 @@ function ranPlayedPanel(ranCount, playedCount) {
     { label: "Played", count: playedCount, color: "var(--accent-2)" },
   ];
   return statsChart("Games I Ran vs. Played", rows);
+}
+
+function chartIcon(title) {
+  const icons = {
+    Campaigns: "📜",
+    Systems: "🎲",
+    GMs: "🗣️",
+    "Games I Ran vs. Played": "⚔️",
+  };
+  return icons[title] ?? "📊";
 }
 
 function monthlyCountRows(sessions, year) {

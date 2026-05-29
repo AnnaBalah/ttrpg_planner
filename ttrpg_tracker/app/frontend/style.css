@@ -187,6 +187,23 @@ main {
   display: block;
 }
 
+#stats-panel {
+  background-color: var(--panel);
+  background-image:
+    linear-gradient(30deg, rgb(240 184 79 / 0.035) 12%, transparent 12.5%, transparent 87%, rgb(240 184 79 / 0.035) 87.5%, rgb(240 184 79 / 0.035)),
+    linear-gradient(150deg, rgb(240 184 79 / 0.035) 12%, transparent 12.5%, transparent 87%, rgb(240 184 79 / 0.035) 87.5%, rgb(240 184 79 / 0.035)),
+    linear-gradient(30deg, rgb(240 184 79 / 0.035) 12%, transparent 12.5%, transparent 87%, rgb(240 184 79 / 0.035) 87.5%, rgb(240 184 79 / 0.035)),
+    linear-gradient(150deg, rgb(240 184 79 / 0.035) 12%, transparent 12.5%, transparent 87%, rgb(240 184 79 / 0.035) 87.5%, rgb(240 184 79 / 0.035)),
+    linear-gradient(60deg, rgb(88 182 169 / 0.025) 25%, transparent 25.5%, transparent 75%, rgb(88 182 169 / 0.025) 75%, rgb(88 182 169 / 0.025));
+  background-position:
+    0 0,
+    0 0,
+    1.1rem 1.925rem,
+    1.1rem 1.925rem,
+    0 0;
+  background-size: 2.2rem 3.85rem;
+}
+
 .embedded-panel + .embedded-panel {
   border-top: 1px solid var(--line);
 }
@@ -370,16 +387,32 @@ main {
 }
 
 .stat-tile {
+  position: relative;
   display: grid;
   gap: 0.25rem;
   min-height: 5.5rem;
   align-content: center;
   border: 1px solid var(--line);
-  background: #151f2d;
-  padding: 0.85rem;
+  border-top-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: linear-gradient(135deg, rgb(240 184 79 / 0.055), transparent 42%), #151f2d;
+  padding: 0.85rem 2.8rem 0.85rem 0.85rem;
 }
 
-.stat-tile span {
+.stat-icon {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.7rem;
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid rgb(240 184 79 / 0.25);
+  border-radius: 50%;
+  background: rgb(16 22 32 / 0.72);
+  font-size: 0.95rem;
+}
+
+.stat-tile > span:not(.stat-icon) {
   color: var(--muted);
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -409,11 +442,16 @@ main {
 
 .chart-panel {
   border: 1px solid var(--line);
-  background: #151f2d;
+  background:
+    linear-gradient(135deg, rgb(88 182 169 / 0.045), transparent 40%),
+    #151f2d;
   padding: 1rem;
 }
 
 .chart-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   margin: 0 0 1rem;
   font-size: 1rem;
   letter-spacing: 0;
@@ -509,11 +547,32 @@ main {
 
 .empty-state {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.45rem;
   min-height: 14rem;
   place-content: center;
   padding: 2rem;
   text-align: center;
+}
+
+.empty-state-compact {
+  grid-column: 1 / -1;
+  min-height: 6.5rem;
+  width: 100%;
+  padding: 1.35rem;
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  margin: 0 auto 0.1rem;
+  border: 1px solid rgb(240 184 79 / 0.24);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 25%, rgb(240 184 79 / 0.22), transparent 38%),
+    var(--field);
+  font-size: 1.35rem;
 }
 
 .empty-state strong {
@@ -785,8 +844,17 @@ tbody tr:hover {
   gap: 0.4rem;
 }
 
+#campaigns-panel th:last-child,
 #campaigns-panel td.actions {
-  justify-content: flex-end;
+  width: 15rem;
+  min-width: 15rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#campaigns-panel td.actions {
+  justify-content: center;
+  flex-wrap: nowrap;
 }
 
 .muted,
@@ -1011,6 +1079,14 @@ dialog::backdrop {
     color: var(--muted);
     font-size: 0.78rem;
     text-transform: uppercase;
+  }
+
+  td.empty {
+    display: block;
+  }
+
+  td.empty::before {
+    content: none;
   }
 
   .actions {

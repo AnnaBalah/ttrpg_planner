@@ -238,9 +238,11 @@ session **or** a named one-shot, never neither.
 
 ## Phase 7 — Visual Identity & Delight
 
-- [ ] Beautify the UI with a consistent icon/emoji language for tabs, actions, empty states, and key controls
-- [ ] Decide whether to use emoji, text symbols, or an icon library consistently across the app
-- [ ] Add subtle visual personality without reducing table/calendar scanability
+- [x] Beautify the UI with a restrained emoji language focused on Stats and empty states
+- [x] Decide whether to use emoji, text symbols, or an icon library consistently across the app
+  - Chosen: use emoji sparingly instead of adding an icon dependency; keep everyday workflow tabs/forms mostly clean.
+- [x] Add subtle visual personality without reducing table/calendar scanability
+  - Added stat tile icons, friendlier empty states, and a faint honeycomb texture on the Stats workspace.
 
 ---
 

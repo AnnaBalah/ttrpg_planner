@@ -271,7 +271,8 @@ session **or** a named one-shot, never neither.
 - [ ] Quick Add design brainstorm — explore smaller cards, split primary/secondary actions, icon-only edit controls, and clearer distinction between `Log today`, `Add`, and edit-before-save
 
 **System color UX**
-- [ ] Generated colors — when generating or suggesting system colors, avoid repeating the same color that was chosen previously
+- [x] Generated colors — when generating or suggesting system colors, avoid repeating the same color that was chosen previously
+  - Added a shared system-color suggestion palette that avoids existing system colors and avoids duplicate visible suggestions across new-system forms.
 
 **Admin and maintenance**
 - [ ] Deployment guide — add `DEPLOY.md` with NAS/home-server setup, Tailscale/LAN notes, Docker volume persistence verification, and safe exposure guidance

@@ -2,6 +2,19 @@ const today = () => toISODate(new Date());
 const currentMonth = () => today().slice(0, 7);
 const currentYear = () => today().slice(0, 4);
 
+const SYSTEM_COLOR_PALETTE = [
+  "#d46a6a",
+  "#f0b84f",
+  "#58b6a9",
+  "#7d91e8",
+  "#b56bd3",
+  "#6aa05f",
+  "#e58f55",
+  "#6bb7d8",
+  "#c36b8f",
+  "#9aa35c",
+];
+
 const state = {
   sessions: [],
   campaigns: [],
@@ -134,6 +147,7 @@ function renderAll() {
   renderGmOptions();
   populateSystemSelects();
   populateCampaignSelect();
+  syncNewSystemColorDefaults();
 }
 
 function renderFilters() {
@@ -948,8 +962,15 @@ function syncSessionKindDefaults() {
 }
 
 function syncNewSystemFields() {
-  document.querySelector("#session-new-system-fields").hidden =
-    document.querySelector("#session-system").value !== "__new";
+  const fields = document.querySelector("#session-new-system-fields");
+  const shouldShow = document.querySelector("#session-system").value === "__new";
+  if (shouldShow && fields.hidden) {
+    document.querySelector("#session-new-system-color").value = suggestSystemColor([
+      document.querySelector("#system-color").value,
+      document.querySelector("#campaign-new-system-color").value,
+    ]);
+  }
+  fields.hidden = !shouldShow;
 }
 
 function applyCampaignDefaults(campaignId, options = {}) {
@@ -1117,7 +1138,14 @@ async function handleConfirmSubmit(event) {
 function syncCampaignNewSystemFields() {
   const name = document.querySelector("#campaign-system-name").value.trim();
   const existingSystem = systemByName(name);
-  document.querySelector("#campaign-new-system-fields").hidden = !name || Boolean(existingSystem);
+  const fields = document.querySelector("#campaign-new-system-fields");
+  const shouldShow = Boolean(name) && !existingSystem;
+  if (shouldShow && fields.hidden) {
+    document.querySelector("#campaign-new-system-color").value = suggestSystemColor([
+      document.querySelector("#system-color").value,
+    ]);
+  }
+  fields.hidden = !shouldShow;
 }
 
 function systemByName(name) {
@@ -1228,8 +1256,25 @@ async function deleteCampaign(id) {
 function clearCampaignForm() {
   els.campaignForm.reset();
   document.querySelector("#campaign-id").value = "";
-  document.querySelector("#campaign-new-system-color").value = "#7d91e8";
+  document.querySelector("#campaign-new-system-color").value = suggestSystemColor();
   syncCampaignNewSystemFields();
+}
+
+function syncNewSystemColorDefaults() {
+  const systemColor = suggestSystemColor();
+  if (!document.querySelector("#system-id").value) {
+    document.querySelector("#system-color").value = systemColor;
+  }
+  const campaignColor = suggestSystemColor([document.querySelector("#system-color").value]);
+  if (document.querySelector("#campaign-new-system-fields").hidden) {
+    document.querySelector("#campaign-new-system-color").value = campaignColor;
+  }
+  if (document.querySelector("#session-new-system-fields").hidden) {
+    document.querySelector("#session-new-system-color").value = suggestSystemColor([
+      document.querySelector("#system-color").value,
+      document.querySelector("#campaign-new-system-color").value,
+    ]);
+  }
 }
 
 async function saveSystem(event) {
@@ -1265,7 +1310,7 @@ function editSystem(id) {
 function clearSystemForm() {
   els.systemForm.reset();
   document.querySelector("#system-id").value = "";
-  document.querySelector("#system-color").value = "#58b6a9";
+  document.querySelector("#system-color").value = suggestSystemColor();
 }
 
 async function refreshLists() {
@@ -1431,6 +1476,33 @@ function campaignColor(campaign) {
     campaign.system_color,
     campaignShadeIndex(campaign.id, campaign.system_id),
   );
+}
+
+function suggestSystemColor(excludedColors = []) {
+  const usedColors = new Set([
+    ...state.systems.map((system) => normalizeHex(system.color)),
+    ...excludedColors.map(normalizeHex),
+  ].filter(Boolean));
+  return SYSTEM_COLOR_PALETTE.find((color) => !usedColors.has(normalizeHex(color)))
+    ?? leastRecentlyUsedPaletteColor();
+}
+
+function leastRecentlyUsedPaletteColor() {
+  const counts = new Map(SYSTEM_COLOR_PALETTE.map((color) => [normalizeHex(color), 0]));
+  for (const system of state.systems) {
+    const color = normalizeHex(system.color);
+    if (counts.has(color)) {
+      counts.set(color, counts.get(color) + 1);
+    }
+  }
+  return SYSTEM_COLOR_PALETTE
+    .map((color) => ({ color, count: counts.get(normalizeHex(color)) ?? 0 }))
+    .sort((a, b) => a.count - b.count || SYSTEM_COLOR_PALETTE.indexOf(a.color) - SYSTEM_COLOR_PALETTE.indexOf(b.color))[0]
+    .color;
+}
+
+function normalizeHex(value) {
+  return String(value ?? "").trim().toLocaleLowerCase();
 }
 
 function systemShadePreview(system) {

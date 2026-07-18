@@ -117,19 +117,25 @@
           </div>
           <form class="editor" id="campaign-form">
             <input type="hidden" id="campaign-id" />
-            <label>
+            <label class="campaign-name-field">
               Name
               <input id="campaign-name" required />
             </label>
-            <label>
+            <label class="campaign-gm-field">
               Default GM
               <input id="campaign-gm" list="gm-options" required />
             </label>
-            <label>
-              System
-              <select id="campaign-system" required></select>
-            </label>
-            <label>
+            <div class="field-block campaign-system-field">
+              <label for="campaign-system-name">System</label>
+              <div class="campaign-system-control">
+                <input id="campaign-system-name" list="system-options" required />
+                <label class="campaign-new-system-color" id="campaign-new-system-fields" hidden title="New system color">
+                  <span class="sr-only">New system color</span>
+                  <input id="campaign-new-system-color" type="color" value="#7d91e8" />
+                </label>
+              </div>
+            </div>
+            <label class="campaign-link-field">
               Default link
               <input id="campaign-link" type="url" />
             </label>
@@ -206,10 +212,16 @@
               <h2>📈 Monthly Stats</h2>
               <p id="stats-status">Selected month</p>
             </div>
-            <label class="month-picker">
-              Month
-              <input id="stats-month" type="month" />
-            </label>
+            <div class="field-block month-picker">
+              <label for="stats-month-trigger">Month</label>
+              <div class="picker-field">
+                <input id="stats-month" type="hidden" />
+                <button class="picker-trigger" id="stats-month-trigger" type="button">
+                  <span id="stats-month-display">--/----</span>
+                </button>
+                <div class="picker-popover month-popover" id="stats-month-picker" hidden></div>
+              </div>
+            </div>
           </div>
           <div id="stats-content"></div>
         </section>
@@ -220,10 +232,16 @@
               <h2>🏆 Year in Review</h2>
               <p id="year-status">Selected year</p>
             </div>
-            <label class="year-picker">
-              Year
-              <select id="year-select"></select>
-            </label>
+            <div class="field-block year-picker">
+              <label for="year-trigger">Year</label>
+              <div class="picker-field">
+                <input id="year-select" type="hidden" />
+                <button class="picker-trigger" id="year-trigger" type="button">
+                  <span id="year-display">----</span>
+                </button>
+                <div class="picker-popover year-popover" id="year-picker" hidden></div>
+              </div>
+            </div>
           </div>
           <div id="year-content"></div>
         </section>
@@ -279,10 +297,16 @@
         </div>
 
         <div class="form-grid">
-          <label>
-            Date
-            <input id="session-date" type="date" required />
-          </label>
+          <div class="field-block">
+            <label for="session-date-trigger">Date</label>
+            <div class="picker-field">
+              <input id="session-date" type="hidden" />
+              <button class="picker-trigger" id="session-date-trigger" type="button">
+                <span id="session-date-display">--/--/----</span>
+              </button>
+              <div class="picker-popover date-popover" id="session-date-picker" hidden></div>
+            </div>
+          </div>
           <label>
             GM
             <input id="session-gm" list="gm-options" required />
@@ -333,6 +357,7 @@
     </dialog>
 
     <datalist id="gm-options"></datalist>
+    <datalist id="system-options"></datalist>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="/static/app.js" type="module"></script>

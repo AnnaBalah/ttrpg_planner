@@ -8,6 +8,8 @@ const state = {
   systems: [],
   calendarDate: startOfMonth(new Date()),
   statsMonth: currentMonth(),
+  statsPickerYear: Number(currentYear()),
+  sessionDatePickerMonth: startOfMonth(new Date()),
   reviewYear: currentYear(),
   sortKey: "date",
   sortDirection: "desc",
@@ -38,9 +40,15 @@ const els = {
   calendarNextSession: document.querySelector("#calendar-next-session"),
   statsStatus: document.querySelector("#stats-status"),
   statsMonth: document.querySelector("#stats-month"),
+  statsMonthTrigger: document.querySelector("#stats-month-trigger"),
+  statsMonthDisplay: document.querySelector("#stats-month-display"),
+  statsMonthPicker: document.querySelector("#stats-month-picker"),
   statsContent: document.querySelector("#stats-content"),
   yearStatus: document.querySelector("#year-status"),
   yearSelect: document.querySelector("#year-select"),
+  yearTrigger: document.querySelector("#year-trigger"),
+  yearDisplay: document.querySelector("#year-display"),
+  yearPicker: document.querySelector("#year-picker"),
   yearContent: document.querySelector("#year-content"),
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
@@ -52,6 +60,10 @@ const els = {
   sessionForm: document.querySelector("#session-form"),
   sessionSubmit: document.querySelector("#session-form button[type='submit']"),
   sessionDialogTitle: document.querySelector("#session-dialog-title"),
+  sessionDate: document.querySelector("#session-date"),
+  sessionDateTrigger: document.querySelector("#session-date-trigger"),
+  sessionDateDisplay: document.querySelector("#session-date-display"),
+  sessionDatePicker: document.querySelector("#session-date-picker"),
   confirmDialog: document.querySelector("#confirm-dialog"),
   confirmForm: document.querySelector("#confirm-form"),
   confirmTitle: document.querySelector("#confirm-title"),
@@ -60,9 +72,11 @@ const els = {
   campaignForm: document.querySelector("#campaign-form"),
   systemForm: document.querySelector("#system-form"),
   gmOptions: document.querySelector("#gm-options"),
+  systemOptions: document.querySelector("#system-options"),
 };
 
 document.addEventListener("click", handleDocumentClick);
+document.addEventListener("click", handlePickerOutsideClick);
 document.addEventListener("change", handleDocumentChange);
 els.search.addEventListener("input", (event) => {
   state.search = event.target.value.trim().toLocaleLowerCase();
@@ -80,19 +94,12 @@ els.systemFilter.addEventListener("change", (event) => {
   state.filters.system = event.target.value;
   renderSessions();
 });
-els.statsMonth.value = state.statsMonth;
-els.statsMonth.addEventListener("change", (event) => {
-  state.statsMonth = event.target.value || currentMonth();
-  renderMonthlyStats();
-});
-els.yearSelect.addEventListener("change", (event) => {
-  state.reviewYear = event.target.value || currentYear();
-  renderYearReview();
-});
+setStatsMonth(state.statsMonth, { render: false });
 els.sessionForm.addEventListener("submit", saveSession);
 els.confirmForm.addEventListener("submit", handleConfirmSubmit);
 els.campaignForm.addEventListener("submit", saveCampaign);
 els.systemForm.addEventListener("submit", saveSystem);
+document.querySelector("#campaign-system-name").addEventListener("input", syncCampaignNewSystemFields);
 
 loadAll();
 
@@ -275,7 +282,7 @@ function renderMonthlyStats() {
   els.statsStatus.textContent = sessions.length === 1
     ? `1 session in ${label}`
     : `${sessions.length} sessions in ${label}`;
-  els.statsMonth.value = state.statsMonth;
+  syncStatsMonthDisplay();
 
   if (sessions.length === 0) {
     els.statsContent.innerHTML = `
@@ -311,17 +318,19 @@ function renderMonthlyStats() {
 }
 
 function renderYearOptions() {
-  const years = unique([
-    currentYear(),
-    ...state.sessions.map((session) => session.date.slice(0, 4)),
-  ]).sort((a, b) => b.localeCompare(a));
-  fillSelect(els.yearSelect, years.map((year) => [year, year]), state.reviewYear);
+  const years = reviewYearOptions();
+  if (!years.includes(state.reviewYear)) {
+    state.reviewYear = years[0] ?? currentYear();
+  }
+  syncReviewYearDisplay();
+  renderYearPicker();
 }
 
 function renderYearReview() {
   const sessions = state.sessions
     .filter((session) => session.date.startsWith(state.reviewYear))
     .sort((a, b) => a.date.localeCompare(b.date));
+  syncReviewYearDisplay();
   els.yearStatus.textContent = sessions.length === 1
     ? `1 session in ${state.reviewYear}`
     : `${sessions.length} sessions in ${state.reviewYear}`;
@@ -453,7 +462,9 @@ function renderGmOptions() {
 
 function populateSystemSelects() {
   const regularOptions = state.systems.map((system) => [String(system.id), system.name]);
-  fillSelect(document.querySelector("#campaign-system"), regularOptions);
+  els.systemOptions.innerHTML = state.systems
+    .map((system) => `<option value="${escapeAttribute(system.name)}"></option>`)
+    .join("");
   fillSelect(document.querySelector("#session-system"), [
     ["", "Pick a system"],
     ...regularOptions,
@@ -466,11 +477,13 @@ function populateCampaignSelect() {
     document.querySelector("#session-campaign"),
     [
       ["", "Pick a campaign"],
-      ...state.campaigns
-        .filter((campaign) => !campaign.archived)
-        .map((campaign) => [String(campaign.id), campaign.name]),
+      ...state.campaigns.map((campaign) => [String(campaign.id), campaignOptionLabel(campaign)]),
     ],
   );
+}
+
+function campaignOptionLabel(campaign) {
+  return campaign.archived ? `${campaign.name} (archived)` : campaign.name;
 }
 
 function sessionRow(session) {
@@ -555,6 +568,29 @@ function handleDocumentClick(event) {
   } else if (target.id === "calendar-today") {
     state.calendarDate = startOfMonth(new Date());
     renderCalendar();
+  } else if (target.id === "session-date-trigger") {
+    toggleSessionDatePicker();
+  } else if (target.matches("[data-date-picker-prev]")) {
+    moveSessionDatePicker(-1);
+  } else if (target.matches("[data-date-picker-next]")) {
+    moveSessionDatePicker(1);
+  } else if (target.matches("[data-date-picker-day]")) {
+    setSessionDate(target.dataset.datePickerDay);
+    closePickers();
+  } else if (target.id === "stats-month-trigger") {
+    toggleStatsMonthPicker();
+  } else if (target.matches("[data-month-picker-prev]")) {
+    moveStatsMonthPicker(-1);
+  } else if (target.matches("[data-month-picker-next]")) {
+    moveStatsMonthPicker(1);
+  } else if (target.matches("[data-month-picker-month]")) {
+    setStatsMonth(target.dataset.monthPickerMonth);
+    closePickers();
+  } else if (target.id === "year-trigger") {
+    toggleYearPicker();
+  } else if (target.matches("[data-year-picker-year]")) {
+    setReviewYear(target.dataset.yearPickerYear);
+    closePickers();
   } else if (target.matches("[data-calendar-day]")) {
     openSessionDialog({ date: target.dataset.calendarDay });
   } else if (target.matches("[data-calendar-session]")) {
@@ -568,7 +604,7 @@ function handleDocumentClick(event) {
   } else if (target.matches("[data-edit-session]")) {
     openSessionDialog({ sessionId: Number(target.dataset.editSession) });
   } else if (target.matches("[data-delete-session-row]")) {
-    deleteSession(Number(target.dataset.deleteSessionRow));
+    requestDeleteSession(Number(target.dataset.deleteSessionRow));
   } else if (target.id === "close-session") {
     els.sessionDialog.close();
   } else if (target.id === "delete-session") {
@@ -581,7 +617,7 @@ function handleDocumentClick(event) {
   } else if (target.matches("[data-archive-campaign]")) {
     toggleCampaignArchive(Number(target.dataset.archiveCampaign));
   } else if (target.matches("[data-delete-campaign]")) {
-    deleteCampaign(Number(target.dataset.deleteCampaign));
+    requestDeleteCampaign(Number(target.dataset.deleteCampaign));
   } else if (target.id === "clear-campaign") {
     clearCampaignForm();
   } else if (target.matches("[data-edit-system]")) {
@@ -592,6 +628,12 @@ function handleDocumentClick(event) {
     downloadExport("/api/export", "ttrpg-export.json");
   } else if (target.id === "export-csv") {
     downloadExport("/api/export.csv", "ttrpg-export.csv");
+  }
+}
+
+function handlePickerOutsideClick(event) {
+  if (!event.target.closest(".picker-field")) {
+    closePickers();
   }
 }
 
@@ -644,6 +686,144 @@ function moveCalendar(delta) {
   renderCalendar();
 }
 
+function toggleSessionDatePicker() {
+  const willOpen = els.sessionDatePicker.hidden;
+  closePickers();
+  if (willOpen) {
+    state.sessionDatePickerMonth = startOfMonth(parseISODate(els.sessionDate.value || today()));
+    renderSessionDatePicker();
+    els.sessionDatePicker.hidden = false;
+  }
+}
+
+function moveSessionDatePicker(delta) {
+  state.sessionDatePickerMonth = new Date(
+    state.sessionDatePickerMonth.getFullYear(),
+    state.sessionDatePickerMonth.getMonth() + delta,
+    1,
+  );
+  renderSessionDatePicker();
+}
+
+function renderSessionDatePicker() {
+  const monthStart = startOfMonth(state.sessionDatePickerMonth);
+  const startOffset = (monthStart.getDay() + 6) % 7;
+  const gridStart = addDays(monthStart, -startOffset);
+  const selected = els.sessionDate.value;
+
+  els.sessionDatePicker.innerHTML = `
+    <div class="picker-header">
+      <button type="button" data-date-picker-prev aria-label="Previous month">&lsaquo;</button>
+      <strong>${escapeHtml(monthLabel(monthKey(monthStart)))}</strong>
+      <button type="button" data-date-picker-next aria-label="Next month">&rsaquo;</button>
+    </div>
+    <div class="picker-weekdays" aria-hidden="true">
+      <span>Mon</span>
+      <span>Tue</span>
+      <span>Wed</span>
+      <span>Thu</span>
+      <span>Fri</span>
+      <span>Sat</span>
+      <span>Sun</span>
+    </div>
+    <div class="picker-days">
+      ${Array.from({ length: 42 }, (_, index) => {
+        const day = addDays(gridStart, index);
+        const iso = toISODate(day);
+        return `
+          <button
+            class="${!isSameMonth(day, monthStart) ? "is-outside" : ""} ${iso === selected ? "is-selected" : ""} ${iso === today() ? "is-today" : ""}"
+            type="button"
+            data-date-picker-day="${iso}"
+            title="${escapeAttribute(formatDate(iso))}"
+          >
+            ${day.getDate()}
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function toggleStatsMonthPicker() {
+  const willOpen = els.statsMonthPicker.hidden;
+  closePickers();
+  if (willOpen) {
+    state.statsPickerYear = Number(state.statsMonth.slice(0, 4));
+    renderStatsMonthPicker();
+    els.statsMonthPicker.hidden = false;
+  }
+}
+
+function moveStatsMonthPicker(delta) {
+  state.statsPickerYear += delta;
+  renderStatsMonthPicker();
+}
+
+function renderStatsMonthPicker() {
+  const selected = state.statsMonth;
+  els.statsMonthPicker.innerHTML = `
+    <div class="picker-header">
+      <button type="button" data-month-picker-prev aria-label="Previous year">&lsaquo;</button>
+      <strong>${state.statsPickerYear}</strong>
+      <button type="button" data-month-picker-next aria-label="Next year">&rsaquo;</button>
+    </div>
+    <div class="picker-months">
+      ${Array.from({ length: 12 }, (_, index) => {
+        const value = `${state.statsPickerYear}-${String(index + 1).padStart(2, "0")}`;
+        return `
+          <button
+            class="${value === selected ? "is-selected" : ""}"
+            type="button"
+            data-month-picker-month="${value}"
+          >
+            ${escapeHtml(formatMonthShort(value))}
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function toggleYearPicker() {
+  const willOpen = els.yearPicker.hidden;
+  closePickers();
+  if (willOpen) {
+    renderYearPicker();
+    els.yearPicker.hidden = false;
+  }
+}
+
+function renderYearPicker() {
+  const years = reviewYearOptions();
+  els.yearPicker.innerHTML = `
+    <div class="picker-years">
+      ${years.map((year) => `
+        <button
+          class="${year === state.reviewYear ? "is-selected" : ""}"
+          type="button"
+          data-year-picker-year="${year}"
+        >
+          ${year}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function reviewYearOptions() {
+  return unique([
+    currentYear(),
+    ...state.sessions.map((session) => session.date.slice(0, 4)),
+  ]).sort((a, b) => b.localeCompare(a));
+}
+
+function closePickers() {
+  els.sessionDatePicker.hidden = true;
+  els.statsMonthPicker.hidden = true;
+  els.yearPicker.hidden = true;
+}
+
 function jumpToPlayedMonth(direction) {
   const month = findPlayedMonth(direction);
   if (!month) {
@@ -688,7 +868,7 @@ function calendarDensityClass(count) {
 function openSessionDialog(options = {}) {
   els.sessionForm.reset();
   document.querySelector("#session-id").value = "";
-  document.querySelector("#session-date").value = today();
+  setSessionDate(today());
   document.querySelector("#delete-session").hidden = true;
   els.sessionDialogTitle.textContent = "Add Session";
   els.sessionSubmit.textContent = "Save Session";
@@ -696,7 +876,7 @@ function openSessionDialog(options = {}) {
   if (options.sessionId) {
     const session = findById(state.sessions, options.sessionId);
     document.querySelector("#session-id").value = session.id;
-    document.querySelector("#session-date").value = session.date;
+    setSessionDate(session.date);
     document.querySelector("#session-gm").value = session.gm;
     document.querySelector("#session-system").value = String(session.system_id);
     document.querySelector("#session-link").value = session.link ?? "";
@@ -724,7 +904,7 @@ function openSessionDialog(options = {}) {
   }
 
   if (options.date) {
-    document.querySelector("#session-date").value = options.date;
+    setSessionDate(options.date);
   }
 
   syncSessionKind();
@@ -829,6 +1009,9 @@ async function saveSession(event) {
 
     if (kind === "campaign") {
       campaignId = Number(document.querySelector("#session-campaign").value);
+      if (!campaignId) {
+        throw new Error("Pick a campaign");
+      }
     } else if (kind === "new-campaign") {
       const campaign = await api("/api/campaigns", {
         method: "POST",
@@ -931,14 +1114,50 @@ async function handleConfirmSubmit(event) {
   }
 }
 
+function syncCampaignNewSystemFields() {
+  const name = document.querySelector("#campaign-system-name").value.trim();
+  const existingSystem = systemByName(name);
+  document.querySelector("#campaign-new-system-fields").hidden = !name || Boolean(existingSystem);
+}
+
+function systemByName(name) {
+  return state.systems.find((system) => {
+    return system.name.toLocaleLowerCase() === name.trim().toLocaleLowerCase();
+  });
+}
+
+async function resolveCampaignSystemId() {
+  const name = document.querySelector("#campaign-system-name").value.trim();
+  if (!name) {
+    throw new Error("Pick or type a system");
+  }
+
+  const existingSystem = systemByName(name);
+  if (existingSystem) {
+    return existingSystem.id;
+  }
+
+  const system = await api("/api/systems", {
+    method: "POST",
+    body: {
+      name,
+      color: document.querySelector("#campaign-new-system-color").value,
+    },
+  });
+  state.systems.push(system);
+  populateSystemSelects();
+  return system.id;
+}
+
 async function saveCampaign(event) {
   event.preventDefault();
   try {
     const id = Number(document.querySelector("#campaign-id").value);
+    const systemId = await resolveCampaignSystemId();
     const payload = {
       name: document.querySelector("#campaign-name").value.trim(),
       default_gm: document.querySelector("#campaign-gm").value.trim(),
-      system_id: Number(document.querySelector("#campaign-system").value),
+      system_id: systemId,
       default_link: valueOrNull("#campaign-link"),
       archived: document.querySelector("#campaign-archived").checked ? 1 : 0,
     };
@@ -962,7 +1181,8 @@ function editCampaign(id) {
   document.querySelector("#campaign-id").value = campaign.id;
   document.querySelector("#campaign-name").value = campaign.name;
   document.querySelector("#campaign-gm").value = campaign.default_gm;
-  document.querySelector("#campaign-system").value = String(campaign.system_id);
+  document.querySelector("#campaign-system-name").value = campaign.system_name;
+  syncCampaignNewSystemFields();
   document.querySelector("#campaign-link").value = campaign.default_link ?? "";
   document.querySelector("#campaign-archived").checked = Boolean(campaign.archived);
 }
@@ -982,10 +1202,19 @@ async function toggleCampaignArchive(id) {
   }
 }
 
+function requestDeleteCampaign(id) {
+  const campaign = findById(state.campaigns, id);
+  openConfirmDialog({
+    title: "Delete campaign?",
+    message: campaign
+      ? `${campaign.name} will be deleted if it has no sessions. Campaigns with sessions should be archived instead.`
+      : "This campaign will be deleted if it has no sessions.",
+    confirmLabel: "Delete",
+    onConfirm: () => deleteCampaign(id),
+  });
+}
+
 async function deleteCampaign(id) {
-  if (!window.confirm("Delete this campaign? Campaigns with sessions must be archived instead.")) {
-    return;
-  }
   try {
     await api(`/api/campaigns/${id}`, { method: "DELETE" });
     state.campaigns = state.campaigns.filter((campaign) => campaign.id !== id);
@@ -999,6 +1228,8 @@ async function deleteCampaign(id) {
 function clearCampaignForm() {
   els.campaignForm.reset();
   document.querySelector("#campaign-id").value = "";
+  document.querySelector("#campaign-new-system-color").value = "#7d91e8";
+  syncCampaignNewSystemFields();
 }
 
 async function saveSystem(event) {
@@ -1105,13 +1336,52 @@ function fillSelect(select, options, selected = select.value) {
   }
 }
 
+function setSessionDate(value) {
+  const date = value || today();
+  els.sessionDate.value = date;
+  els.sessionDateDisplay.textContent = formatDate(date);
+  state.sessionDatePickerMonth = startOfMonth(parseISODate(date));
+}
+
+function setStatsMonth(value, options = {}) {
+  state.statsMonth = value || currentMonth();
+  syncStatsMonthDisplay();
+  if (options.render !== false) {
+    renderMonthlyStats();
+  }
+}
+
+function setReviewYear(value, options = {}) {
+  state.reviewYear = value || currentYear();
+  syncReviewYearDisplay();
+  if (options.render !== false) {
+    renderYearReview();
+  }
+}
+
+function syncStatsMonthDisplay() {
+  els.statsMonth.value = state.statsMonth;
+  els.statsMonthDisplay.textContent = formatMonthYear(state.statsMonth);
+}
+
+function syncReviewYearDisplay() {
+  els.yearSelect.value = state.reviewYear;
+  els.yearDisplay.textContent = state.reviewYear;
+}
+
 function formatDate(value) {
   const [year, month, day] = value.split("-").map(Number);
-  return new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(year, month - 1, day));
+  return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+}
+
+function formatMonthYear(value) {
+  const [year, month] = value.split("-");
+  return `${month}/${year}`;
+}
+
+function formatMonthShort(value) {
+  const [year, month] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(year, month - 1, 1));
 }
 
 function calendarChip(session) {

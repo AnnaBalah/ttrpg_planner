@@ -259,6 +259,21 @@ session **or** a named one-shot, never neither.
 
 ## Future Additions
 
+**Date and picker UX**
+- [x] Date formatting — use `dd/mm/yyyy` everywhere, including table cells, calendar/session labels, modal fields, and picker result text
+  - Full dates now display as `dd/mm/yyyy`; month picker results display as `mm/yyyy`.
+- [x] Custom date pickers — replace or wrap browser-native date/month/year pickers with app-styled controls where it improves consistency
+  - Replaced session date, monthly stats, and year review picker controls with app-styled popovers while keeping ISO values internally.
+
+**Session entry UX**
+- [ ] Add Session defaults — default `Type` to `Campaign session`, keep `Date` defaulted to today, and keep Campaign blank until the user chooses one
+- [ ] Quick Add redesign — rethink campaign cards and actions; add an `Add` flow that prefills campaign defaults but leaves Date blank and required
+- [ ] Quick Add design brainstorm — explore smaller cards, split primary/secondary actions, icon-only edit controls, and clearer distinction between `Log today`, `Add`, and edit-before-save
+
+**System color UX**
+- [ ] Generated colors — when generating or suggesting system colors, avoid repeating the same color that was chosen previously
+
+**Admin and maintenance**
 - [ ] Deployment guide — add `DEPLOY.md` with NAS/home-server setup, Tailscale/LAN notes, Docker volume persistence verification, and safe exposure guidance
 - [ ] Automatic backups — add timestamped JSON backup endpoint or scheduled backup script, in addition to manual export
 - [ ] Import/admin tooling — add a reset-and-reimport command or admin action for early development and data cleanup

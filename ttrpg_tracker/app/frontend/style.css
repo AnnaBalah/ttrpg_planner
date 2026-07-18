@@ -685,10 +685,26 @@ main {
   grid-template-columns:
     minmax(13rem, 1.35fr)
     minmax(9rem, 1fr)
-    minmax(9rem, 1fr)
     minmax(10rem, 1fr)
+    minmax(14rem, 1.35fr)
     auto
     auto;
+}
+
+#campaign-form .campaign-name-field {
+  grid-column: 1;
+}
+
+#campaign-form .campaign-gm-field {
+  grid-column: 2;
+}
+
+#campaign-form .campaign-system-field {
+  grid-column: 3;
+}
+
+#campaign-form .campaign-link-field {
+  grid-column: 4;
 }
 
 .editor-compact {
@@ -702,8 +718,22 @@ main {
 
 label {
   display: grid;
+  align-content: start;
   gap: 0.35rem;
   min-width: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.field-block {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.field-block > label {
+  display: block;
   color: var(--muted);
   font-size: 0.85rem;
 }
@@ -748,6 +778,123 @@ textarea:focus {
   outline-offset: 2px;
 }
 
+.picker-field {
+  position: relative;
+}
+
+.picker-trigger {
+  position: relative;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 2.6rem;
+  background: var(--field);
+  padding: 0.6rem 2.25rem 0.6rem 0.75rem;
+  text-align: left;
+}
+
+.picker-trigger::after {
+  content: "";
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.picker-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  width: min(19rem, calc(100vw - 2rem));
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #111a26;
+  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.36);
+  padding: 0.75rem;
+}
+
+.month-popover {
+  right: 0;
+  left: auto;
+  width: 17rem;
+}
+
+.year-popover {
+  right: 0;
+  left: auto;
+  width: 11rem;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.picker-header button {
+  width: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0;
+}
+
+.picker-weekdays,
+.picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.picker-weekdays span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.picker-days button,
+.picker-months button,
+.picker-years button {
+  min-height: 2rem;
+  padding: 0.25rem;
+}
+
+.picker-days button.is-outside {
+  color: #718093;
+  opacity: 0.72;
+}
+
+.picker-days button.is-today {
+  border-color: var(--accent);
+}
+
+.picker-days button.is-selected,
+.picker-months button.is-selected,
+.picker-years button.is-selected {
+  border-color: var(--accent-2);
+  background: #18302f;
+  color: var(--accent-2);
+}
+
+.picker-months,
+.picker-years {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.picker-months {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.picker-years {
+  grid-template-columns: 1fr;
+}
+
 .checkbox {
   display: flex;
   align-items: center;
@@ -778,6 +925,31 @@ textarea:focus {
   border-color: transparent;
   background: transparent;
   color: var(--muted);
+}
+
+.campaign-system-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2.45rem;
+  gap: 0.25rem;
+}
+
+.campaign-system-control:has([hidden]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.campaign-new-system-color input {
+  width: 2.45rem;
+  min-width: 0;
+  min-height: 2.6rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .field-group {
@@ -914,8 +1086,8 @@ tbody tr:hover {
 
 #campaigns-panel th:last-child,
 #campaigns-panel td.actions {
-  width: 15rem;
-  min-width: 15rem;
+  width: 17rem;
+  min-width: 17rem;
   text-align: center;
   white-space: nowrap;
 }
@@ -1025,6 +1197,14 @@ dialog::backdrop {
 
   #campaign-form .campaign-actions {
     grid-column: 1 / -1;
+  }
+
+  #campaign-form .campaign-name-field,
+  #campaign-form .campaign-gm-field,
+  #campaign-form .campaign-system-field,
+  #campaign-form .campaign-new-system-color,
+  #campaign-form .campaign-link-field {
+    grid-column: auto;
   }
 }
 

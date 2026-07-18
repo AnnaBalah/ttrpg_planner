@@ -1117,7 +1117,8 @@ a:hover {
 
 dialog {
   width: min(720px, calc(100% - 1rem));
-  max-height: min(92vh, 780px);
+  max-height: min(calc(100dvh - 1rem), 780px);
+  overflow: hidden;
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
@@ -1135,8 +1136,9 @@ dialog::backdrop {
 .modal {
   display: grid;
   gap: 1rem;
-  max-height: inherit;
+  max-height: min(calc(100dvh - 1rem), 780px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 1rem;
 }
 
@@ -1205,6 +1207,30 @@ dialog::backdrop {
   #campaign-form .campaign-new-system-color,
   #campaign-form .campaign-link-field {
     grid-column: auto;
+  }
+}
+
+@media (max-height: 760px) {
+  .modal {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .modal .section-heading {
+    margin: -0.75rem -0.75rem 0;
+    padding: 0.75rem;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .picker-trigger {
+    min-height: 2.35rem;
+  }
+
+  .form-grid {
+    gap: 0.65rem;
   }
 }
 

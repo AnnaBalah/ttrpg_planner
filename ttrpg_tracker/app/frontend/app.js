@@ -89,7 +89,7 @@ const els = {
 };
 
 document.addEventListener("click", handleDocumentClick);
-document.addEventListener("click", handlePickerOutsideClick);
+document.addEventListener("click", handlePickerOutsideClick, true);
 document.addEventListener("change", handleDocumentChange);
 els.search.addEventListener("input", (event) => {
   state.search = event.target.value.trim().toLocaleLowerCase();
@@ -646,7 +646,10 @@ function handleDocumentClick(event) {
 }
 
 function handlePickerOutsideClick(event) {
-  if (!event.target.closest(".picker-field")) {
+  const clickedInsidePicker = event.composedPath().some((node) => {
+    return node instanceof Element && node.classList.contains("picker-field");
+  });
+  if (!clickedInsidePicker) {
     closePickers();
   }
 }

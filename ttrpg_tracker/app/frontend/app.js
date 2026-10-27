@@ -403,8 +403,10 @@ function renderCampaigns() {
           <td data-label="Name">${escapeHtml(campaign.name)}</td>
           <td data-label="GM">${escapeHtml(campaign.default_gm)}</td>
           <td data-label="System">
-            <span class="swatch" style="${recordStyle(campaignColor(campaign))}"></span>
-            ${escapeHtml(campaign.system_name)}
+            <span class="color-label">
+              <span class="swatch" style="${recordStyle(campaignColor(campaign))}" aria-hidden="true"></span>
+              <span>${escapeHtml(campaign.system_name)}</span>
+            </span>
           </td>
           <td data-label="Status">${status}</td>
           <td data-label="Actions" class="actions">
@@ -437,8 +439,10 @@ function renderSystems() {
         <tr>
           <td data-label="Name">${escapeHtml(system.name)}</td>
           <td data-label="Color">
-            <span class="swatch" style="${recordStyle(system.color)}"></span>
-            ${escapeHtml(system.color)}
+            <span class="color-label">
+              <span class="swatch" style="${recordStyle(system.color)}" aria-hidden="true"></span>
+              <span>${escapeHtml(system.color)}</span>
+            </span>
           </td>
           <td data-label="Derived shades">
             <div class="shade-list">

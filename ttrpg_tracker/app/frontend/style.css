@@ -128,7 +128,8 @@ td:first-child { font-variant-numeric: tabular-nums; }
 td.actions { white-space: nowrap; }
 .actions button { border: 0; color: var(--muted); padding-inline: var(--space-xs); }
 .chip { display: inline-block; max-width: 9rem; padding: var(--space-2xs) var(--space-xs); background: var(--record-color); color: var(--record-ink); border-radius: 6px; font-weight: 600; vertical-align: middle; white-space: nowrap; overflow: clip; text-overflow: ellipsis; }
-.swatch { display: inline-block; width: 14px; height: 14px; background: var(--record-color); border-radius: 3px; margin-right: var(--space-xs); vertical-align: middle; }
+.color-label { display: inline-flex; align-items: center; gap: var(--space-xs); min-width: 0; overflow-wrap: anywhere; }
+.swatch { display: inline-block; flex-shrink: 0; width: 14px; height: 14px; background: var(--record-color); border-radius: 3px; }
 a { color: var(--accent-2); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .subtabs { display: flex; gap: var(--space-sm); margin-bottom: var(--space-xl); }
 .subtab-button { border-color: var(--color-clear); }
@@ -248,7 +249,8 @@ input[type='file']::file-selector-button { font: inherit; margin-right: var(--sp
   :root { --gutter: 24px; }
   .topbar { flex-wrap: wrap; gap: var(--space-md); }
   .brand h1 { font-size: var(--text-2xl); }
-  .tabs { width: 100%; justify-content: space-between; }
+  .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xs); width: 100%; }
+  .screen-heading { flex-direction: column; align-items: flex-start; }
   .screen-heading h2 { font-size: var(--text-3xl); }
   #calendar-status { display: none; }
   .calendar-hint { display: none; }
@@ -266,12 +268,9 @@ input[type='file']::file-selector-button { font: inherit; margin-right: var(--sp
   .topbar { padding-top: var(--space-lg); padding-bottom: var(--space-xs); }
   .brand h1 { font-size: var(--text-xl); }
   .brand-mark { width: 32px; height: 36px; }
-  .tabs { gap: 0; }
   .tab-button { padding-inline: var(--space-xs); font-size: var(--text-sm); }
   main { padding-top: var(--space-lg); }
-  .screen-heading { flex-wrap: wrap; gap: var(--space-md); }
   .screen-heading h2 { font-size: var(--text-2xl); }
-  .calendar-title-actions { margin-left: auto; }
   .calendar-title-actions .primary { min-height: 44px; font-size: var(--text-md); padding-inline: var(--space-md); }
   .calendar-board { padding: var(--space-xs); border-radius: 18px; }
   .calendar-controls { gap: var(--space-xs); width: 100%; }
@@ -304,7 +303,6 @@ input[type='file']::file-selector-button { font: inherit; margin-right: var(--sp
   td.actions::before { min-width: 5rem; }
   td.empty { display: block; }
   td.empty::before { content: none; }
-  td .swatch { display: none; }
   td .chip { overflow-wrap: anywhere; }
   .modal { padding: var(--space-md); }
   .modal .section-heading h2 { font-size: var(--text-lg); }

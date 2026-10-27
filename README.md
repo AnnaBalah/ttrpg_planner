@@ -4,18 +4,18 @@ Tablelog is a self-hosted web app for tracking tabletop role-playing game (TTRPG
 sessions, campaigns and play statistics. It brings a session calendar, searchable
 history and game records into one place.
 
-This is a personal quality assurance (QA) and business analysis (BA) portfolio
-project. The idea is mine, inspired by Notion add-ons that support similar
+This is a personal QA/BA portfolio project. 
+The idea is mine, inspired by Notion add-ons that support similar
 tracking tasks.
 
-The app and its documentation were created with help from Claude and Codex.
-I make product decisions, develop the app and carry out the manual testing.
+The app and its documentation were created with help from Codex.
+I make product decisions, develop the app and carry out manual testing.
 
 ## Preview
 
 <a href="docs/images/tablelog-calendar.png"><img src="docs/images/tablelog-calendar.png" alt="Tablelog calendar for May 2026 with fictional campaign sessions and one-shots." width="400"></a>
 
-Preview use the same fictional starter data included with new installations:
+Preview uses the same fictional starter data included with new installations:
 26 sessions with invented campaign titles and GM names. Select an image to view
 it at full size.
 

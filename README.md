@@ -15,8 +15,6 @@ I make product decisions, develop the app and carry out the manual testing.
 
 <a href="docs/images/tablelog-calendar.png"><img src="docs/images/tablelog-calendar.png" alt="Tablelog calendar for May 2026 with fictional campaign sessions and one-shots." width="400"></a>
 
-<a href="docs/images/tablelog-statistics.png"><img src="docs/images/tablelog-statistics.png" alt="Tablelog Year in Review for 2026 with 26 fictional sessions and campaign, system and GM statistics." width="400"></a>
-
 Both previews use the same fictional starter data included with new installations:
 26 sessions with invented campaign titles and GM names. Select an image to view
 it at full size.

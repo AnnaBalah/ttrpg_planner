@@ -1,4 +1,7 @@
 app/.venv/
 app/.uv-cache/
-app/__pycache__/
+__pycache__/
 app/*.db
+app/*.db-*
+app/backups/
+app/tests/tmp*/

@@ -1,0 +1,11 @@
+# Keep reusable regression checks and their source fixtures; ignore local QA output.
+*
+!.gitignore
+!qa.mjs
+!stability-qa.mjs
+!import-qa.mjs
+!run-qa.ps1
+!baseline/
+baseline/*
+!baseline/index.html
+!baseline/app.js

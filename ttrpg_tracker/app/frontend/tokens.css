@@ -1,0 +1,51 @@
+/* Hallmark · shape: app screen · genre: playful · theme: sticker (by request) · sticker: vinyl · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H5 E4 S4 R4 V5 · weakest: E, carry the approved sticker material through real controls */
+:root {
+  color-scheme: dark;
+  --color-paper: oklch(21% 0.011 81);
+  --color-paper-2: oklch(25.5% 0.013 72);
+  --color-paper-3: oklch(30% 0.015 74);
+  --color-ink: oklch(95.7% 0.013 82);
+  --color-ink-2: oklch(89% 0.016 80);
+  --color-muted: oklch(77% 0.015 78);
+  --color-rule: oklch(40% 0.016 75);
+  --color-white: oklch(99.5% 0.003 82);
+  --color-accent: oklch(56% 0.225 2);
+  --color-accent-deep: oklch(49% 0.205 2);
+  --color-accent-2: oklch(87.6% 0.179 119);
+  --color-accent-ink: var(--color-white);
+  --color-accent-2-ink: oklch(16% 0.012 81);
+  --color-focus: var(--color-accent-2);
+  --color-field-edge: oklch(69% 0.015 78);
+  --color-error: oklch(76% 0.15 22);
+  --color-error-well: oklch(27% 0.055 20);
+  --color-success: var(--color-accent-2);
+  --color-success-well: oklch(27% 0.035 119);
+  --color-shadow: oklch(11% 0.008 80);
+  --color-backdrop: oklch(11% 0.008 80 / 0.84);
+  --color-clear: transparent;
+  --color-record-dark: oklch(12% 0.01 81);
+  --bg: var(--color-paper); --panel: var(--color-paper-2);
+  --panel-strong: var(--color-paper-3); --field: var(--color-paper);
+  --text: var(--color-ink); --muted: var(--color-muted); --line: var(--color-rule);
+  --accent: var(--color-accent); --accent-2: var(--color-accent-2); --danger: var(--color-error);
+  --font-display: 'Bowlby One SC', 'Arial Black', sans-serif;
+  --font-body: 'Sofia Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: var(--font-body); --display-weight: 400; --tracking-display: 0.005em;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem;
+  --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --text-display: 2.074rem; --text-section: 2.074rem; --text-title: 1.44rem; --text-lead: 1rem;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px;
+  --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px;
+  --space-3xl: 96px; --space-4xl: 144px;
+  --container: 1440px; --gutter: 48px; --gap-columns: 24px;
+  --radius-card: 20px; --radius-input: 10px; --radius-pill: 999px;
+  --rule-hair: 1px; --rule-bar: 2px; --diecut: 5px;
+  --shadow-card: 6px 7px 0 var(--color-shadow); --shadow-press: 2px 2px 0 var(--color-shadow);
+  --control-height: 44px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200;
+  --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+}

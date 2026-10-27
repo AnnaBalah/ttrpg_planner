@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TTRPG Tracker</title>
+    <link rel="icon" href="https://fraternitysororitysvg.com/assets/images/products/Dungeons-and-Dragons-SVG.png" type="image/png" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>TTRPG Tracker</h1>
+      </div>
+      <div class="summary" aria-live="polite">
+        <span id="session-count">0</span>
+        <span>sessions</span>
+      </div>
+    </header>
+
+    <main>
+      <nav class="tabs" aria-label="App sections">
+        <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
+        <button class="tab-button" type="button" data-tab="manage">Manage</button>
+        <button class="tab-button" type="button" data-tab="stats">Stats</button>
+      </nav>
+
+      <section class="quick-add" aria-label="Campaign quick add">
+        <div class="section-heading">
+          <h2>Quick Add</h2>
+          <button class="primary" id="add-session" type="button">+ Session</button>
+        </div>
+        <div class="quick-grid" id="quick-add-list"></div>
+      </section>
+
+      <section class="panel is-active" id="sessions-panel" data-panel="sessions">
+        <section class="embedded-panel" id="calendar-panel">
+          <div class="section-heading calendar-heading">
+            <div>
+              <h2>Calendar</h2>
+              <p id="calendar-status">Month view</p>
+            </div>
+            <div class="calendar-controls">
+              <button type="button" id="calendar-prev" aria-label="Previous month">&lsaquo;</button>
+              <button class="calendar-jump" type="button" id="calendar-prev-session">Prev played</button>
+              <strong id="calendar-title">Month</strong>
+              <button class="calendar-jump" type="button" id="calendar-next-session">Next played</button>
+              <button type="button" id="calendar-next" aria-label="Next month">&rsaquo;</button>
+              <button type="button" id="calendar-today">Today</button>
+            </div>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div class="calendar-agenda" id="calendar-agenda"></div>
+        </section>
+
+        <section class="embedded-panel">
+          <div class="section-heading">
+            <h2>Sessions</h2>
+            <p id="status">Loading...</p>
+          </div>
+          <div class="toolbar" aria-label="Session filters">
+            <label>
+              Search
+              <input id="search" type="search" placeholder="Campaign, GM, or system" />
+            </label>
+            <label>
+              Campaign
+              <select id="campaign-filter"></select>
+            </label>
+            <label>
+              GM
+              <select id="gm-filter"></select>
+            </label>
+            <label>
+              System
+              <select id="system-filter"></select>
+            </label>
+          </div>
+          <div class="table-wrap sessions-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th><button type="button" data-sort="date">Date</button></th>
+                  <th><button type="button" data-sort="display_name">Campaign / One-shot</button></th>
+                  <th><button type="button" data-sort="gm">GM</button></th>
+                  <th><button type="button" data-sort="system_name">System</button></th>
+                  <th>Kind</th>
+                  <th>Link</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel" id="manage-panel" data-panel="manage">
+        <nav class="subtabs" aria-label="Management sections">
+          <button class="subtab-button is-active" type="button" data-subtab="campaigns">Campaigns</button>
+          <button class="subtab-button" type="button" data-subtab="systems">Systems</button>
+        </nav>
+
+        <section class="subpanel is-active" id="campaigns-panel" data-subpanel="campaigns">
+          <div class="section-heading">
+            <h2>Campaigns</h2>
+            <p id="campaign-status">Templates</p>
+          </div>
+          <form class="editor" id="campaign-form">
+            <input type="hidden" id="campaign-id" />
+            <label class="campaign-name-field">
+              Name
+              <input id="campaign-name" required />
+            </label>
+            <label class="campaign-gm-field">
+              Default GM
+              <input id="campaign-gm" list="gm-options" required />
+            </label>
+            <div class="field-block campaign-system-field">
+              <label for="campaign-system-name">System</label>
+              <div class="campaign-system-control">
+                <input id="campaign-system-name" list="system-options" required />
+                <label class="campaign-new-system-color" id="campaign-new-system-fields" hidden title="New system color">
+                  <span class="sr-only">New system color</span>
+                  <input id="campaign-new-system-color" type="color" value="#7d91e8" />
+                </label>
+              </div>
+            </div>
+            <label class="campaign-link-field">
+              Default link
+              <input id="campaign-link" type="url" />
+            </label>
+            <label class="checkbox">
+              <input id="campaign-archived" type="checkbox" />
+              Archived
+            </label>
+            <div class="form-actions campaign-actions">
+              <button class="primary" type="submit">Save Campaign</button>
+              <button type="button" id="clear-campaign">Reset</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>GM</th>
+                  <th>System</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="campaigns-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="subpanel" id="systems-panel" data-subpanel="systems">
+          <div class="section-heading">
+            <h2>Systems</h2>
+            <p id="system-status">Managed list</p>
+          </div>
+          <form class="editor editor-compact" id="system-form">
+            <input type="hidden" id="system-id" />
+            <label>
+              Name
+              <input id="system-name" required />
+            </label>
+            <label>
+              Primary color
+              <input id="system-color" type="color" value="#58b6a9" required />
+            </label>
+            <div class="form-actions">
+              <button class="primary" type="submit">Save System</button>
+              <button type="button" id="clear-system">Clear</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Color</th>
+                  <th>Derived shades</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="systems-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel" id="stats-panel" data-panel="stats">
+        <nav class="subtabs" aria-label="Stats sections">
+          <button class="subtab-button is-active" type="button" data-subtab="monthly">📈 Monthly</button>
+          <button class="subtab-button" type="button" data-subtab="year">🏆 Year Review</button>
+        </nav>
+
+        <section class="subpanel is-active" data-subpanel="monthly">
+          <div class="section-heading stats-heading">
+            <div>
+              <h2>📈 Monthly Stats</h2>
+              <p id="stats-status">Selected month</p>
+            </div>
+            <div class="field-block month-picker">
+              <label for="stats-month-trigger">Month</label>
+              <div class="picker-field">
+                <input id="stats-month" type="hidden" />
+                <button class="picker-trigger" id="stats-month-trigger" type="button">
+                  <span id="stats-month-display">--/----</span>
+                </button>
+                <div class="picker-popover month-popover" id="stats-month-picker" hidden></div>
+              </div>
+            </div>
+          </div>
+          <div id="stats-content"></div>
+        </section>
+
+        <section class="subpanel" data-subpanel="year">
+          <div class="section-heading stats-heading">
+            <div>
+              <h2>🏆 Year in Review</h2>
+              <p id="year-status">Selected year</p>
+            </div>
+            <div class="field-block year-picker">
+              <label for="year-trigger">Year</label>
+              <div class="picker-field">
+                <input id="year-select" type="hidden" />
+                <button class="picker-trigger" id="year-trigger" type="button">
+                  <span id="year-display">----</span>
+                </button>
+                <div class="picker-popover year-popover" id="year-picker" hidden></div>
+              </div>
+            </div>
+          </div>
+          <div id="year-content"></div>
+        </section>
+      </section>
+
+      <section class="export-bar" aria-label="Backup export">
+        <button type="button" id="export-json">Export JSON</button>
+        <button type="button" id="export-csv">Export CSV</button>
+      </section>
+    </main>
+
+    <dialog id="session-dialog">
+      <form method="dialog" class="modal" id="session-form">
+        <div class="section-heading">
+          <h2 id="session-dialog-title">Session</h2>
+          <button class="icon-button" type="button" id="close-session" aria-label="Close">x</button>
+        </div>
+
+        <input type="hidden" id="session-id" />
+
+        <label>
+          Type
+          <select id="session-kind">
+            <option value="campaign">Campaign session</option>
+            <option value="one-shot">One-shot</option>
+            <option value="new-campaign">New campaign</option>
+          </select>
+        </label>
+
+        <div class="field-group" data-session-group="campaign">
+          <label>
+            Campaign
+            <select id="session-campaign"></select>
+          </label>
+        </div>
+
+        <div class="field-group" data-session-group="one-shot">
+          <label>
+            One-shot name
+            <input id="session-name" />
+          </label>
+        </div>
+
+        <div class="field-group" data-session-group="new-campaign">
+          <label>
+            Campaign name
+            <input id="session-new-campaign-name" />
+          </label>
+          <label>
+            Default GM
+            <input id="session-new-campaign-gm" list="gm-options" />
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <div class="field-block">
+            <label for="session-date-trigger">Date</label>
+            <div class="picker-field">
+              <input id="session-date" type="hidden" />
+              <button class="picker-trigger" id="session-date-trigger" type="button">
+                <span id="session-date-display">--/--/----</span>
+              </button>
+              <div class="picker-popover date-popover" id="session-date-picker" hidden></div>
+            </div>
+          </div>
+          <label>
+            GM
+            <input id="session-gm" list="gm-options" required />
+          </label>
+          <label class="system-select-field">
+            System
+            <select id="session-system" required></select>
+          </label>
+          <div class="new-system-row" id="session-new-system-fields">
+            <label>
+              New system
+              <input id="session-new-system-name" />
+            </label>
+            <label>
+              Primary color
+              <input id="session-new-system-color" type="color" value="#7d91e8" />
+            </label>
+          </div>
+          <label>
+            Link
+            <input id="session-link" type="url" />
+          </label>
+          <label>
+            Notes
+            <textarea id="session-notes" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="primary" type="submit">Save Session</button>
+          <button type="button" id="delete-session">Delete</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="confirm-dialog">
+      <form method="dialog" class="modal confirm-modal" id="confirm-form">
+        <div>
+          <p class="eyebrow">Confirm</p>
+          <h2 id="confirm-title">Delete session?</h2>
+        </div>
+        <p id="confirm-message">This cannot be undone.</p>
+        <div class="form-actions confirm-actions">
+          <button type="button" id="confirm-cancel">Cancel</button>
+          <button class="danger-button" type="submit" id="confirm-ok">Delete</button>
+        </div>
+      </form>
+    </dialog>
+
+    <datalist id="gm-options"></datalist>
+    <datalist id="system-options"></datalist>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>

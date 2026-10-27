@@ -19,7 +19,7 @@ const state = {
   sessions: [],
   campaigns: [],
   systems: [],
-  calendarDate: startOfMonth(new Date()),
+  calendarDate: initialCalendarMonth(),
   statsMonth: currentMonth(),
   statsPickerYear: Number(currentYear()),
   sessionDatePickerMonth: startOfMonth(new Date()),
@@ -33,6 +33,8 @@ const state = {
     system: "",
   },
 };
+
+const csvImport = { text: "", preview: null, busy: false, applying: false, sequence: 0 };
 
 const els = {
   tabs: document.querySelectorAll(".tab-button"),
@@ -66,8 +68,6 @@ const els = {
   sessionsBody: document.querySelector("#sessions-body"),
   campaignsBody: document.querySelector("#campaigns-body"),
   systemsBody: document.querySelector("#systems-body"),
-  quickAdd: document.querySelector(".quick-add"),
-  quickAddList: document.querySelector("#quick-add-list"),
   toast: document.querySelector("#toast"),
   sessionDialog: document.querySelector("#session-dialog"),
   sessionForm: document.querySelector("#session-form"),
@@ -86,6 +86,14 @@ const els = {
   systemForm: document.querySelector("#system-form"),
   gmOptions: document.querySelector("#gm-options"),
   systemOptions: document.querySelector("#system-options"),
+  importDialog: document.querySelector("#import-dialog"),
+  importForm: document.querySelector("#import-form"),
+  importFile: document.querySelector("#import-file"),
+  importStatus: document.querySelector("#import-status"),
+  importPreview: document.querySelector("#import-preview"),
+  importPreviewButton: document.querySelector("#preview-import"),
+  importApply: document.querySelector("#apply-import"),
+  importClose: document.querySelector("#close-import"),
 };
 
 document.addEventListener("click", handleDocumentClick);
@@ -109,9 +117,18 @@ els.systemFilter.addEventListener("change", (event) => {
 });
 setStatsMonth(state.statsMonth, { render: false });
 els.sessionForm.addEventListener("submit", saveSession);
+els.sessionDialog.addEventListener("cancel", event => {
+  if (els.sessionForm.getAttribute("aria-busy") === "true") event.preventDefault();
+});
 els.confirmForm.addEventListener("submit", handleConfirmSubmit);
 els.campaignForm.addEventListener("submit", saveCampaign);
 els.systemForm.addEventListener("submit", saveSystem);
+els.importForm.addEventListener("submit", applyCsvImport);
+els.importFile.addEventListener("change", resetCsvImport);
+els.importDialog.addEventListener("cancel", event => {
+  if (csvImport.applying) event.preventDefault();
+});
+els.importDialog.addEventListener("close", resetCsvImport);
 document.querySelector("#campaign-system-name").addEventListener("input", syncCampaignNewSystemFields);
 
 loadAll();
@@ -126,8 +143,10 @@ async function loadAll() {
     state.sessions = sessions;
     state.campaigns = campaigns;
     state.systems = systems;
+    const initialView = new URLSearchParams(location.search).get("view");
     renderAll();
     els.status.textContent = "Ready";
+    if (["manage", "stats"].includes(initialView)) setActiveTab(initialView);
   } catch (error) {
     showToast(error.message, true);
     els.status.textContent = "Could not load data";
@@ -136,7 +155,6 @@ async function loadAll() {
 
 function renderAll() {
   renderFilters();
-  renderQuickAdd();
   renderSessions();
   renderCalendar();
   renderMonthlyStats();
@@ -166,39 +184,6 @@ function renderFilters() {
   ], state.filters.system);
 }
 
-function renderQuickAdd() {
-  const activeCampaigns = state.campaigns.filter((campaign) => !campaign.archived);
-  if (activeCampaigns.length === 0) {
-    els.quickAddList.innerHTML = emptyState(
-      "📜",
-      "No active campaigns",
-      "Create or unarchive a campaign to make quick add useful.",
-      "compact",
-    );
-    return;
-  }
-
-  els.quickAddList.innerHTML = activeCampaigns
-    .map((campaign) => {
-      return `
-        <article class="quick-card">
-          <div class="quick-card-main">
-            <span class="plus" aria-hidden="true">+</span>
-            <div>
-              <strong>${escapeHtml(campaign.name)}</strong>
-              <small>${escapeHtml(campaign.system_name)} / ${escapeHtml(campaign.default_gm)}</small>
-            </div>
-          </div>
-          <div class="quick-card-actions">
-            <button class="primary" type="button" data-quick-save="${campaign.id}">Log today</button>
-            <button class="quick-edit-button" type="button" data-quick-edit="${campaign.id}" title="Edit before logging" aria-label="Edit ${escapeAttribute(campaign.name)} before logging">Edit</button>
-          </div>
-        </article>
-      `;
-    })
-    .join("");
-}
-
 function renderSessions() {
   const rows = filteredSessions().sort(compareSessions);
   els.sessionCount.textContent = state.sessions.length.toString();
@@ -208,7 +193,7 @@ function renderSessions() {
     els.sessionsBody.innerHTML = `
       <tr>
         <td class="empty" colspan="7">
-          ${emptyState("🕯️", "No sessions found", "Try clearing filters or add a new session.", "compact")}
+          ${emptyState("", "No sessions found", "Try clearing filters or add a new session.", "compact")}
         </td>
       </tr>
     `;
@@ -246,7 +231,10 @@ function renderCalendar() {
     ? `Jump to ${monthLabel(nextPlayedMonth)}`
     : "No later played month";
 
-  els.calendarGrid.innerHTML = Array.from({ length: 42 }, (_, index) => {
+  const dayCount = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+  const cellCount = Math.ceil((startOffset + dayCount) / 7) * 7;
+  syncViewUrl();
+  els.calendarGrid.innerHTML = Array.from({ length: cellCount }, (_, index) => {
     const day = addDays(gridStart, index);
     const iso = toISODate(day);
     const daySessions = sessionsByDate.get(iso) ?? [];
@@ -255,9 +243,10 @@ function renderCalendar() {
     const density = calendarDensityClass(daySessions.length);
     return `
       <article class="calendar-day ${density} ${isOutside ? "is-outside" : ""} ${isCurrent ? "is-today" : ""}" data-calendar-cell="${iso}">
-        <button class="calendar-date" type="button" data-calendar-day="${iso}">
+        <button class="calendar-date" type="button" data-calendar-day="${iso}" aria-label="Add session on ${escapeAttribute(formatDate(iso))}">
           <span>${day.getDate()}</span>
           <small>${daySessions.length ? `${daySessions.length}` : ""}</small>
+          <span class="day-add" aria-hidden="true">+</span>
         </button>
         <div class="calendar-chips">
           ${daySessions.map(calendarChip).join("")}
@@ -268,7 +257,7 @@ function renderCalendar() {
 
   if (monthSessions.length === 0) {
     els.calendarAgenda.innerHTML = emptyState(
-      "🗓️",
+      "",
       "No sessions this month",
       "Tap a date to schedule the next one.",
       "compact",
@@ -300,7 +289,7 @@ function renderMonthlyStats() {
 
   if (sessions.length === 0) {
     els.statsContent.innerHTML = `
-      ${emptyState("🌙", label, "No sessions logged for this month.")}
+      ${emptyState("", label, "No sessions logged for this month.")}
     `;
     return;
   }
@@ -320,9 +309,9 @@ function renderMonthlyStats() {
 
   els.statsContent.innerHTML = `
     <div class="stats-summary">
-      ${statTile("🎲", "Sessions Logged", sessions.length)}
-      ${statTile("⭐", "Most Played", topCampaign.label)}
-      ${statTile("🧭", "Favorite System", topSystem.label)}
+      ${statTile("", "Sessions Logged", sessions.length)}
+      ${statTile("", "Most Played", topCampaign.label)}
+      ${statTile("", "Favorite System", topSystem.label)}
     </div>
     <div class="stats-grid">
       ${statsChart("Campaigns", campaignRows)}
@@ -351,7 +340,7 @@ function renderYearReview() {
 
   if (sessions.length === 0) {
     els.yearContent.innerHTML = `
-      ${emptyState("🏕️", state.reviewYear, "No sessions logged for this year.")}
+      ${emptyState("", state.reviewYear, "No sessions logged for this year.")}
     `;
     return;
   }
@@ -378,10 +367,10 @@ function renderYearReview() {
 
   els.yearContent.innerHTML = `
     <div class="stats-summary review-summary">
-      ${statTile("🎲", "Sessions Logged", sessions.length)}
-      ${statTile("🗓️", "Busiest Month", topMonth.shortLabel)}
-      ${statTile("⭐", "Most Played", campaignRows[0].label)}
-      ${statTile("⏳", "Longest Break", longestGapLabel(sessions))}
+      ${statTile("", "Sessions Logged", sessions.length)}
+      ${statTile("", "Busiest Month", topMonth.shortLabel)}
+      ${statTile("", "Most Played", campaignRows[0].label)}
+      ${statTile("", "Longest Break", longestGapLabel(sessions))}
     </div>
     <div class="stats-grid review-grid">
       ${yearMonthChart(monthlyRows)}
@@ -398,7 +387,7 @@ function renderCampaigns() {
     els.campaignsBody.innerHTML = `
       <tr>
         <td class="empty" colspan="5">
-          ${emptyState("📜", "No campaigns yet", "Add a campaign template to speed up session logging.", "compact")}
+          ${emptyState("", "No campaigns yet", "Add a campaign template to speed up session logging.", "compact")}
         </td>
       </tr>
     `;
@@ -414,7 +403,7 @@ function renderCampaigns() {
           <td data-label="Name">${escapeHtml(campaign.name)}</td>
           <td data-label="GM">${escapeHtml(campaign.default_gm)}</td>
           <td data-label="System">
-            <span class="swatch" style="background:${escapeAttribute(campaignColor(campaign))}"></span>
+            <span class="swatch" style="${recordStyle(campaignColor(campaign))}"></span>
             ${escapeHtml(campaign.system_name)}
           </td>
           <td data-label="Status">${status}</td>
@@ -434,7 +423,7 @@ function renderSystems() {
     els.systemsBody.innerHTML = `
       <tr>
         <td class="empty" colspan="4">
-          ${emptyState("🎲", "No systems yet", "Add a system and pick its primary color.", "compact")}
+          ${emptyState("", "No systems yet", "Add a system and pick its primary color.", "compact")}
         </td>
       </tr>
     `;
@@ -448,7 +437,7 @@ function renderSystems() {
         <tr>
           <td data-label="Name">${escapeHtml(system.name)}</td>
           <td data-label="Color">
-            <span class="swatch" style="background:${escapeAttribute(system.color)}"></span>
+            <span class="swatch" style="${recordStyle(system.color)}"></span>
             ${escapeHtml(system.color)}
           </td>
           <td data-label="Derived shades">
@@ -510,7 +499,7 @@ function sessionRow(session) {
     <tr>
       <td data-label="Date">${formatDate(session.date)}</td>
       <td data-label="${kind}">
-        <span class="chip" style="background:${escapeAttribute(sessionColor(session))}">
+        <span class="chip" title="${escapeAttribute(session.display_name)}" style="${recordStyle(sessionColor(session))}">
           ${escapeHtml(session.display_name)}
         </span>
       </td>
@@ -611,10 +600,6 @@ function handleDocumentClick(event) {
     openSessionDialog({ sessionId: Number(target.dataset.calendarSession) });
   } else if (target.id === "add-session") {
     openSessionDialog();
-  } else if (target.matches("[data-quick-save]")) {
-    quickSaveCampaign(Number(target.dataset.quickSave), target);
-  } else if (target.matches("[data-quick-edit]")) {
-    openSessionDialog({ campaignId: Number(target.dataset.quickEdit) });
   } else if (target.matches("[data-edit-session]")) {
     openSessionDialog({ sessionId: Number(target.dataset.editSession) });
   } else if (target.matches("[data-delete-session-row]")) {
@@ -638,6 +623,15 @@ function handleDocumentClick(event) {
     editSystem(Number(target.dataset.editSystem));
   } else if (target.id === "clear-system") {
     clearSystemForm();
+  } else if (target.id === "import-csv") {
+    els.importForm.reset();
+    resetCsvImport();
+    els.importDialog.showModal();
+    els.importFile.focus();
+  } else if (target.id === "close-import") {
+    if (!csvImport.applying) els.importDialog.close();
+  } else if (target.id === "preview-import") {
+    previewCsvImport();
   } else if (target.id === "export-json") {
     downloadExport("/api/export", "ttrpg-export.json");
   } else if (target.id === "export-csv") {
@@ -666,9 +660,13 @@ function handleDocumentChange(event) {
 }
 
 function setActiveTab(tab) {
-  els.tabs.forEach((button) => button.classList.toggle("is-active", button.dataset.tab === tab));
+  els.tabs.forEach((button) => {
+    const active = button.dataset.tab === tab;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  syncViewUrl(tab);
   els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === tab));
-  els.quickAdd.hidden = tab !== "sessions";
   const activePanel = document.querySelector(`[data-panel="${tab}"]`);
   if (activePanel && activePanel.querySelector(".subtab-button") && !activePanel.querySelector(".subpanel.is-active")) {
     setSubtab(activePanel.querySelector(".subtab-button").dataset.subtab, activePanel);
@@ -909,12 +907,8 @@ function openSessionDialog(options = {}) {
       document.querySelector("#session-kind").value = "one-shot";
       document.querySelector("#session-name").value = session.name ?? session.display_name;
     }
-  } else if (options.campaignId) {
-    document.querySelector("#session-kind").value = "campaign";
-    document.querySelector("#session-campaign").value = String(options.campaignId);
-    applyCampaignDefaults(options.campaignId);
   } else {
-    document.querySelector("#session-kind").value = "one-shot";
+    document.querySelector("#session-kind").value = "campaign";
     document.querySelector("#session-campaign").value = "";
     document.querySelector("#session-gm").value = "";
     document.querySelector("#session-system").value = "";
@@ -947,6 +941,9 @@ function syncSessionKind() {
   document.querySelectorAll("[data-session-group]").forEach((group) => {
     group.hidden = group.dataset.sessionGroup !== kind;
   });
+  document.querySelector("#session-campaign").required = kind === "campaign";
+  document.querySelector("#session-name").required = kind === "one-shot";
+  document.querySelector("#session-new-campaign-name").required = kind === "new-campaign";
 }
 
 function syncSessionKindDefaults() {
@@ -974,6 +971,7 @@ function syncNewSystemFields() {
     ]);
   }
   fields.hidden = !shouldShow;
+  document.querySelector("#session-new-system-name").required = shouldShow;
 }
 
 function applyCampaignDefaults(campaignId, options = {}) {
@@ -987,42 +985,37 @@ function applyCampaignDefaults(campaignId, options = {}) {
   syncNewSystemFields();
 }
 
-async function quickSaveCampaign(campaignId, button) {
-  const campaign = findById(state.campaigns, campaignId);
-  if (!campaign) {
-    return;
+function beginFormSave(form) {
+  if (form.getAttribute("aria-busy") === "true") return null;
+  for (const input of form.querySelectorAll("input[required]")) {
+    input.setCustomValidity(input.value.trim() ? "" : "Enter a value for this field.");
   }
-
-  const originalLabel = button.textContent;
-  button.disabled = true;
-  button.textContent = "Logging...";
-
-  try {
-    const saved = await api("/api/sessions", {
-      method: "POST",
-      body: {
-        campaign_id: campaign.id,
-        name: null,
-        date: today(),
-        gm: campaign.default_gm,
-        system_id: campaign.system_id,
-        link: campaign.default_link ?? null,
-        notes: null,
-      },
-    });
-    upsert(state.sessions, saved);
-    await refreshLists();
-    showToast(`Logged ${campaign.name} for today`);
-  } catch (error) {
-    showToast(error.message, true);
-  } finally {
-    button.disabled = false;
-    button.textContent = originalLabel;
+  for (const input of form.querySelectorAll("input[type='url']")) {
+    let valid = !input.value.trim();
+    try { valid ||= /^https?:\/\//i.test(input.value.trim()) && Boolean(new URL(input.value.trim()).hostname); } catch {}
+    input.setCustomValidity(valid ? "" : "Use a complete http:// or https:// address.");
   }
+  if (!form.reportValidity()) return null;
+  form.setAttribute("aria-busy", "true");
+  const buttons = [...form.querySelectorAll("button")].map(button => [button, button.disabled]);
+  for (const [button] of buttons) button.disabled = true;
+  return () => {
+    form.setAttribute("aria-busy", "false");
+    for (const [button, disabled] of buttons) button.disabled = disabled;
+  };
 }
+
+document.addEventListener("input", event => {
+  if (event.target instanceof HTMLInputElement) event.target.setCustomValidity("");
+});
+document.addEventListener("reset", event => {
+  for (const input of event.target.querySelectorAll("input")) input.setCustomValidity("");
+});
 
 async function saveSession(event) {
   event.preventDefault();
+  const finish = beginFormSave(els.sessionForm);
+  if (!finish) return;
   try {
     const id = Number(document.querySelector("#session-id").value);
     const kind = document.querySelector("#session-kind").value;
@@ -1048,6 +1041,10 @@ async function saveSession(event) {
       });
       campaignId = campaign.id;
       state.campaigns.push(campaign);
+      populateCampaignSelect();
+      document.querySelector("#session-kind").value = "campaign";
+      document.querySelector("#session-campaign").value = String(campaign.id);
+      syncSessionKind();
     } else {
       name = document.querySelector("#session-name").value.trim();
     }
@@ -1072,6 +1069,8 @@ async function saveSession(event) {
     showToast("Session saved");
   } catch (error) {
     showToast(error.message, true);
+  } finally {
+    finish();
   }
 }
 
@@ -1089,6 +1088,8 @@ async function resolveSessionSystemId() {
   });
   state.systems.push(system);
   populateSystemSelects();
+  select.value = String(system.id);
+  syncNewSystemFields();
   return system.id;
 }
 
@@ -1182,6 +1183,8 @@ async function resolveCampaignSystemId() {
 
 async function saveCampaign(event) {
   event.preventDefault();
+  const finish = beginFormSave(els.campaignForm);
+  if (!finish) return;
   try {
     const id = Number(document.querySelector("#campaign-id").value);
     const systemId = await resolveCampaignSystemId();
@@ -1198,10 +1201,12 @@ async function saveCampaign(event) {
     });
     upsert(state.campaigns, saved);
     clearCampaignForm();
-    renderAll();
+    await refreshLists();
     showToast("Campaign saved");
   } catch (error) {
     showToast(error.message, true);
+  } finally {
+    finish();
   }
 }
 
@@ -1282,6 +1287,8 @@ function syncNewSystemColorDefaults() {
 
 async function saveSystem(event) {
   event.preventDefault();
+  const finish = beginFormSave(els.systemForm);
+  if (!finish) return;
   try {
     const id = Number(document.querySelector("#system-id").value);
     const payload = {
@@ -1298,6 +1305,8 @@ async function saveSystem(event) {
     showToast("System saved");
   } catch (error) {
     showToast(error.message, true);
+  } finally {
+    finish();
   }
 }
 
@@ -1349,6 +1358,118 @@ async function downloadExport(url, filename) {
   }
 }
 
+function resetCsvImport() {
+  csvImport.sequence += 1;
+  csvImport.text = "";
+  csvImport.preview = null;
+  csvImport.busy = false;
+  csvImport.applying = false;
+  els.importPreview.hidden = true;
+  els.importPreview.replaceChildren();
+  els.importApply.hidden = true;
+  els.importStatus.classList.remove("is-error");
+  els.importStatus.textContent = els.importFile.files.length ? "Preview this file to review new and existing records." : "Choose a file to preview what will be added.";
+  setCsvImportBusy(false);
+}
+
+function setCsvImportBusy(busy) {
+  csvImport.busy = busy;
+  els.importForm.setAttribute("aria-busy", String(busy));
+  els.importFile.disabled = busy;
+  els.importPreviewButton.disabled = busy || !els.importFile.files.length;
+  els.importApply.disabled = busy || !csvImport.preview?.can_import;
+  els.importClose.disabled = csvImport.applying;
+  els.importPreviewButton.textContent = busy && !csvImport.applying ? "Reading…" : "Preview file";
+  els.importApply.textContent = csvImport.applying ? "Importing…" : "Import new records";
+}
+
+async function previewCsvImport() {
+  const file = els.importFile.files[0];
+  if (!file || csvImport.busy) return;
+  const sequence = csvImport.sequence;
+  setCsvImportBusy(true);
+  els.importStatus.classList.remove("is-error");
+  els.importStatus.textContent = "Checking records against your journal…";
+  try {
+    if (file.size > 5_000_000) throw new Error("Choose a CSV smaller than 5 MB.");
+    const text = await file.text();
+    const result = await api("/api/import/preview", { method: "POST", body: { csv_text: text } });
+    if (sequence !== csvImport.sequence || !els.importDialog.open) return;
+    csvImport.text = text;
+    csvImport.preview = result;
+    renderCsvImportPreview(result);
+  } catch (error) {
+    if (sequence !== csvImport.sequence) return;
+    csvImport.preview = null;
+    els.importApply.hidden = true;
+    els.importStatus.classList.add("is-error");
+    els.importStatus.textContent = error.message;
+  } finally {
+    if (sequence === csvImport.sequence) setCsvImportBusy(false);
+  }
+}
+
+function renderCsvImportPreview(result) {
+  const counts = result.counts;
+  const total = counts.sessions.new + counts.campaigns.new + counts.systems.new;
+  const issues = (items, title, error = false) => items.length ? `
+    <div class="import-issues ${error ? "is-error" : ""}">
+      <h3>${title}</h3>
+      <ul>${items.map(item => `<li>${item.row ? `Row ${item.row}: ` : ""}${escapeHtml(item.message)}</li>`).join("")}</ul>
+    </div>` : "";
+  const labels = { new: "Add", existing: "Keep existing", duplicate: "Already recorded", invalid: "Fix row" };
+  const kinds = { session: "Session", campaign: "Campaign", system: "System" };
+  els.importPreview.innerHTML = `
+    <dl class="import-totals">
+      <div><dt>New sessions</dt><dd>${counts.sessions.new}</dd></div>
+      <div><dt>New campaigns</dt><dd>${counts.campaigns.new}</dd></div>
+      <div><dt>New systems</dt><dd>${counts.systems.new}</dd></div>
+    </dl>
+    <p class="import-note">${counts.sessions.duplicates} existing sessions will be skipped. Existing records keep their current settings, notes and links.</p>
+    ${issues(result.errors, "Needs attention", true)}
+    ${issues(result.warnings, "Kept existing settings")}
+    <details>
+      <summary>Review ${result.rows.length} rows</summary>
+      <div class="table-wrap import-rows"><table>
+        <thead><tr><th>Row</th><th>Record</th><th>Name</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody>${result.rows.map(row => `<tr>
+          <td data-label="Row">${row.row}</td>
+          <td data-label="Record">${kinds[row.record_type] ?? "Unknown"}</td>
+          <td data-label="Name">${escapeHtml(row.name)}</td>
+          <td data-label="Date">${escapeHtml(row.date || "")}</td>
+          <td data-label="Action">${labels[row.status] ?? "Fix row"}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+    </details>`;
+  els.importPreview.hidden = false;
+  els.importApply.hidden = !result.can_import;
+  els.importStatus.classList.toggle("is-error", result.errors.length > 0);
+  els.importStatus.textContent = result.errors.length ? "Fix the listed issues and preview the file again." : total ? "Ready to add new records. A backup will be saved before import." : "Everything in this file is already recorded.";
+}
+
+async function applyCsvImport(event) {
+  event.preventDefault();
+  if (!csvImport.preview?.can_import || csvImport.busy) return;
+  csvImport.applying = true;
+  setCsvImportBusy(true);
+  els.importStatus.classList.remove("is-error");
+  els.importStatus.textContent = "Adding your new records…";
+  try {
+    const result = await api("/api/import", { method: "POST", body: { csv_text: csvImport.text, revision: csvImport.preview.revision } });
+    await refreshLists();
+    els.importDialog.close();
+    showToast(`Imported ${result.counts.sessions.new} sessions, ${result.counts.campaigns.new} campaigns and ${result.counts.systems.new} systems.`);
+  } catch (error) {
+    csvImport.preview = null;
+    els.importApply.hidden = true;
+    els.importStatus.classList.add("is-error");
+    els.importStatus.textContent = `${error.message} Preview the file again before retrying.`;
+  } finally {
+    csvImport.applying = false;
+    setCsvImportBusy(false);
+  }
+}
+
 async function api(url, options = {}) {
   const response = await fetch(url, {
     method: options.method ?? "GET",
@@ -1367,7 +1488,8 @@ async function api(url, options = {}) {
 async function errorText(response) {
   try {
     const data = await response.json();
-    return data.detail ?? `Request failed with ${response.status}`;
+    if (Array.isArray(data.detail)) return data.detail.map(issue => issue.msg).filter(Boolean).join(" ") || `Request failed with ${response.status}`;
+    return typeof data.detail === "string" ? data.detail : `Request failed with ${response.status}`;
   } catch {
     return `Request failed with ${response.status}`;
   }
@@ -1436,7 +1558,7 @@ function calendarChip(session) {
   return `
     <button
       class="calendar-chip"
-      style="background:${escapeAttribute(sessionColor(session))}"
+      style="${recordStyle(sessionColor(session))}"
       type="button"
       data-calendar-session="${session.id}"
       title="${escapeAttribute(session.display_name)}"
@@ -1534,7 +1656,7 @@ function systemShadePreview(system) {
 function shadePreview(shade) {
   return `
     <span class="shade-chip" title="${escapeAttribute(shade.label)}">
-      <span style="background:${escapeAttribute(shade.color)}"></span>
+      <span style="${recordStyle(shade.color)}"></span>
       ${escapeHtml(shade.label)}
     </span>
   `;
@@ -1671,7 +1793,6 @@ function emptyState(icon, title, message, variant = "") {
   }
   return `
     <div class="${classes.join(" ")}">
-      <span class="empty-icon" aria-hidden="true">${icon}</span>
       <strong>${escapeHtml(title)}</strong>
       <p>${escapeHtml(message)}</p>
     </div>
@@ -1681,7 +1802,6 @@ function emptyState(icon, title, message, variant = "") {
 function statTile(icon, label, value) {
   return `
     <div class="stat-tile">
-      <span class="stat-icon" aria-hidden="true">${icon}</span>
       <span>${escapeHtml(label)}</span>
       <strong>${escapeHtml(value)}</strong>
     </div>
@@ -1692,7 +1812,7 @@ function statsChart(title, rows) {
   const max = Math.max(...rows.map((row) => row.count));
   return `
     <section class="chart-panel">
-      <h3><span aria-hidden="true">${chartIcon(title)}</span>${escapeHtml(title)}</h3>
+      <h3>${escapeHtml(title)}</h3>
       <div class="bar-list">
         ${rows.map((row) => statsBar(row, max)).join("")}
       </div>
@@ -1701,7 +1821,7 @@ function statsChart(title, rows) {
 }
 
 function statsBar(row, max) {
-  const width = Math.max(10, Math.round((row.count / max) * 100));
+  const width = row.count > 0 ? Math.max(10, Math.round((row.count / max) * 100)) : 0;
   const label = row.count === 1 ? "1 session" : `${row.count} sessions`;
   return `
     <div class="bar-row">
@@ -1710,7 +1830,7 @@ function statsBar(row, max) {
         <strong>${label}</strong>
       </div>
       <div class="bar-track" aria-hidden="true">
-        <span style="width:${width}%; background:${escapeAttribute(row.color)}"></span>
+        <span style="width:${width}%; ${recordStyle(row.color)}"></span>
       </div>
     </div>
   `;
@@ -1720,12 +1840,12 @@ function yearMonthChart(rows) {
   const max = Math.max(...rows.map((row) => row.count), 1);
   return `
     <section class="chart-panel wide-panel">
-      <h3><span aria-hidden="true">🗓️</span>Sessions Per Month</h3>
+      <h3>Sessions Per Month</h3>
       <div class="month-bars">
         ${rows.map((row) => `
-          <div class="month-bar">
+          <div class="month-bar${row.count >= 10 ? " is-busy" : ""}">
             <span class="month-bar-track" aria-hidden="true">
-              <span style="height:${Math.max(6, Math.round((row.count / max) * 100))}%"></span>
+              <span style="height:${row.count > 0 ? Math.max(6, Math.round((row.count / max) * 100)) : 0}%"></span>
             </span>
             <strong>${row.shortLabel}</strong>
             <small>${row.count}</small>
@@ -1742,16 +1862,6 @@ function ranPlayedPanel(ranCount, playedCount) {
     { label: "Played", count: playedCount, color: "var(--accent-2)" },
   ];
   return statsChart("Games I Ran vs. Played", rows);
-}
-
-function chartIcon(title) {
-  const icons = {
-    Campaigns: "📜",
-    Systems: "🎲",
-    GMs: "🗣️",
-    "Games I Ran vs. Played": "⚔️",
-  };
-  return icons[title] ?? "📊";
 }
 
 function monthlyCountRows(sessions, year) {
@@ -1880,4 +1990,30 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+
+function initialCalendarMonth() {
+  const value = new URLSearchParams(location.search).get("month");
+  return /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(value ?? "") ? parseMonthKey(value) : startOfMonth(new Date());
+}
+
+function syncViewUrl(view) {
+  const url = new URL(location.href);
+  url.searchParams.set("month", monthKey(state.calendarDate));
+  const active = view ?? document.querySelector(".tab-button.is-active")?.dataset.tab ?? "sessions";
+  if (active === "sessions") url.searchParams.delete("view");
+  else url.searchParams.set("view", active);
+  history.replaceState(null, "", url);
+}
+
+// Stored system colours are data. Register their tokens on the root theme.
+function recordStyle(value) {
+  if (value.startsWith("var(--")) return `--record-color:${escapeAttribute(value)};--record-ink:var(--color-record-dark)`;
+  if (!/^#[0-9a-f]{6}$/i.test(value)) return "--record-color:var(--accent-2);--record-ink:var(--color-record-dark)";
+  const token = `--record-${value.slice(1).toLowerCase()}`;
+  const channels = [1, 3, 5].map(i => parseInt(value.slice(i, i + 2), 16) / 255).map(c => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const luminance = channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  document.documentElement.style.setProperty(token, value);
+  return `--record-color:var(${token});--record-ink:var(${luminance > 0.18 ? "--color-record-dark" : "--color-white"})`;
 }

@@ -4,51 +4,44 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TTRPG Tracker</title>
+    <meta name="description" content="Your tabletop calendar, session journal, campaigns and play statistics." />
     <link rel="icon" href="https://fraternitysororitysvg.com/assets/images/products/Dungeons-and-Dragons-SVG.png" type="image/png" />
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/style.css?v=vinyl-20261027-full-link" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <h1>TTRPG Tracker</h1>
-      </div>
-      <div class="summary" aria-live="polite">
-        <span id="session-count">0</span>
-        <span>sessions</span>
-      </div>
+    <header class="topbar app-container">
+      <div class="brand"><svg class="brand-mark" viewBox="0 0 40 44" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 2 37 12v20L20 42 3 32V12Z M20 2 10 18 3 32h34L30 18Z M10 18l10 14 10-14ZM3 12l7 6 20 0 7-6M20 32v10" /></svg><h1>TTRPG Tracker</h1></div>
+      <nav class="tabs" aria-label="App sections">
+        <button class="tab-button is-active" type="button" data-tab="sessions" aria-pressed="true">Calendar</button>
+        <button class="tab-button" type="button" data-tab="manage" aria-pressed="false">Manage</button>
+        <button class="tab-button" type="button" data-tab="stats" aria-pressed="false">Stats</button>
+      </nav>
     </header>
 
-    <main>
-      <nav class="tabs" aria-label="App sections">
-        <button class="tab-button is-active" type="button" data-tab="sessions">Sessions</button>
-        <button class="tab-button" type="button" data-tab="manage">Manage</button>
-        <button class="tab-button" type="button" data-tab="stats">Stats</button>
-      </nav>
+    <main class="app-container">
 
-      <section class="quick-add" aria-label="Campaign quick add">
-        <div class="section-heading">
-          <h2>Quick Add</h2>
-          <button class="primary" id="add-session" type="button">+ Session</button>
-        </div>
-        <div class="quick-grid" id="quick-add-list"></div>
-      </section>
+
+
 
       <section class="panel is-active" id="sessions-panel" data-panel="sessions">
         <section class="embedded-panel" id="calendar-panel">
-          <div class="section-heading calendar-heading">
-            <div>
-              <h2>Calendar</h2>
-              <p id="calendar-status">Month view</p>
-            </div>
-            <div class="calendar-controls">
-              <button type="button" id="calendar-prev" aria-label="Previous month">&lsaquo;</button>
-              <button class="calendar-jump" type="button" id="calendar-prev-session">Prev played</button>
-              <strong id="calendar-title">Month</strong>
-              <button class="calendar-jump" type="button" id="calendar-next-session">Next played</button>
-              <button type="button" id="calendar-next" aria-label="Next month">&rsaquo;</button>
-              <button type="button" id="calendar-today">Today</button>
+          <div class="section-heading screen-heading">
+            <h2>Your calendar</h2>
+            <div class="calendar-title-actions">
+              <button class="primary" id="add-session" type="button"><span aria-hidden="true">+</span> Add session</button>
+              <p id="calendar-status" role="status" aria-live="polite">Month view</p>
             </div>
           </div>
+          <div class="calendar-board">
+            <div class="section-heading calendar-heading">
+              <div class="calendar-controls">
+                <strong id="calendar-title">Month</strong>
+                <button class="calendar-arrow" type="button" id="calendar-prev" aria-label="Previous month"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg></button>
+                <button class="calendar-arrow" type="button" id="calendar-next" aria-label="Next month"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg></button>
+                <button type="button" id="calendar-today">Today</button>
+              </div>
+              <p class="calendar-hint">Pick a day to log a session.</p>
+            </div>
           <div class="calendar-weekdays" aria-hidden="true">
             <span>Mon</span>
             <span>Tue</span>
@@ -59,13 +52,19 @@
             <span>Sun</span>
           </div>
           <div class="calendar-grid" id="calendar-grid"></div>
+          </div>
+          <div class="calendar-jumps">
+            <button class="calendar-jump" type="button" id="calendar-prev-session">Prev played</button>
+            <button class="calendar-jump" type="button" id="calendar-next-session">Next played</button>
+          </div>
           <div class="calendar-agenda" id="calendar-agenda"></div>
         </section>
 
-        <section class="embedded-panel">
+        <details class="session-history" id="session-history">
+          <summary>Session history</summary>
           <div class="section-heading">
-            <h2>Sessions</h2>
-            <p id="status">Loading...</p>
+            <h3>All sessions</h3>
+            <p id="status">Loading…</p>
           </div>
           <div class="toolbar" aria-label="Session filters">
             <label>
@@ -101,7 +100,7 @@
               <tbody id="sessions-body"></tbody>
             </table>
           </div>
-        </section>
+        </details>
       </section>
 
       <section class="panel" id="manage-panel" data-panel="manage">
@@ -202,14 +201,14 @@
 
       <section class="panel" id="stats-panel" data-panel="stats">
         <nav class="subtabs" aria-label="Stats sections">
-          <button class="subtab-button is-active" type="button" data-subtab="monthly">📈 Monthly</button>
-          <button class="subtab-button" type="button" data-subtab="year">🏆 Year Review</button>
+          <button class="subtab-button is-active" type="button" data-subtab="monthly">Monthly</button>
+          <button class="subtab-button" type="button" data-subtab="year">Year Review</button>
         </nav>
 
         <section class="subpanel is-active" data-subpanel="monthly">
           <div class="section-heading stats-heading">
             <div>
-              <h2>📈 Monthly Stats</h2>
+              <h2>Monthly Stats</h2>
               <p id="stats-status">Selected month</p>
             </div>
             <div class="field-block month-picker">
@@ -229,7 +228,7 @@
         <section class="subpanel" data-subpanel="year">
           <div class="section-heading stats-heading">
             <div>
-              <h2>🏆 Year in Review</h2>
+              <h2>Year in Review</h2>
               <p id="year-status">Selected year</p>
             </div>
             <div class="field-block year-picker">
@@ -247,9 +246,16 @@
         </section>
       </section>
 
-      <section class="export-bar" aria-label="Backup export">
+      <section class="export-bar" aria-label="Import and export">
+        <div class="export-actions">
+        <button type="button" id="import-csv">Import CSV</button>
         <button type="button" id="export-json">Export JSON</button>
         <button type="button" id="export-csv">Export CSV</button>
+        </div>
+      <div class="summary" aria-live="polite">
+        <span id="session-count">0</span>
+        <span>sessions</span>
+      </div>
       </section>
     </main>
 
@@ -325,7 +331,7 @@
               <input id="session-new-system-color" type="color" value="#7d91e8" />
             </label>
           </div>
-          <label>
+          <label class="session-link-field">
             Link
             <input id="session-link" type="url" />
           </label>
@@ -345,7 +351,6 @@
     <dialog id="confirm-dialog">
       <form method="dialog" class="modal confirm-modal" id="confirm-form">
         <div>
-          <p class="eyebrow">Confirm</p>
           <h2 id="confirm-title">Delete session?</h2>
         </div>
         <p id="confirm-message">This cannot be undone.</p>
@@ -356,10 +361,30 @@
       </form>
     </dialog>
 
+    <dialog id="import-dialog" aria-labelledby="import-title">
+      <form class="modal import-modal" id="import-form">
+        <div class="section-heading">
+          <h2 id="import-title">Import CSV</h2>
+          <button class="icon-button" type="button" id="close-import" aria-label="Close import">x</button>
+        </div>
+        <p>Add records from a tracker CSV export. Existing records and settings are kept.</p>
+        <label>
+          CSV file
+          <input id="import-file" type="file" accept=".csv,text/csv" />
+        </label>
+        <p class="import-status" id="import-status" role="status" aria-live="polite">Choose a file to preview what will be added.</p>
+        <div id="import-preview" hidden></div>
+        <div class="form-actions">
+          <button type="button" id="preview-import" disabled>Preview file</button>
+          <button class="primary" type="submit" id="apply-import" hidden>Import new records</button>
+        </div>
+      </form>
+    </dialog>
+
     <datalist id="gm-options"></datalist>
     <datalist id="system-options"></datalist>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="/static/app.js" type="module"></script>
+    <script src="/static/app.js?v=vinyl-20261027-stability" type="module"></script>
   </body>
 </html>

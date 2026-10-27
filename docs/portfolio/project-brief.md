@@ -1,6 +1,6 @@
 # Project brief
 
-**Status:** Draft for review. Based on the project owner's description.
+**Status:** Done.
 
 ## Problem and motivation
 
@@ -22,10 +22,6 @@ if a specific need arises.
 - Use the app as a practical QA/BA portfolio project, with documented analysis,
   tests, findings and improvements.
 
-Success will be assessed through my review of the experience and checks against
-fictional data with known results. Detailed acceptance criteria will follow in
-[Requirements and rules](requirements-and-rules.md).
-
 ## Scope
 
 The current product covers sessions, campaigns and game systems; a calendar and
@@ -36,29 +32,17 @@ The proposed first QA/BA cycle focuses on adding a campaign session, including
 defaults, validation and saving. Broader coverage will be added in small steps.
 Building for multiple independent user accounts is outside the current scope.
 
-## My role
-
-- **BA:** Define needs, clarify rules, write acceptance criteria and record decisions.
-- **QA:** Design and execute tests, investigate findings and record the results.
-- **Developer:** Build and improve the app with AI assistance from Claude and Codex.
-
-These responsibilities are carried out within one personal project.
-
-## Constraints and open decisions
+## Constraints and project decisions
 
 Current boundaries for this project:
 
 - One person handles the analysis, development and testing, with AI assistance.
-- The app is self-hosted; an installation needs a computer on which it can run.
+- The app is self-hosted and accessed through a web browser. The host needs a
+  compatible Python environment or the supplied Docker setup; see
+  [Getting started](../../README.md#getting-started).
 - Public examples and test evidence use fictional data. Personal session exports
   remain local.
 - Analysis and formal testing start from an existing app, so the documentation
   will distinguish current behavior from intended changes.
-
-Still to agree: the first hosting and test environment, supported browsers and
-devices, and any firm budget or time limits. These have not been assumed.
-
-The app version and environment for the first formal test cycle will be recorded
-in the [test plan](test-plan.md) before execution.
 
 [Back to the documentation checklist](README.md)

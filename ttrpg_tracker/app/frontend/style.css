@@ -136,6 +136,8 @@ a { color: var(--accent-2); text-decoration-thickness: 1px; text-underline-offse
 #campaign-form { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .editor-compact { grid-template-columns: minmax(0, 28rem) max-content minmax(0, 1fr) auto; align-items: end; }
 .editor-compact .form-actions { grid-column: 4; }
+.system-color-field { width: max-content; }
+#system-color { width: 100%; }
 .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); }
 .campaign-actions { grid-column: 3 / -1; justify-content: flex-end; }
 .campaign-system-control { display: flex; gap: var(--space-xs); }

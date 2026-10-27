@@ -9,6 +9,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Stability checks failed' }
     & node .hallmark/owner-gm-qa.mjs
     if ($LASTEXITCODE -ne 0) { throw 'Tracker owner checks failed' }
+    & node .hallmark/gm-picker-qa.mjs
+    if ($LASTEXITCODE -ne 0) { throw 'GM picker checks failed' }
 }
 finally {
     Pop-Location

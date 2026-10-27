@@ -112,6 +112,7 @@ input, select, textarea, .picker-trigger { width: 100%; min-width: 0; min-height
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: -4px; }
 input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='true'] { border-color: var(--danger); }
+.field-error { color: var(--danger); font-size: var(--text-sm); line-height: 1.4; overflow-wrap: anywhere; }
 input[type='color'] { width: 52px; padding: var(--space-2xs); }
 textarea { resize: vertical; min-height: 5rem; }
 select { padding-right: var(--space-lg); }
@@ -204,6 +205,9 @@ dialog::backdrop { background: var(--color-backdrop); }
 .picker-trigger { justify-content: space-between; text-align: left; }
 .picker-trigger::after { content: ''; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); }
 .picker-popover { position: absolute; z-index: var(--z-dropdown); top: calc(100% + 8px); left: 0; width: 304px; max-width: calc(100dvw - 92px); padding: var(--space-sm); border: 2px solid var(--color-white); border-radius: var(--radius-input); background: var(--field); color: var(--text); box-shadow: var(--shadow-card); }
+.gm-popover { width: 100%; max-width: none; max-height: min(14rem, 30dvh); overflow-y: auto; overscroll-behavior: contain; }
+.gm-option { min-height: 44px; padding: var(--space-xs) var(--space-sm); border-radius: 8px; color: var(--text); font-size: var(--text-md); line-height: 1.4; overflow-wrap: anywhere; cursor: pointer; }
+.gm-option:hover, .gm-option[aria-selected='true'] { background: var(--accent-2); color: var(--color-accent-2-ink); }
 .month-popover, .year-popover { left: auto; right: 0; }
 .month-popover { width: 280px; }
 .year-popover { width: 180px; max-height: 304px; overflow-y: auto; }

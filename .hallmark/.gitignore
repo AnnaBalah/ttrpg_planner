@@ -4,6 +4,7 @@
 !qa.mjs
 !stability-qa.mjs
 !owner-gm-qa.mjs
+!gm-picker-qa.mjs
 !import-qa.mjs
 !run-qa.ps1
 !baseline/

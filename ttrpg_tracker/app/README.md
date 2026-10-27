@@ -71,3 +71,15 @@ npm install --no-save --prefix .hallmark/tooling puppeteer-core@25.16.0
 node .hallmark/qa.mjs
 node .hallmark/stability-qa.mjs
 ```
+
+The focused form-consistency check starts with a separate database containing
+only the fictional demo data. It covers mouse, keyboard and touch selection,
+free-text names, custom validation messages, saving/editing and mobile layout:
+
+```powershell
+node .hallmark/gm-picker-qa.mjs
+```
+
+It writes results and screenshots under `.hallmark/gm-picker-results/`. The
+portfolio [defect and retest record](../../docs/portfolio/test-records.md#def-001-browser-default-styling-in-forms)
+explains the original issue and recorded verification.

@@ -95,6 +95,8 @@ const els = {
   importClose: document.querySelector("#close-import"),
 };
 
+const gmPickers = [...document.querySelectorAll("[data-gm-picker]")].map(createGmPicker);
+
 document.addEventListener("click", handleDocumentClick);
 document.addEventListener("click", handlePickerOutsideClick, true);
 document.addEventListener("change", handleDocumentChange);
@@ -476,6 +478,84 @@ function renderGmOptions() {
   ])
     .map((gm) => `<option value="${escapeAttribute(gm)}"></option>`)
     .join("");
+  gmPickers.forEach(picker => picker.refresh());
+}
+
+function createGmPicker(field) {
+  const input = field.querySelector("input");
+  const list = field.querySelector("[role='listbox']");
+  let matches = [];
+  let activeIndex = -1;
+
+  function close() {
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    activeIndex = -1;
+  }
+
+  function open(filter = false) {
+    if (input.disabled || input.form?.getAttribute("aria-busy") === "true") return;
+    closePickers();
+    const query = filter ? input.value.trim().toLocaleLowerCase() : "";
+    matches = [...els.gmOptions.options].map(option => option.value)
+      .filter(name => name.toLocaleLowerCase().includes(query));
+    list.innerHTML = matches.map((name, index) => `
+      <div class="gm-option" id="${list.id}-${index}" role="option" aria-selected="false" data-gm-index="${index}">${escapeHtml(name)}</div>
+    `).join("");
+    list.hidden = matches.length === 0;
+    input.setAttribute("aria-expanded", String(!list.hidden));
+  }
+
+  function activate(index) {
+    activeIndex = index;
+    [...list.children].forEach((option, i) => option.setAttribute("aria-selected", String(i === index)));
+    const option = list.children[index];
+    input.setAttribute("aria-activedescendant", option.id);
+    option.scrollIntoView({ block: "nearest" });
+  }
+
+  function choose(index) {
+    input.value = matches[index];
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    close();
+  }
+
+  input.addEventListener("focus", () => { if (input.getAttribute("aria-invalid") !== "true") open(); });
+  input.addEventListener("click", () => { if (list.hidden) open(); });
+  input.addEventListener("input", () => open(true));
+  input.addEventListener("blur", close);
+  input.form?.addEventListener("reset", close);
+  input.closest("dialog")?.addEventListener("close", close);
+  input.addEventListener("keydown", event => {
+    if (event.isComposing) return;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (list.hidden) open(true);
+      if (!matches.length) return;
+      const next = activeIndex < 0
+        ? event.key === "ArrowDown" ? 0 : matches.length - 1
+        : (activeIndex + (event.key === "ArrowDown" ? 1 : -1) + matches.length) % matches.length;
+      activate(next);
+    } else if (event.key === "Enter" && !list.hidden && activeIndex >= 0) {
+      event.preventDefault();
+      choose(activeIndex);
+    } else if (event.key === "Escape" && !list.hidden) {
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    } else if (event.key === "Tab") {
+      close();
+    }
+  });
+  list.addEventListener("mousedown", event => event.preventDefault());
+  list.addEventListener("click", event => {
+    const option = event.target.closest("[data-gm-index]");
+    if (option) choose(Number(option.dataset.gmIndex));
+  });
+
+  return { close, refresh: () => { if (!list.hidden) open(true); } };
 }
 
 function populateSystemSelects() {
@@ -870,6 +950,7 @@ function closePickers() {
   els.sessionDatePicker.hidden = true;
   els.statsMonthPicker.hidden = true;
   els.yearPicker.hidden = true;
+  gmPickers.forEach(picker => picker.close());
 }
 
 function monthKey(date) {
@@ -955,6 +1036,7 @@ function syncSessionKind() {
   const kind = document.querySelector("#session-kind").value;
   document.querySelectorAll("[data-session-group]").forEach((group) => {
     group.hidden = group.dataset.sessionGroup !== kind;
+    if (group.hidden) clearFormErrors(group);
   });
   document.querySelector("#session-campaign").required = kind === "campaign";
   document.querySelector("#session-name").required = kind === "one-shot";
@@ -986,6 +1068,7 @@ function syncNewSystemFields() {
     ]);
   }
   fields.hidden = !shouldShow;
+  if (!shouldShow) clearFormErrors(fields);
   document.querySelector("#session-new-system-name").required = shouldShow;
 }
 
@@ -1000,17 +1083,69 @@ function applyCampaignDefaults(campaignId, options = {}) {
   syncNewSystemFields();
 }
 
+function fieldErrorMessage(input) {
+  input.setCustomValidity("");
+  if (!input.willValidate) return "";
+  if (input.required && !input.value.trim()) {
+    const messages = {
+      "session-campaign": "Choose a campaign.",
+      "session-name": "Enter a one-shot name.",
+      "session-new-campaign-name": "Enter a campaign name.",
+      "session-gm": "Enter a GM name.",
+      "session-system": "Choose a system.",
+      "session-new-system-name": "Enter a system name.",
+      "campaign-name": "Enter a campaign name.",
+      "campaign-gm": "Enter a GM name.",
+      "campaign-system-name": "Enter a system name.",
+      "system-name": "Enter a system name.",
+    };
+    return messages[input.id] || "Complete this field.";
+  }
+  if (input.type === "url" && input.value.trim()) {
+    try {
+      if (!/^https?:\/\//i.test(input.value.trim()) || !new URL(input.value.trim()).hostname) throw new Error();
+    } catch {
+      return "Enter a complete link starting with http:// or https://.";
+    }
+  }
+  return input.validity.valid ? "" : "Check this value.";
+}
+
+function clearFieldError(input) {
+  input.setCustomValidity("");
+  input.removeAttribute("aria-invalid");
+  const error = document.getElementById(`${input.id}-error`);
+  if (error) {
+    error.textContent = "";
+    error.hidden = true;
+  }
+}
+
+function clearFormErrors(form) {
+  form.querySelectorAll("input, select, textarea").forEach(clearFieldError);
+}
+
 function beginFormSave(form) {
   if (form.getAttribute("aria-busy") === "true") return null;
-  for (const input of form.querySelectorAll("input[required]")) {
-    input.setCustomValidity(input.value.trim() ? "" : "Enter a value for this field.");
+  let firstInvalid = null;
+  for (const input of form.querySelectorAll("input, select, textarea")) {
+    clearFieldError(input);
+    const message = fieldErrorMessage(input);
+    if (!message) continue;
+    input.setCustomValidity(message);
+    input.setAttribute("aria-invalid", "true");
+    const error = document.getElementById(`${input.id}-error`);
+    if (error) {
+      error.textContent = message;
+      error.hidden = false;
+    }
+    firstInvalid ||= input;
   }
-  for (const input of form.querySelectorAll("input[type='url']")) {
-    let valid = !input.value.trim();
-    try { valid ||= /^https?:\/\//i.test(input.value.trim()) && Boolean(new URL(input.value.trim()).hostname); } catch {}
-    input.setCustomValidity(valid ? "" : "Use a complete http:// or https:// address.");
+  if (firstInvalid) {
+    closePickers();
+    firstInvalid.focus();
+    return null;
   }
-  if (!form.reportValidity()) return null;
   form.setAttribute("aria-busy", "true");
   const buttons = [...form.querySelectorAll("button")].map(button => [button, button.disabled]);
   for (const [button] of buttons) button.disabled = true;
@@ -1021,10 +1156,13 @@ function beginFormSave(form) {
 }
 
 document.addEventListener("input", event => {
-  if (event.target instanceof HTMLInputElement) event.target.setCustomValidity("");
+  if (event.target.matches("input, select, textarea")) clearFieldError(event.target);
+});
+document.addEventListener("change", event => {
+  if (event.target.matches("input, select, textarea")) clearFieldError(event.target);
 });
 document.addEventListener("reset", event => {
-  for (const input of event.target.querySelectorAll("input")) input.setCustomValidity("");
+  clearFormErrors(event.target);
 });
 
 async function saveSession(event) {
@@ -1226,6 +1364,7 @@ async function saveCampaign(event) {
 }
 
 function editCampaign(id) {
+  clearFormErrors(els.campaignForm);
   const campaign = findById(state.campaigns, id);
   setActiveTab("manage");
   setSubtab("campaigns", document.querySelector("#manage-panel"));
@@ -1326,6 +1465,7 @@ async function saveSystem(event) {
 }
 
 function editSystem(id) {
+  clearFormErrors(els.systemForm);
   const system = findById(state.systems, id);
   setActiveTab("manage");
   setSubtab("systems", document.querySelector("#manage-panel"));
@@ -2012,6 +2152,7 @@ function setValue(selector, value, options = {}) {
   const input = document.querySelector(selector);
   if (!options.onlyEmpty || !input.value.trim()) {
     input.value = value;
+    clearFieldError(input);
   }
 }
 

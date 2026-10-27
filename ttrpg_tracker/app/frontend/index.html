@@ -7,7 +7,7 @@
     <meta name="application-name" content="Tablelog" />
     <meta name="description" content="Your tabletop calendar, session journal, campaigns and play statistics." />
     <link rel="icon" href="/static/tablelog.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/static/style.css?v=tablelog-20261027-owner-gm" />
+    <link rel="stylesheet" href="/static/style.css?v=tablelog-20261027-form-consistency" />
   </head>
   <body>
     <header class="topbar app-container">
@@ -106,30 +106,35 @@
           <div class="section-heading">
             <h2>Campaigns</h2>
           </div>
-          <form class="editor" id="campaign-form">
+          <form class="editor" id="campaign-form" novalidate>
             <input type="hidden" id="campaign-id" />
-            <label class="campaign-name-field">
-              Name
-              <input id="campaign-name" required />
-            </label>
-            <label class="campaign-gm-field">
-              Default GM
-              <input id="campaign-gm" list="gm-options" required />
-            </label>
+            <div class="field-block campaign-name-field">
+              <label>Name<input id="campaign-name" aria-describedby="campaign-name-error" required /></label>
+              <span class="field-error" id="campaign-name-error" hidden></span>
+            </div>
+            <div class="field-block campaign-gm-field">
+              <label for="campaign-gm">Default GM</label>
+              <div class="picker-field gm-picker" data-gm-picker>
+                <input id="campaign-gm" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="campaign-gm-picker" aria-describedby="campaign-gm-error" autocomplete="off" required />
+                <div class="picker-popover gm-popover" id="campaign-gm-picker" role="listbox" aria-label="Default GM suggestions" hidden></div>
+              </div>
+              <span class="field-error" id="campaign-gm-error" hidden></span>
+            </div>
             <div class="field-block campaign-system-field">
               <label for="campaign-system-name">System</label>
               <div class="campaign-system-control">
-                <input id="campaign-system-name" list="system-options" required />
+                <input id="campaign-system-name" list="system-options" aria-describedby="campaign-system-name-error" required />
                 <label class="campaign-new-system-color" id="campaign-new-system-fields" hidden title="New system color">
                   <span class="sr-only">New system color</span>
                   <input id="campaign-new-system-color" type="color" value="#7d91e8" />
                 </label>
               </div>
+              <span class="field-error" id="campaign-system-name-error" hidden></span>
             </div>
-            <label class="campaign-link-field">
-              Default link
-              <input id="campaign-link" type="url" />
-            </label>
+            <div class="field-block campaign-link-field">
+              <label>Default link<input id="campaign-link" type="url" aria-describedby="campaign-link-error" /></label>
+              <span class="field-error" id="campaign-link-error" hidden></span>
+            </div>
             <label class="checkbox">
               <input id="campaign-archived" type="checkbox" />
               Archived
@@ -159,12 +164,12 @@
           <div class="section-heading">
             <h2>Systems</h2>
           </div>
-          <form class="editor editor-compact" id="system-form">
+          <form class="editor editor-compact" id="system-form" novalidate>
             <input type="hidden" id="system-id" />
-            <label>
-              Name
-              <input id="system-name" required />
-            </label>
+            <div class="field-block">
+              <label>Name<input id="system-name" aria-describedby="system-name-error" required /></label>
+              <span class="field-error" id="system-name-error" hidden></span>
+            </div>
             <label class="system-color-field">
               <span>Primary color</span>
               <input id="system-color" type="color" value="#58b6a9" required />
@@ -252,7 +257,7 @@
     </footer>
 
     <dialog id="session-dialog">
-      <form method="dialog" class="modal" id="session-form">
+      <form method="dialog" class="modal" id="session-form" novalidate>
         <div class="section-heading">
           <h2 id="session-dialog-title">Session</h2>
           <button class="icon-button" type="button" id="close-session" aria-label="Close">x</button>
@@ -270,28 +275,31 @@
         </label>
 
         <div class="field-group" data-session-group="campaign">
-          <label>
-            Campaign
-            <select id="session-campaign"></select>
-          </label>
+          <div class="field-block">
+            <label>Campaign<select id="session-campaign" aria-describedby="session-campaign-error"></select></label>
+            <span class="field-error" id="session-campaign-error" hidden></span>
+          </div>
         </div>
 
         <div class="field-group" data-session-group="one-shot">
-          <label>
-            One-shot name
-            <input id="session-name" />
-          </label>
+          <div class="field-block">
+            <label>One-shot name<input id="session-name" aria-describedby="session-name-error" /></label>
+            <span class="field-error" id="session-name-error" hidden></span>
+          </div>
         </div>
 
         <div class="field-group" data-session-group="new-campaign">
-          <label>
-            Campaign name
-            <input id="session-new-campaign-name" />
-          </label>
-          <label>
-            Default GM
-            <input id="session-new-campaign-gm" list="gm-options" />
-          </label>
+          <div class="field-block">
+            <label>Campaign name<input id="session-new-campaign-name" aria-describedby="session-new-campaign-name-error" /></label>
+            <span class="field-error" id="session-new-campaign-name-error" hidden></span>
+          </div>
+          <div class="field-block">
+            <label for="session-new-campaign-gm">Default GM</label>
+            <div class="picker-field gm-picker" data-gm-picker>
+              <input id="session-new-campaign-gm" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="session-new-campaign-gm-picker" autocomplete="off" />
+              <div class="picker-popover gm-popover" id="session-new-campaign-gm-picker" role="listbox" aria-label="Default GM suggestions" hidden></div>
+            </div>
+          </div>
         </div>
 
         <div class="form-grid">
@@ -305,28 +313,32 @@
               <div class="picker-popover date-popover" id="session-date-picker" hidden></div>
             </div>
           </div>
-          <label>
-            GM
-            <input id="session-gm" list="gm-options" required />
-          </label>
-          <label class="system-select-field">
-            System
-            <select id="session-system" required></select>
-          </label>
+          <div class="field-block">
+            <label for="session-gm">GM</label>
+            <div class="picker-field gm-picker" data-gm-picker>
+              <input id="session-gm" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="session-gm-picker" aria-describedby="session-gm-error" autocomplete="off" required />
+              <div class="picker-popover gm-popover" id="session-gm-picker" role="listbox" aria-label="GM suggestions" hidden></div>
+            </div>
+            <span class="field-error" id="session-gm-error" hidden></span>
+          </div>
+          <div class="field-block system-select-field">
+            <label>System<select id="session-system" aria-describedby="session-system-error" required></select></label>
+            <span class="field-error" id="session-system-error" hidden></span>
+          </div>
           <div class="new-system-row" id="session-new-system-fields">
-            <label>
-              New system
-              <input id="session-new-system-name" />
-            </label>
+            <div class="field-block">
+              <label>New system<input id="session-new-system-name" aria-describedby="session-new-system-name-error" /></label>
+              <span class="field-error" id="session-new-system-name-error" hidden></span>
+            </div>
             <label>
               Primary color
               <input id="session-new-system-color" type="color" value="#7d91e8" />
             </label>
           </div>
-          <label class="session-link-field">
-            Link
-            <input id="session-link" type="url" />
-          </label>
+          <div class="field-block session-link-field">
+            <label>Link<input id="session-link" type="url" aria-describedby="session-link-error" /></label>
+            <span class="field-error" id="session-link-error" hidden></span>
+          </div>
           <label>
             Notes
             <textarea id="session-notes" rows="3"></textarea>
@@ -377,6 +389,6 @@
     <datalist id="system-options"></datalist>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="/static/app.js?v=tablelog-20261027-owner-gm-loading" type="module"></script>
+    <script src="/static/app.js?v=tablelog-20261027-form-consistency" type="module"></script>
   </body>
 </html>

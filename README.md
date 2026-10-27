@@ -79,8 +79,8 @@ the `ttrpg_tracker` directory.
 
 ## Documentation and testing
 
-- [QA/BA documentation](docs/portfolio/README.md): a checklist and short
-  placeholders for the analysis, testing and case study.
+- [QA/BA documentation](docs/portfolio/README.md): a checklist, defect and retest
+  evidence, and outlines for the remaining portfolio work.
 - [Automated checks](ttrpg_tracker/app/README.md#verification): setup and
   commands for the existing backend and browser checks.
 - [Your data and demo sessions](docs/data-and-backups.md): storage, backups,

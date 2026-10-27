@@ -10,8 +10,11 @@ adding a campaign session.
 | [Requirements and rules](requirements-and-rules.md) | Expected behavior, user stories and acceptance criteria | Planned |
 | [Process and data models](models.md) | Session flow and relationships between records | Planned |
 | [Test plan](test-plan.md) | Scope, priorities, environment and approach | Planned |
-| [Test records](test-records.md) | Cases, execution results, findings and retests | Planned |
+| [Test records](test-records.md) | Cases, execution results, findings and retests | In progress — first defect and retest recorded |
 | [Case study](case-study.md) | Outcomes, decisions and lessons learned | Planned |
+
+Test records includes the first UI defect and its retest, with screenshots and
+verification results.
 
 ## Next steps
 

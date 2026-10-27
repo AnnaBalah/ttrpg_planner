@@ -1,13 +1,14 @@
-# Tablelog
+# Tablelog application notes
 
-Phase 1 foundation for the self-hosted TTRPG session tracker.
+Setup, CSV import rules and automated verification notes. See the
+[main README](../../README.md) for the project overview and QA/BA documentation.
 
 Fresh installations start with 26 demo sessions from
 `import_source/demo_sessions.csv`. The campaign titles and GM names are fictional.
 The demo includes four game systems, ongoing campaigns and one-shots. It is loaded
 only when the database has no systems, campaigns or sessions.
 
-Run locally:
+Run locally from this directory (`ttrpg_tracker/app`):
 
 ```powershell
 uv run uvicorn main:app --reload
@@ -37,6 +38,12 @@ before writing. Invalid files add nothing. Files must use the tracker's **Export
 CSV** format and contain no more than 10,000 records or 5 MB.
 
 ## Verification
+
+The commands below are for Windows. Start the app once with the Python setup
+before running them, so the local `.venv` environment and `ttrpg.db` file exist.
+This local setup is also needed if you normally run the app with Docker.
+Browser checks require a local database with at least one session and game system;
+the bundled demo data meets that requirement.
 
 Run the backend regression tests from the repository root. They cover CRUD and
 validation over HTTP, concurrent saves, CSV round trips, duplicate imports,

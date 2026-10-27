@@ -23,7 +23,7 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 APP_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = APP_DIR / "frontend"
-IMPORT_CSV = APP_DIR / "import_source" / "notion_sessions_all.csv"
+IMPORT_CSV = APP_DIR / "import_source" / "demo_sessions.csv"
 DB_PATH = Path(os.getenv("TTRPG_DB_PATH", APP_DIR / "ttrpg.db"))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 BACKUP_DIR = Path(os.getenv("TTRPG_BACKUP_DIR", APP_DIR / "backups"))

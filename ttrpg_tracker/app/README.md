@@ -2,6 +2,11 @@
 
 Phase 1 foundation for the self-hosted TTRPG session tracker.
 
+Fresh installations start with 26 demo sessions from
+`import_source/demo_sessions.csv`. The campaign titles and GM names are fictional.
+The demo includes four game systems, ongoing campaigns and one-shots. It is loaded
+only when the database has no systems, campaigns or sessions.
+
 Run locally:
 
 ```powershell

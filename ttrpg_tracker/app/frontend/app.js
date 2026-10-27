@@ -41,8 +41,6 @@ const els = {
   panels: document.querySelectorAll("[data-panel]"),
   subtabButtons: document.querySelectorAll(".subtab-button"),
   subpanels: document.querySelectorAll("[data-subpanel]"),
-  sessionCount: document.querySelector("#session-count"),
-  status: document.querySelector("#status"),
   search: document.querySelector("#search"),
   campaignFilter: document.querySelector("#campaign-filter"),
   gmFilter: document.querySelector("#gm-filter"),
@@ -51,8 +49,6 @@ const els = {
   calendarStatus: document.querySelector("#calendar-status"),
   calendarGrid: document.querySelector("#calendar-grid"),
   calendarAgenda: document.querySelector("#calendar-agenda"),
-  calendarPrevSession: document.querySelector("#calendar-prev-session"),
-  calendarNextSession: document.querySelector("#calendar-next-session"),
   statsStatus: document.querySelector("#stats-status"),
   statsMonth: document.querySelector("#stats-month"),
   statsMonthTrigger: document.querySelector("#stats-month-trigger"),
@@ -145,11 +141,9 @@ async function loadAll() {
     state.systems = systems;
     const initialView = new URLSearchParams(location.search).get("view");
     renderAll();
-    els.status.textContent = "Ready";
     if (["manage", "stats"].includes(initialView)) setActiveTab(initialView);
   } catch (error) {
     showToast(error.message, true);
-    els.status.textContent = "Could not load data";
   }
 }
 
@@ -186,8 +180,6 @@ function renderFilters() {
 
 function renderSessions() {
   const rows = filteredSessions().sort(compareSessions);
-  els.sessionCount.textContent = state.sessions.length.toString();
-  els.status.textContent = rows.length === state.sessions.length ? "Ready" : `${rows.length} shown`;
 
   if (rows.length === 0) {
     els.sessionsBody.innerHTML = `
@@ -210,8 +202,6 @@ function renderCalendar() {
   const gridStart = addDays(monthStart, -startOffset);
   const monthSessions = state.sessions.filter((session) => isSameMonth(parseISODate(session.date), monthStart));
   const sessionsByDate = groupSessionsByDate(state.sessions);
-  const previousPlayedMonth = findPlayedMonth(-1);
-  const nextPlayedMonth = findPlayedMonth(1);
 
   els.calendarTitle.textContent = new Intl.DateTimeFormat(undefined, {
     month: "long",
@@ -222,14 +212,6 @@ function renderCalendar() {
     : monthSessions.length === 1
       ? "1 session this month"
       : `${monthSessions.length} sessions across ${unique(monthSessions.map((session) => session.date)).length} days`;
-  els.calendarPrevSession.disabled = !previousPlayedMonth;
-  els.calendarNextSession.disabled = !nextPlayedMonth;
-  els.calendarPrevSession.title = previousPlayedMonth
-    ? `Jump to ${monthLabel(previousPlayedMonth)}`
-    : "No earlier played month";
-  els.calendarNextSession.title = nextPlayedMonth
-    ? `Jump to ${monthLabel(nextPlayedMonth)}`
-    : "No later played month";
 
   const dayCount = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
   const cellCount = Math.ceil((startOffset + dayCount) / 7) * 7;
@@ -568,10 +550,6 @@ function handleDocumentClick(event) {
     moveCalendar(-1);
   } else if (target.id === "calendar-next") {
     moveCalendar(1);
-  } else if (target.id === "calendar-prev-session") {
-    jumpToPlayedMonth(-1);
-  } else if (target.id === "calendar-next-session") {
-    jumpToPlayedMonth(1);
   } else if (target.id === "calendar-today") {
     state.calendarDate = startOfMonth(new Date());
     renderCalendar();
@@ -636,8 +614,6 @@ function handleDocumentClick(event) {
     if (!csvImport.applying) els.importDialog.close();
   } else if (target.id === "preview-import") {
     previewCsvImport();
-  } else if (target.id === "export-json") {
-    downloadExport("/api/export", "ttrpg-export.json");
   } else if (target.id === "export-csv") {
     downloadExport("/api/export.csv", "ttrpg-export.csv");
   }
@@ -841,24 +817,6 @@ function closePickers() {
   els.sessionDatePicker.hidden = true;
   els.statsMonthPicker.hidden = true;
   els.yearPicker.hidden = true;
-}
-
-function jumpToPlayedMonth(direction) {
-  const month = findPlayedMonth(direction);
-  if (!month) {
-    return;
-  }
-  state.calendarDate = parseMonthKey(month);
-  renderCalendar();
-}
-
-function findPlayedMonth(direction) {
-  const months = unique(state.sessions.map((session) => session.date.slice(0, 7)));
-  const current = monthKey(state.calendarDate);
-  if (direction < 0) {
-    return months.reverse().find((month) => month < current);
-  }
-  return months.find((month) => month > current);
 }
 
 function monthKey(date) {

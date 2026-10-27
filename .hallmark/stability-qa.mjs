@@ -159,15 +159,16 @@ try {
   check('Validation errors show readable messages', await page.$eval('#toast', e => e.textContent.includes('Name unavailable') && !e.textContent.includes('[object Object]')));
 
   await reload();
+  await click('[data-tab="manage"]');
   const client = await page.createCDPSession();
   await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads });
-  for (const [selector, endpoint, file] of [['#export-json', '/api/export', 'ttrpg-export.json'], ['#export-csv', '/api/export.csv', 'ttrpg-export.csv']]) {
+  for (const [selector, endpoint, file] of [['#export-csv', '/api/export.csv', 'ttrpg-export.csv']]) {
     await click(selector);
     for (let i = 0; i < 100 && !existsSync(join(downloads, file)); i++) await pause(50);
     assert.ok(existsSync(join(downloads, file)), `Missing browser download: ${file}`);
     const content = readFileSync(join(downloads, file), 'utf8');
     const expected = await get(endpoint);
-    check(`Actual ${file} browser download contains the complete export`, file.endsWith('.json') ? JSON.stringify(JSON.parse(content)) === JSON.stringify(expected) : content === expected);
+    check(`Actual ${file} browser download contains the complete export`, content === expected);
   }
 
   const csv = readFileSync(join(downloads, 'ttrpg-export.csv'), 'utf8');
@@ -204,7 +205,7 @@ try {
   check('Import adds only the previewed records', imported.sessions.length === beforeImport.sessions.length + 2 && imported.campaigns.length === beforeImport.campaigns.length + 1 && imported.systems.length === beforeImport.systems.length + 1);
   check('Automatic import backup exactly matches the previous data', JSON.stringify(JSON.parse(readFileSync(join(backupDir, importResult.backup_file), 'utf8'))) === JSON.stringify(beforeImport));
   check('Unicode, quotes and multiline notes survive import', imported.sessions.some(s => s.campaign_name === newName && s.notes === 'Comma, "quote"\nUnicode: гра'));
-  check('Import refreshes the visible session count', await page.$eval('#session-count', (e, n) => Number(e.textContent) === n, imported.sessions.length));
+  check('Import refreshes all session history records', await page.$$eval('#sessions-body [data-edit-session]', (elements, n) => elements.length === n, imported.sessions.length));
   await click('#import-csv');
   await importFile(fixture);
   check('Reimporting the same file adds nothing', await page.$eval('#apply-import', e => e.hidden) && await page.$eval('#import-status', e => e.textContent.includes('Everything in this file')));

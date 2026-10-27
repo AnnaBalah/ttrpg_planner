@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TTRPG Tracker</title>
+    <title>Tablelog</title>
+    <meta name="application-name" content="Tablelog" />
     <meta name="description" content="Your tabletop calendar, session journal, campaigns and play statistics." />
-    <link rel="icon" href="https://fraternitysororitysvg.com/assets/images/products/Dungeons-and-Dragons-SVG.png" type="image/png" />
-    <link rel="stylesheet" href="/static/style.css?v=vinyl-20261027-mobile-layout" />
+    <link rel="icon" href="/static/tablelog.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css?v=tablelog-20261027-system-form-wide" />
   </head>
   <body>
     <header class="topbar app-container">
-      <div class="brand"><svg class="brand-mark" viewBox="0 0 40 44" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 2 37 12v20L20 42 3 32V12Z M20 2 10 18 3 32h34L30 18Z M10 18l10 14 10-14ZM3 12l7 6 20 0 7-6M20 32v10" /></svg><h1>TTRPG Tracker</h1></div>
+      <div class="brand"><img class="brand-mark" src="/static/tablelog.svg" width="48" height="48" alt="" /><h1>Tablelog</h1></div>
       <nav class="tabs" aria-label="App sections">
         <button class="tab-button is-active" type="button" data-tab="sessions" aria-pressed="true">Calendar</button>
         <button class="tab-button" type="button" data-tab="manage" aria-pressed="false">Manage</button>
@@ -53,19 +54,11 @@
           </div>
           <div class="calendar-grid" id="calendar-grid"></div>
           </div>
-          <div class="calendar-jumps">
-            <button class="calendar-jump" type="button" id="calendar-prev-session">Prev played</button>
-            <button class="calendar-jump" type="button" id="calendar-next-session">Next played</button>
-          </div>
           <div class="calendar-agenda" id="calendar-agenda"></div>
         </section>
 
         <details class="session-history" id="session-history">
           <summary>Session history</summary>
-          <div class="section-heading">
-            <h3>All sessions</h3>
-            <p id="status">Loading…</p>
-          </div>
           <div class="toolbar" aria-label="Session filters">
             <label>
               Search
@@ -112,7 +105,6 @@
         <section class="subpanel is-active" id="campaigns-panel" data-subpanel="campaigns">
           <div class="section-heading">
             <h2>Campaigns</h2>
-            <p id="campaign-status">Templates</p>
           </div>
           <form class="editor" id="campaign-form">
             <input type="hidden" id="campaign-id" />
@@ -166,7 +158,6 @@
         <section class="subpanel" id="systems-panel" data-subpanel="systems">
           <div class="section-heading">
             <h2>Systems</h2>
-            <p id="system-status">Managed list</p>
           </div>
           <form class="editor editor-compact" id="system-form">
             <input type="hidden" id="system-id" />
@@ -196,6 +187,11 @@
               <tbody id="systems-body"></tbody>
             </table>
           </div>
+        </section>
+
+        <section class="data-actions" aria-label="Import and export">
+          <button type="button" id="import-csv">Import CSV</button>
+          <button type="button" id="export-csv">Export CSV</button>
         </section>
       </section>
 
@@ -246,18 +242,14 @@
         </section>
       </section>
 
-      <section class="export-bar" aria-label="Import and export">
-        <div class="export-actions">
-        <button type="button" id="import-csv">Import CSV</button>
-        <button type="button" id="export-json">Export JSON</button>
-        <button type="button" id="export-csv">Export CSV</button>
-        </div>
-      <div class="summary" aria-live="polite">
-        <span id="session-count">0</span>
-        <span>sessions</span>
-      </div>
-      </section>
     </main>
+
+    <footer class="site-footer app-container">
+      <div class="footer-content">
+        <p>Created in 2026</p>
+        <a href="https://github.com/AnnaBalah/ttrpg_planner" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
 
     <dialog id="session-dialog">
       <form method="dialog" class="modal" id="session-form">
@@ -385,6 +377,6 @@
     <datalist id="system-options"></datalist>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="/static/app.js?v=vinyl-20261027-mobile-layout" type="module"></script>
+    <script src="/static/app.js?v=tablelog-20261027-history-cleanup" type="module"></script>
   </body>
 </html>

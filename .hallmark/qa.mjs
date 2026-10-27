@@ -32,12 +32,13 @@ try {
   const oldHtml = readFileSync(join(root, '.hallmark/baseline/index.html'), 'utf8');
   const newHtml = readFileSync(join(app, 'frontend/index.html'), 'utf8');
   const ids = s => [...s.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]).sort();
-  check('Baseline DOM ids preserved except the removed Quick Add list', ids(oldHtml).filter(id => id !== 'quick-add-list').every(id => ids(newHtml).includes(id)));
+  const retiredIds = new Set(['quick-add-list', 'calendar-prev-session', 'calendar-next-session', 'export-json', 'session-count', 'campaign-status', 'system-status', 'status']);
+  check('Active baseline DOM ids preserved', ids(oldHtml).filter(id => !retiredIds.has(id)).every(id => ids(newHtml).includes(id)));
   check('No duplicate DOM ids', new Set(ids(newHtml)).size === ids(newHtml).length);
   const oldJs = readFileSync(join(root, '.hallmark/baseline/app.js'), 'utf8');
   const newJs = readFileSync(join(app, 'frontend/app.js'), 'utf8');
   const calls = s => [...s.matchAll(/(?:api|downloadExport)\(([^\n]+)/g)].map(m => m[0].trim()).sort();
-  const oldManualJs = oldJs.replace(/async function quickSaveCampaign[\s\S]*?(?=async function saveSession)/, '');
+  const oldManualJs = oldJs.replace(/async function quickSaveCampaign[\s\S]*?(?=async function saveSession)/, '').replace(/^\s*downloadExport\("\/api\/export", "ttrpg-export.json"\);$/m, '');
   assert.ok(calls(oldManualJs).every(call => calls(newJs).includes(call)));
   check('Manual API calls and export destinations preserved');
   const sessions = await get('/api/sessions');
@@ -53,11 +54,16 @@ try {
   await page.setViewport({ width: 1440, height: 1000 });
   await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
   await page.goto(url + '/?month=' + month, { waitUntil: 'networkidle0' });
-  await page.waitForFunction(n => document.querySelector('#session-count').textContent === String(n), {}, sessions.length);
+  await page.waitForFunction(n => document.querySelectorAll('#sessions-body [data-edit-session]').length === n, {}, sessions.length);
   const shot = async name => { await page.evaluate(() => { window.scrollTo(0, 0); document.querySelector('#toast').classList.remove('is-visible'); }); await page.screenshot({ path: join(out, name + '.png'), fullPage: false }); };
   const click = async sel => { await page.waitForSelector(sel, { visible: true }); await page.click(sel); await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))); };
   const type = async (sel, text) => { await page.$eval(sel, e => { e.value = ''; e.dispatchEvent(new Event('input', { bubbles: true })); }); if (text) await page.type(sel, text); };
-  const count = async n => page.waitForFunction(n => document.querySelector('#session-count').textContent === String(n), {}, n);
+  const count = async n => page.waitForFunction(n => document.querySelectorAll('#sessions-body [data-edit-session]').length === n, {}, n);
+  check('Tablelog name and matching local icon load', await page.title() === 'Tablelog' && await page.$eval('.brand', e => e.querySelector('h1').textContent === 'Tablelog' && e.querySelector('img').complete && e.querySelector('img').naturalWidth > 0 && e.querySelector('img').src === document.querySelector('link[rel="icon"]').href));
+  check('Retired calendar jumps, JSON export and session total removed', await page.$$eval('#calendar-prev-session, #calendar-next-session, #export-json, #session-count', elements => elements.length === 0));
+  check('Creation footer links to the project', await page.$eval('footer', e => e.textContent.includes('Created in 2026') && e.querySelector('a').href === 'https://github.com/AnnaBalah/ttrpg_planner'));
+  const dataButtonsHidden = () => page.$$eval('.data-actions button', buttons => buttons.length === 2 && buttons.every(button => button.getBoundingClientRect().height === 0));
+  check('Import and export are hidden on Calendar', await dataButtonsHidden());
   check('The requested calendar month loads from the URL', await page.$$eval('[data-calendar-cell]', (cells, month) => cells.some(e => e.dataset.calendarCell.startsWith(month)), month));
   check('June uses the natural five-week grid', month !== '2026-06' || await page.$$eval('[data-calendar-cell]', e => e.length === 35));
   check('Recent sessions removed from navigation and calendar', await page.$$eval('[data-scroll-recent], #recent-sessions, #recent-list', elements => elements.length === 0));
@@ -191,7 +197,10 @@ try {
   check('Year review has 12 months', await page.$$eval('#year-content .month-bar', e => e.length === 12));
   check('Zero-session months have no painted bars', await page.$$eval('#year-content .month-bar', bars => bars.filter(e => e.querySelector('small').textContent === '0').every(e => e.querySelector('.month-bar-track > span').getBoundingClientRect().height === 0)));
   await shot('year-desktop');
-  for (const [selector, endpoint] of [['#export-json', '/api/export'], ['#export-csv', '/api/export.csv']]) {
+  check('Import and export are hidden on Stats', await dataButtonsHidden());
+  await click('[data-tab="manage"]');
+  check('Manage has two visible bordered data buttons', await page.$$eval('.data-actions button', buttons => buttons.length === 2 && buttons.every(button => button.closest('#manage-panel') && button.getBoundingClientRect().height >= 44 && parseFloat(getComputedStyle(button).borderWidth) >= 2)));
+  for (const [selector, endpoint] of [['#export-csv', '/api/export.csv']]) {
     const response = page.waitForResponse(r => r.url() === url + endpoint);
     await click(selector);
     check(`${endpoint} returns backup data`, (await response).ok());

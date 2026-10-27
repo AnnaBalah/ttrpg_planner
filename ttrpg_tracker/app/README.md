@@ -1,4 +1,4 @@
-# TTRPG Tracker
+# Tablelog
 
 Phase 1 foundation for the self-hosted TTRPG session tracker.
 
@@ -21,7 +21,7 @@ docker compose up
 
 ## Import game data
 
-Choose **Import CSV** beside the export buttons, select a tracker CSV export, and
+On the **Manage** tab, choose **Import CSV**, select a tracker CSV export, and
 choose **Preview file**. Review the new sessions, campaigns, systems and any
 warnings, then choose **Import new records**.
 

@@ -19,6 +19,7 @@ const state = {
   sessions: [],
   campaigns: [],
   systems: [],
+  settings: { owner_gm_name: null },
   calendarDate: initialCalendarMonth(),
   statsMonth: currentMonth(),
   statsPickerYear: Number(currentYear()),
@@ -35,6 +36,8 @@ const state = {
 };
 
 const csvImport = { text: "", preview: null, busy: false, applying: false, sequence: 0 };
+const ownerGmSave = { busy: false, pendingName: null, error: "", available: false, loadError: "Loading your GM name…" };
+let ownerSettingsSequence = 0;
 
 const els = {
   tabs: document.querySelectorAll(".tab-button"),
@@ -130,6 +133,7 @@ document.querySelector("#campaign-system-name").addEventListener("input", syncCa
 loadAll();
 
 async function loadAll() {
+  loadTrackerSettings();
   try {
     const [sessions, campaigns, systems] = await Promise.all([
       api("/api/sessions"),
@@ -145,6 +149,25 @@ async function loadAll() {
   } catch (error) {
     showToast(error.message, true);
   }
+}
+
+async function loadTrackerSettings() {
+  if (ownerGmSave.busy) return;
+  const sequence = ++ownerSettingsSequence;
+  try {
+    const settings = await api("/api/settings");
+    if (sequence !== ownerSettingsSequence) return;
+    state.settings = settings;
+    ownerGmSave.available = true;
+    ownerGmSave.loadError = "";
+  } catch (error) {
+    if (sequence !== ownerSettingsSequence) return;
+    ownerGmSave.available = false;
+    ownerGmSave.loadError = error.status === 404
+      ? "Restart the app to enable your GM name setting, then refresh this page."
+      : "Your GM name could not be loaded. Refresh this page to try again.";
+  }
+  if (sequence === ownerSettingsSequence) renderYearReview();
 }
 
 function renderAll() {
@@ -323,6 +346,7 @@ function renderYearReview() {
   if (sessions.length === 0) {
     els.yearContent.innerHTML = `
       ${emptyState("", state.reviewYear, "No sessions logged for this year.")}
+      <div class="stats-grid review-grid">${ranPlayedPanel(0, 0)}</div>
     `;
     return;
   }
@@ -341,10 +365,15 @@ function renderYearReview() {
     sessions,
     (session) => session.gm,
     () => "var(--accent-2)",
-  );
+  ).map(row => ({
+    ...row,
+    isOwner: ownerGmSave.available && Boolean(state.settings.owner_gm_name) && gmNameKey(row.label) === gmNameKey(state.settings.owner_gm_name),
+  }));
   const monthlyRows = monthlyCountRows(sessions, state.reviewYear);
   const topMonth = [...monthlyRows].sort((a, b) => b.count - a.count)[0];
-  const ranCount = sessions.filter((session) => session.gm === "Anna").length;
+  const ranCount = state.settings.owner_gm_name
+    ? sessions.filter(session => gmNameKey(session.gm) === gmNameKey(state.settings.owner_gm_name)).length
+    : 0;
   const playedCount = sessions.length - ranCount;
 
   els.yearContent.innerHTML = `
@@ -636,6 +665,30 @@ function handleDocumentChange(event) {
     applyCampaignDefaults(Number(event.target.value));
   } else if (event.target.id === "session-system") {
     syncNewSystemFields();
+  } else if (event.target.id === "owner-gm") {
+    saveOwnerGm(event.target.value || null);
+  }
+}
+
+async function saveOwnerGm(name) {
+  if (ownerGmSave.busy || !ownerGmSave.available) return;
+  ownerSettingsSequence += 1;
+  ownerGmSave.busy = true;
+  ownerGmSave.pendingName = name;
+  ownerGmSave.error = "";
+  renderYearReview();
+  try {
+    state.settings = await api("/api/settings", { method: "PUT", body: { owner_gm_name: name } });
+  } catch (error) {
+    ownerGmSave.error = `Could not save your GM name. ${error.message} Try choosing it again.`;
+  } finally {
+    ownerGmSave.busy = false;
+    ownerGmSave.pendingName = null;
+    const restoreFocus = document.activeElement === document.body || document.activeElement?.id === "owner-gm";
+    renderYearReview();
+    if (restoreFocus && document.querySelector('#stats-panel.is-active [data-subpanel="year"].is-active')) {
+      document.querySelector("#owner-gm")?.focus({ preventScroll: true });
+    }
   }
 }
 
@@ -1297,6 +1350,7 @@ async function refreshLists() {
   state.campaigns = campaigns;
   state.systems = systems;
   renderAll();
+  loadTrackerSettings();
 }
 
 async function downloadExport(url, filename) {
@@ -1439,7 +1493,9 @@ async function api(url, options = {}) {
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
   if (!response.ok) {
-    throw new Error(await errorText(response));
+    const error = new Error(await errorText(response));
+    error.status = response.status;
+    throw error;
   }
   if (response.status === 204) {
     return null;
@@ -1788,7 +1844,7 @@ function statsBar(row, max) {
   return `
     <div class="bar-row">
       <div class="bar-meta">
-        <span>${escapeHtml(row.label)}</span>
+        <span class="bar-label">${escapeHtml(row.label)}${row.isOwner ? ' <span class="gm-me-badge">Me</span>' : ""}</span>
         <strong>${label}</strong>
       </div>
       <div class="bar-track" aria-hidden="true">
@@ -1823,7 +1879,35 @@ function ranPlayedPanel(ranCount, playedCount) {
     { label: "Ran", count: ranCount, color: "var(--accent)" },
     { label: "Played", count: playedCount, color: "var(--accent-2)" },
   ];
-  return statsChart("Games I Ran vs. Played", rows);
+  const selectedName = ownerGmSave.busy ? ownerGmSave.pendingName : state.settings.owner_gm_name;
+  const names = new Map();
+  [state.settings.owner_gm_name, ...state.sessions.map(session => session.gm), ...state.campaigns.map(campaign => campaign.default_gm)]
+    .filter(Boolean)
+    .forEach(name => { if (!names.has(gmNameKey(name))) names.set(gmNameKey(name), name); });
+  const options = [...names.values()].sort((a, b) => a.localeCompare(b));
+  const feedback = ownerGmSave.error || ownerGmSave.loadError || (ownerGmSave.busy ? "Saving your choice…" : "");
+  return `
+    <section class="chart-panel owner-gm-panel" aria-labelledby="owner-gm-heading" aria-busy="${ownerGmSave.busy}">
+      <h3 id="owner-gm-heading">Games I Ran vs. Played</h3>
+      <label class="owner-gm-field" for="owner-gm">
+        My GM name
+        <select id="owner-gm" aria-describedby="owner-gm-feedback" ${ownerGmSave.busy || !ownerGmSave.available ? "disabled" : ""}>
+          <option value="" ${selectedName === null ? "selected" : ""}>Choose a name…</option>
+          ${options.map(name => `<option value="${escapeAttribute(name)}" ${gmNameKey(name) === gmNameKey(selectedName) ? "selected" : ""}>${escapeHtml(name)}</option>`).join("")}
+        </select>
+      </label>
+      <p id="owner-gm-feedback" class="owner-gm-feedback ${ownerGmSave.error ? "is-error" : ""}" role="status" ${feedback ? "" : "hidden"}>${escapeHtml(feedback)}</p>
+      ${!ownerGmSave.available ? "" : state.settings.owner_gm_name ? `
+        <div class="bar-list" aria-live="polite" aria-atomic="true">
+          ${rows.map(row => statsBar(row, Math.max(ranCount, playedCount))).join("")}
+        </div>
+      ` : '<p class="owner-gm-empty">Choose your GM name to see this breakdown.</p>'}
+    </section>
+  `;
+}
+
+function gmNameKey(name) {
+  return String(name ?? "").normalize("NFC").trim().toLowerCase();
 }
 
 function monthlyCountRows(sessions, year) {

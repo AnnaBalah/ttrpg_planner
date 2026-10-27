@@ -84,6 +84,8 @@ try {
   sessionDelay = 250;
   sessionPosts = 0;
   await page.click('#session-form button[type="submit"]', { clickCount: 2, delay: 30 });
+  // Network idle can occur while the intercepted POST is deliberately delayed.
+  await page.waitForFunction(() => !document.querySelector('#session-dialog').open);
   await idle();
   let repeated = (await get('/api/sessions')).filter(s => s.name === 'QA repeated click');
   check('Rapid double-click saves exactly one session and sends one request', repeated.length === 1 && sessionPosts === 1);

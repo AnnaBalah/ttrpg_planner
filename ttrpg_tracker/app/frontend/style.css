@@ -162,6 +162,13 @@ a { color: var(--accent-2); text-decoration-thickness: 1px; text-underline-offse
 .bar-list { display: grid; gap: var(--space-lg); }
 .bar-meta { display: flex; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-xs); }
 .bar-meta strong { color: var(--muted); font-weight: 400; font-size: var(--text-sm); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bar-label { min-width: 0; overflow-wrap: anywhere; }
+.gm-me-badge { display: inline-block; margin-left: var(--space-xs); padding: var(--space-3xs) var(--space-xs); border-radius: var(--radius-pill); background: var(--accent-2); color: var(--color-accent-2-ink); font-size: var(--text-xs); font-weight: 700; white-space: nowrap; vertical-align: middle; }
+.owner-gm-field { width: 100%; max-width: 22rem; margin-bottom: var(--space-md); }
+.owner-gm-field select { min-width: 0; max-width: 100%; text-overflow: ellipsis; }
+.owner-gm-empty, .owner-gm-feedback { color: var(--muted); font-size: var(--text-sm); }
+.owner-gm-feedback { margin-bottom: var(--space-md); }
+.owner-gm-feedback.is-error { color: var(--danger); }
 .bar-track { height: 10px; background: var(--panel-strong); border-radius: var(--radius-pill); overflow: clip; }
 .bar-track span { display: block; height: 100%; background: var(--record-color); border-radius: inherit; }
 .wide-panel { grid-column: 1 / -1; }

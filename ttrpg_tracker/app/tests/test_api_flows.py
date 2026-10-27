@@ -195,6 +195,25 @@ class ApiFlowTests(unittest.TestCase):
         self.assertEqual(status, 201)
         self.assertEqual(item["date"], "2026-10-27")
 
+    def test_tracker_owner_settings_are_shared_validated_and_preserve_records(self):
+        previous = self.request("GET", "/api/settings")[1]
+        owner = self.name + " GM"
+        self.request("POST", "/api/sessions", self.session(gm=owner, date="2024-01-01"))
+        before = self.request("GET", "/api/export")[1]
+        try:
+            status, settings, _ = self.request("PUT", "/api/settings", {"owner_gm_name": "  " + owner.upper() + "  "})
+            self.assertEqual(status, 200)
+            self.assertEqual(settings, {"owner_gm_name": owner})
+            self.assertEqual(self.request("GET", "/api/settings")[1], settings)
+            for payload in [{}, {"owner_gm_name": " "}, {"owner_gm_name": "Unknown QA GM"}]:
+                with self.subTest(payload=payload):
+                    self.assertEqual(self.request("PUT", "/api/settings", payload)[0], 422)
+            self.assertEqual(self.request("GET", "/api/settings")[1], settings)
+            self.assertEqual(self.request("GET", "/api/export")[1], before)
+            self.assertEqual(self.request("PUT", "/api/settings", {"owner_gm_name": None})[1], {"owner_gm_name": None})
+        finally:
+            self.assertEqual(self.request("PUT", "/api/settings", previous)[0], 200)
+
     def test_exports_are_complete_and_csv_reimport_is_a_no_op(self):
         self.request("POST", "/api/sessions", self.session(notes='Кома, "quoted"\nNext line'))
         status, exported, _ = self.request("GET", "/api/export")

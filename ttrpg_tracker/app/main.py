@@ -87,6 +87,14 @@ class GameSession(SQLModel, table=True):
     created_at: str = Field(default_factory=utc_now)
 
 
+class TrackerSettings(SQLModel, table=True):
+    __tablename__ = "tracker_settings"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_tracker_settings_singleton"),)
+
+    id: int = Field(default=1, primary_key=True)
+    owner_gm_name: Optional[str] = None
+
+
 def required_text(value: str) -> str:
     value = unicodedata.normalize("NFC", value).strip()
     if not value:
@@ -114,6 +122,16 @@ def web_link(value: str | None) -> str | None:
 RequiredText = Annotated[str, AfterValidator(required_text)]
 HexColor = Annotated[str, AfterValidator(hex_color)]
 WebLink = Annotated[Optional[str], AfterValidator(web_link)]
+
+
+class TrackerSettingsUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    owner_gm_name: Optional[RequiredText]
+
+
+class TrackerSettingsRead(BaseModel):
+    owner_gm_name: Optional[str] = None
 
 
 class SystemCreate(BaseModel):
@@ -251,6 +269,39 @@ def index() -> FileResponse:
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/settings", response_model=TrackerSettingsRead)
+def read_tracker_settings() -> TrackerSettingsRead:
+    with Session(engine) as db:
+        settings = db.get(TrackerSettings, 1)
+        return TrackerSettingsRead(owner_gm_name=settings.owner_gm_name if settings else None)
+
+
+@app.put("/api/settings", response_model=TrackerSettingsRead)
+def update_tracker_settings(payload: TrackerSettingsUpdate) -> TrackerSettingsRead:
+    with Session(engine) as db:
+        db.exec(text("BEGIN IMMEDIATE"))
+        settings = db.get(TrackerSettings, 1) or TrackerSettings()
+        owner_name = payload.owner_gm_name
+        if owner_name is not None:
+            # Keep a saved choice valid even if its last session was removed.
+            names = [
+                *([settings.owner_gm_name] if settings.owner_gm_name else []),
+                *db.exec(select(GameSession.gm).distinct().order_by(GameSession.gm)),
+                *db.exec(select(Campaign.default_gm).distinct().order_by(Campaign.default_gm)),
+            ]
+            owner_key = unicodedata.normalize("NFC", owner_name).strip().lower()
+            owner_name = next(
+                (name for name in names if unicodedata.normalize("NFC", name).strip().lower() == owner_key),
+                None,
+            )
+            if owner_name is None:
+                raise HTTPException(status_code=422, detail="Choose a GM name already used in the tracker.")
+        settings.owner_gm_name = owner_name
+        db.add(settings)
+        db.commit()
+        return TrackerSettingsRead(owner_gm_name=owner_name)
 
 
 @app.get("/api/systems", response_model=list[SystemRead])

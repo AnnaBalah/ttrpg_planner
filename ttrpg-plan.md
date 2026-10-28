@@ -269,10 +269,14 @@ session **or** a named one-shot, never neither.
 - [ ] Add Session defaults — default `Type` to `Campaign session`, keep `Date` defaulted to today, and keep Campaign blank until the user chooses one
 - [ ] Quick Add redesign — rethink campaign cards and actions; add an `Add` flow that prefills campaign defaults but leaves Date blank and required
 - [ ] Quick Add design brainstorm — explore smaller cards, split primary/secondary actions, icon-only edit controls, and clearer distinction between `Log today`, `Add`, and edit-before-save
+- [ ] Implement the agreed inline-creation rollback rules with clear error messages: remove the campaign created by an attempt if its first session cannot be saved (Q-CS-04), and remove only the new system if its parent campaign/session cannot be saved (Q-SY-02). Retain entered values, protect existing records and reconcile unknown outcomes before claiming rollback success. Product decisions agreed on 28 October 2026; see [requirements and rules](docs/portfolio/requirements-and-rules.md).
 
 **System color UX**
 - [x] Generated colors — when generating or suggesting system colors, avoid repeating the same color that was chosen previously
   - Added a shared system-color suggestion palette that avoids existing system colors and avoids duplicate visible suggestions across new-system forms.
+
+**Campaign actions**
+- [ ] Implement the agreed [blocked campaign-deletion feedback](docs/portfolio/requirements-and-rules.md#wf-cp-06-improve-blocked-campaign-deletion): explain why Delete is unavailable for campaigns with sessions, offer explicit Archive where appropriate, retain context on rejection, and check current state after an unknown outcome before another deletion attempt. Keep the server deletion guard. Q-CP-04–06 agreed on 28 October 2026; detailed requirement wording and priorities remain drafts. Reproduce and retest [DEF-002](docs/portfolio/test-records.md#def-002-campaign-delete-feedback).
 
 **Admin and maintenance**
 - [ ] Deployment guide — add `DEPLOY.md` with NAS/home-server setup, Tailscale/LAN notes, Docker volume persistence verification, and safe exposure guidance

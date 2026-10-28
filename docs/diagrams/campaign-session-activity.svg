@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1510" viewBox="0 0 1320 1510" role="img" aria-labelledby="diagram-title diagram-description">
+<title id="diagram-title">WF-CS-01: Add a session to an existing campaign — draft UML activity diagram</title>
+<desc id="diagram-description">Open the form, choose a campaign, review defaults, save and validate. Cancel ends without saving. Invalid data and confirmed rejected saves return to review. A confirmed save closes the form and refreshes views; a successful refresh shows Session saved. Unknown save outcomes and refresh failures end at explicitly unresolved GAP-CS-01 boundaries.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#475569"/></marker></defs>
+<style>
+text{font-family:'Segoe UI',Arial,sans-serif;fill:#1e293b}
+.title{font-size:25px;font-weight:650;text-anchor:start}
+.subtitle{font-size:17px;fill:#526277;text-anchor:start}
+.node-text{font-size:17px;text-anchor:middle}
+.decision-text{font-size:16px;text-anchor:middle}
+.guard{font-size:14px;text-anchor:middle;fill:#475569}
+.footer{font-size:16px;text-anchor:start;fill:#526277}
+.note-text{font-size:16px;text-anchor:middle;fill:#854d0e}
+.action{fill:#eff6ff;stroke:#53779f;stroke-width:1.7}
+.secondary{fill:#f8fafc;stroke:#64748b;stroke-width:1.7}
+.success{fill:#ecfdf5;stroke:#3c8067;stroke-width:1.7}
+.decision,.merge{fill:#fff;stroke:#475569;stroke-width:1.8}
+.flow{fill:none;stroke:#475569;stroke-width:1.8;marker-end:url(#arrow)}
+.association{fill:none;stroke:#b7791f;stroke-width:1.5;stroke-dasharray:5 4}
+.note{fill:#fffbeb;stroke:#b7791f;stroke-width:1.5}
+.note-fold{fill:none;stroke:#b7791f;stroke-width:1.2}
+.start,.final-inner{fill:#1e293b}
+.final-outer{fill:#fff;stroke:#1e293b;stroke-width:2}
+.flow-final{fill:#fff;stroke:#b7791f;stroke-width:1.8}
+.cross{fill:none;stroke:#b7791f;stroke-width:1.8}
+</style>
+<rect width="1320" height="1510" fill="#fff"/>
+<text x="40" y="40" class="title"><tspan x="40" dy="0">WF-CS-01 · Add a session to an existing campaign</tspan></text>
+<text x="40" y="68" class="subtitle"><tspan x="40" dy="0">Draft UML activity diagram · existing campaign and system</tspan></text>
+<circle class="start" cx="520" cy="100" r="10"/>
+<path class="flow" d="M520 110 V130"/>
+<g id="open-form"><rect class="action" x="350" y="130" width="340" height="65" rx="13"/>
+<text x="520" y="157" class="node-text"><tspan x="520" dy="0">Open new-session form</tspan><tspan x="520" dy="23">Today or selected calendar date</tspan></text>
+</g>
+<path class="flow" d="M520 195 V230"/>
+<g id="campaign-defaults"><rect class="action" x="350" y="230" width="340" height="70" rx="13"/>
+<text x="520" y="259.5" class="node-text"><tspan x="520" dy="0">Select campaign</tspan><tspan x="520" dy="23">Apply GM, system and link defaults</tspan></text>
+</g>
+<path class="flow" d="M520 300 V338"/>
+<polygon class="merge" points="520,338 534,350 520,362 506,350"/>
+<path class="flow" d="M520 362 V390"/>
+<g id="review-details"><rect class="action" x="350" y="390" width="340" height="70" rx="13"/>
+<text x="520" y="431" class="node-text"><tspan x="520" dy="0">Review or edit session details</tspan></text>
+</g>
+<path class="flow" d="M520 460 V485"/>
+<g id="owner-choice"><polygon class="decision" points="520,485 600,520 520,555 440,520"/>
+<text x="520" y="525" class="decision-text"><tspan x="520" dy="0">Save?</tspan></text>
+</g>
+<path class="flow" d="M440 520 H290"/>
+<text x="330" y="502" class="guard"><tspan x="330" dy="0">[cancel]</tspan></text>
+<g id="cancel"><rect class="secondary" x="50" y="490" width="240" height="60" rx="13"/>
+<text x="170" y="514.5" class="node-text"><tspan x="170" dy="0">Close form</tspan><tspan x="170" dy="23">Save nothing</tspan></text>
+</g>
+<path class="flow" d="M170 550 V596"/>
+<g><circle class="final-outer" cx="170" cy="610" r="14"/><circle class="final-inner" cx="170" cy="610" r="8"/></g>
+<path class="flow" d="M520 555 V600"/>
+<text x="554" y="583" class="guard"><tspan x="554" dy="0">[save]</tspan></text>
+<g id="validate"><rect class="action" x="350" y="600" width="340" height="60" rx="13"/>
+<text x="520" y="636" class="node-text"><tspan x="520" dy="0">Validate session data</tspan></text>
+</g>
+<path class="flow" d="M520 660 V685"/>
+<g id="valid-data"><polygon class="decision" points="520,685 600,720 520,755 440,720"/>
+<text x="520" y="725" class="decision-text"><tspan x="520" dy="0">Valid?</tspan></text>
+</g>
+<path class="flow" d="M600 720 H850"/>
+<text x="724" y="704" class="guard"><tspan x="724" dy="0">[no]</tspan></text>
+<g id="validation-error"><rect class="secondary" x="850" y="690" width="300" height="60" rx="13"/>
+<text x="1000" y="714.5" class="node-text"><tspan x="1000" dy="0">Show validation error</tspan><tspan x="1000" dy="23">Retain form and values</tspan></text>
+</g>
+<path class="flow" d="M1000 690 V350 H534"/>
+<text x="1030" y="420" class="guard"><tspan x="1030" dy="0">Correct</tspan></text>
+<path class="flow" d="M520 755 V800"/>
+<text x="554" y="783" class="guard"><tspan x="554" dy="0">[yes]</tspan></text>
+<g id="submit"><rect class="action" x="350" y="800" width="340" height="60" rx="13"/>
+<text x="520" y="824.5" class="node-text"><tspan x="520" dy="0">Send save request</tspan><tspan x="520" dy="23">Block repeated submission</tspan></text>
+</g>
+<path class="flow" d="M520 860 V880"/>
+<g id="save-outcome"><polygon class="decision" points="520,880 610,925 520,970 430,925"/>
+<text x="520" y="920" class="decision-text"><tspan x="520" dy="0">Save</tspan><tspan x="520" dy="20">outcome?</tspan></text>
+</g>
+<path class="flow" d="M430 925 H300"/>
+<text x="359" y="908" class="guard"><tspan x="359" dy="0">[rejected]</tspan></text>
+<g id="save-rejected"><rect class="secondary" x="50" y="890" width="250" height="70" rx="13"/>
+<text x="175" y="919.5" class="node-text"><tspan x="175" dy="0">Show save error</tspan><tspan x="175" dy="23">Keep form and values</tspan></text>
+</g>
+<path class="flow" d="M50 925 H24 V350 H506"/>
+<text x="100" y="333" class="guard"><tspan x="100" dy="0">Correct or retry</tspan></text>
+<path class="flow" d="M610 925 H780 V1033"/>
+<text x="698" y="908" class="guard"><tspan x="698" dy="0">[unknown]</tspan></text>
+<g><circle class="flow-final" cx="780" cy="1045" r="12"/><path class="cross" d="M773 1038 L787 1052 M773 1052 L787 1038"/></g>
+<path class="association" d="M780 925 H850"/>
+<g id="unknown-outcome"><path class="note" d="M850 880 H1182 L1200 898 V980 H850 Z"/><path class="note-fold" d="M1182 880 V898 H1200"/>
+<text x="1025" y="909" class="note-text"><tspan x="1025" dy="0">Save outcome unknown</tspan><tspan x="1025" dy="23">A session may already exist</tspan><tspan x="1025" dy="23">GAP-CS-01: recovery undefined</tspan></text>
+</g>
+<path class="flow" d="M520 970 V1035"/>
+<text x="611" y="1004" class="guard"><tspan x="611" dy="0">[confirmed saved]</tspan></text>
+<g id="refresh"><rect class="action" x="350" y="1035" width="340" height="70" rx="13"/>
+<text x="520" y="1064.5" class="node-text"><tspan x="520" dy="0">Close form</tspan><tspan x="520" dy="23">Refresh calendar, history and stats</tspan></text>
+</g>
+<path class="flow" d="M520 1105 V1135"/>
+<g id="refresh-result"><polygon class="decision" points="520,1135 610,1175 520,1215 430,1175"/>
+<text x="520" y="1170" class="decision-text"><tspan x="520" dy="0">Refresh</tspan><tspan x="520" dy="20">succeeded?</tspan></text>
+</g>
+<path class="flow" d="M610 1175 H780 V1308"/>
+<text x="697" y="1159" class="guard"><tspan x="697" dy="0">[no]</tspan></text>
+<g><circle class="flow-final" cx="780" cy="1320" r="12"/><path class="cross" d="M773 1313 L787 1327 M773 1327 L787 1313"/></g>
+<path class="association" d="M780 1175 H850"/>
+<g id="refresh-failed"><path class="note" d="M850 1130 H1182 L1200 1148 V1230 H850 Z"/><path class="note-fold" d="M1182 1130 V1148 H1200"/>
+<text x="1025" y="1159" class="note-text"><tspan x="1025" dy="0">Session saved; refresh failed</tspan><tspan x="1025" dy="23">GAP-CS-01: recovery undefined</tspan><tspan x="1025" dy="23">This is not a rejected save</tspan></text>
+</g>
+<path class="flow" d="M520 1215 V1260"/>
+<text x="554" y="1245" class="guard"><tspan x="554" dy="0">[yes]</tspan></text>
+<g id="success"><rect class="success" x="350" y="1260" width="340" height="60" rx="13"/>
+<text x="520" y="1296" class="node-text"><tspan x="520" dy="0">Show Session saved</tspan></text>
+</g>
+<path class="flow" d="M520 1320 V1366"/>
+<g><circle class="final-outer" cx="520" cy="1380" r="14"/><circle class="final-inner" cx="520" cy="1380" r="8"/></g>
+<text x="40" y="1450" class="footer"><tspan x="40" dy="0">Rounded boxes: actions · diamonds: decisions / merge · bullseye: activity ends</tspan></text>
+<text x="40" y="1476" class="footer"><tspan x="40" dy="0">Crossed circles: end of modeled branch; unresolved recovery is not prescribed.</tspan></text>
+</svg>

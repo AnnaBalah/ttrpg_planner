@@ -1,16 +1,18 @@
 # Acceptance criteria
 
-**Status — 28 October 2026:** WF-CS-01 criteria remain tentatively agreed and
-unchanged. All other criteria below are **draft expected outcomes** derived from
-the updated [requirements and rules](requirements-and-rules.md). All 34 product
-decisions are agreed; detailed wording and Must/Should priorities outside
-WF-CS-01 still need review. These criteria are not implementation or test results.
+**Version:** 1.0 — reviewed baseline
+
+**Status — 28 October 2026:** All acceptance criteria are approved by the owner,
+including shared criteria and updates reflecting Q-CS-06–08. All Main workflow tables, business
+rules, functional requirements and recorded Must/Should priorities in
+[requirements and rules](requirements-and-rules.md) are approved, together with
+the 37 product decisions. These criteria are not implementation or test results.
 
 Each workflow has a collapsed section with category toggles. Criterion IDs are
 unique within an area and continue across its workflows. Linked requirements
 determine priority; criteria for a **Should** requirement are identified explicitly.
-Shared criteria apply where relevant to the newer workflows. They do not amend
-WF-CS-01 or resolve its outstanding decisions.
+Shared criteria apply where relevant to the newer workflows. Detailed recovery
+design remains open under GAP-CS-01.
 
 Use fictional data and isolated storage for verification. Record test setup,
 cases, execution evidence and retests in [test records](test-records.md), including
@@ -29,7 +31,7 @@ or reset. Open decisions and follow-up work are listed under
 
 <a id="shared-acceptance-criteria"></a>
 <details>
-<summary><strong>Shared acceptance criteria (draft)</strong></summary>
+<summary><strong>Shared acceptance criteria</strong></summary>
 
 **Source:** FR-SH-01–05; Q-SH-01. Apply to the workflows identified in the source
 shared-requirements table, where the operation is relevant. Creation-request
@@ -123,9 +125,10 @@ action, not an agreed solution in this criterion.
 <details>
 <summary><strong>Campaign-session acceptance criteria</strong></summary>
 
-**Status:** Tentatively agreed. These are expected outcomes for
+**Status:** All criteria are approved, including changes reflecting Q-CS-06–08
+and AC-CS-31/32. These are expected outcomes for
 [WF-CS-01](requirements-and-rules.md#wf-cs-01-add-a-session-to-an-existing-campaign),
-not execution results. Requirement IDs and priorities are unchanged.
+not execution results. Existing requirement IDs and priorities are preserved.
 
 [Test data and setup](test-records.md#campaign-session-test-data-and-setup) are kept
 with the test records. For every validation failure below, reject the input,
@@ -222,8 +225,9 @@ This remains a **Should** criterion.
 
 (FR-CS-09, FR-CS-11, FR-CS-15; BR-CS-02)
 
-Given otherwise valid data, when Campaign or System is unselected, or GM is
+Given otherwise valid data in the browser form, when Campaign or System is unselected, or GM is
 empty or whitespace-only, then explain which required input is missing or invalid.
+API omissions that use campaign defaults are covered separately by AC-CS-32.
 
 ### AC-CS-12 — Reject missing or invalid dates
 
@@ -293,11 +297,13 @@ or re-entering unaffected values. Success adds one session.
 
 ### AC-CS-20 — Cancel before saving
 
-(FR-CS-16)
+(FR-CS-16; Q-CS-07)
 
-Given entered values and no save in progress, when Close or Escape is used, then
-the form closes without changing stored data. Reopening starts with the initial
-values in AC-CS-01 or AC-CS-02.
+Given entered values and no save in progress, when Close is used or Escape is
+pressed with no picker open, then the form closes without changing stored data.
+If a picker is open, Escape closes only that picker and retains the form and
+entered values. Reopening a discarded form starts with the initial values in
+AC-CS-01 or AC-CS-02. Closing during a save is covered by AC-CS-22.
 
 ### AC-CS-21 — Recover from a rejected save
 
@@ -308,14 +314,17 @@ then the form retains its values and shows an error. Correction or retry is
 available after the request ends. A successful retry adds exactly one session
 across the two attempts.
 
-### AC-CS-22 — Prevent submissions while saving
+<a id="ac-cs-22-prevent-submissions-while-saving"></a>
 
-(FR-CS-18)
+### AC-CS-22 — Prevent repeated submissions and form closing while saving
+
+(FR-CS-18; Q-CS-07)
 
 Given a save request is pending, when Save or Enter is used repeatedly, then
 only one creation request is sent from the form during that pending request.
-Success creates one session. Lost responses and separate later submissions
-remain outside this criterion.
+Close and Escape cannot close the session form while saving; Escape may close
+an open picker while retaining the form. Success creates one session. Lost
+responses and separate later submissions remain outside this criterion.
 
 ### AC-CS-23 — Include future sessions in statistics
 
@@ -327,13 +336,38 @@ its date. A different month's total is unchanged. No played/planned state is req
 
 </details>
 
-All 19 requirements have linked criteria. Recovery after a lost save response or a
+<details>
+<summary><strong>Decisions Q-CS-06–08</strong></summary>
+
+### AC-CS-31 — Allow deliberate repeated campaign-session entries
+
+(FR-CS-25; BR-CS-13; Q-CS-06)
+
+Given a session already exists for a campaign and date, when the owner deliberately
+submits another valid session for the same campaign and date, including otherwise
+identical values, then one additional session is created. Repeated pending actions
+remain covered by AC-CS-22; an unknown request outcome requires reconciliation
+under Q-SH-01 before retry.
+
+### AC-CS-32 — Apply campaign defaults to omitted API inputs
+
+(FR-CS-11; Q-CS-08)
+
+Given a valid existing campaign, when an otherwise valid API creation request
+omits GM, System or both, then use the campaign's corresponding defaults and
+validate the effective values. Supplied valid overrides take precedence without
+changing campaign defaults. The browser form still requires GM and System under
+AC-CS-11; missing effective references remain covered by AC-CS-13.
+
+</details>
+
+All WF-CS-01 requirements have linked criteria. Recovery after a lost save response or a
 failed refresh remains [GAP-CS-01](requirements-and-rules.md#open-decision).
 
 </details>
 
 <details>
-<summary><strong>WF-OS-01: Add a standalone one-shot (draft)</strong></summary>
+<summary><strong>WF-OS-01: Add a standalone one-shot</strong></summary>
 
 **Source:** WF-OS-01; FR-OS-01–04; Q-OS-01. Shared criteria apply.
 
@@ -410,10 +444,11 @@ rejection explains the reason and retains values for correction or permitted ret
 </details>
 
 <details>
-<summary><strong>WF-CS-02: Create a campaign while recording its first session (draft)</strong></summary>
+<summary><strong>WF-CS-02: Create a campaign while recording its first session</strong></summary>
 
 **Source:** WF-CS-02; FR-CS-20–24; Q-CS-04–05. Shared criteria apply.
-AC-CS numbering continues after the unchanged WF-CS-01 criteria.
+Existing AC-CS-24–30 IDs are preserved; later additions AC-CS-31/32 belong to
+WF-CS-01 above.
 
 <details>
 <summary><strong>Entry and campaign defaults</strong></summary>
@@ -489,7 +524,7 @@ creating another pair.
 </details>
 
 <details>
-<summary><strong>WF-SE-01: Edit an existing campaign session or one-shot (draft)</strong></summary>
+<summary><strong>WF-SE-01: Edit an existing campaign session or one-shot</strong></summary>
 
 **Source:** WF-SE-01; FR-SE-01–04; Q-SE-01–02. Shared criteria apply.
 
@@ -574,7 +609,7 @@ once; active filters still determine visibility.
 </details>
 
 <details>
-<summary><strong>WF-SE-02: Delete a session (draft)</strong></summary>
+<summary><strong>WF-SE-02: Delete a session</strong></summary>
 
 **Source:** WF-SE-02; FR-SE-05–08; Q-SE-03. Shared criteria apply.
 
@@ -631,7 +666,7 @@ monthly and annual statistics. No undo is implied by the completion message.
 ## Campaigns
 
 <details>
-<summary><strong>WF-CP-01: Create a campaign and set its session defaults (draft)</strong></summary>
+<summary><strong>WF-CP-01: Create a campaign and set its session defaults</strong></summary>
 
 **Source:** WF-CP-01; FR-CP-01–04; Q-CP-01. Shared criteria apply.
 
@@ -682,7 +717,7 @@ values, explain the cause and create no campaign.
 </details>
 
 <details>
-<summary><strong>WF-CP-02: Edit a campaign and its session defaults (draft)</strong></summary>
+<summary><strong>WF-CP-02: Edit a campaign and its session defaults</strong></summary>
 
 **Source:** WF-CP-02; FR-CP-05–08; Q-CP-02. Shared criteria apply.
 
@@ -740,7 +775,7 @@ explanation and the stored campaign is unchanged.
 </details>
 
 <details>
-<summary><strong>WF-CP-03: Archive a campaign (draft)</strong></summary>
+<summary><strong>WF-CP-03: Archive a campaign</strong></summary>
 
 **Source:** WF-CP-03; FR-CP-09–12; Q-CP-03. Shared criteria apply.
 
@@ -788,7 +823,7 @@ archiving success is not reported.
 </details>
 
 <details>
-<summary><strong>WF-CP-04: Reactivate an archived campaign (draft)</strong></summary>
+<summary><strong>WF-CP-04: Reactivate an archived campaign</strong></summary>
 
 **Source:** WF-CP-04; FR-CP-13–16; Q-CP-03. Shared criteria apply.
 
@@ -836,7 +871,7 @@ action without reporting reactivation success.
 </details>
 
 <details>
-<summary><strong>WF-CP-05: Delete a campaign with no sessions (draft)</strong></summary>
+<summary><strong>WF-CP-05: Delete a campaign with no sessions</strong></summary>
 
 **Source:** WF-CP-05; FR-CP-17–21; Q-CP-04. Shared criteria apply. Improved
 interaction criteria continue under planned WF-CP-06 below.
@@ -897,7 +932,7 @@ Do not label the confirmed restriction as a connection error.
 ## Game systems
 
 <details>
-<summary><strong>WF-SY-01: Add a game system in Manage (draft)</strong></summary>
+<summary><strong>WF-SY-01: Add a game system in Manage</strong></summary>
 
 **Source:** WF-SY-01; FR-SY-01–04; Q-SY-01. Shared criteria apply.
 
@@ -956,7 +991,7 @@ remain with an explanation for correction.
 </details>
 
 <details>
-<summary><strong>WF-SY-02: Add a game system from the session form (draft)</strong></summary>
+<summary><strong>WF-SY-02: Add a game system from the session form</strong></summary>
 
 **Source:** WF-SY-02; FR-SY-05–08; Q-SY-02–03. Shared criteria and the parent
 session workflow's criteria apply to creation or editing as relevant.
@@ -1027,7 +1062,7 @@ no rollback may remove it. Creation identification remains an open design action
 </details>
 
 <details>
-<summary><strong>WF-SY-03: Add a game system from the campaign form (draft)</strong></summary>
+<summary><strong>WF-SY-03: Add a game system from the campaign form</strong></summary>
 
 **Source:** WF-SY-03; FR-SY-09–12; Q-SY-02–03. Shared criteria and the parent
 campaign creation or editing criteria apply.
@@ -1089,7 +1124,7 @@ rollback success, as in AC-SY-11.
 </details>
 
 <details>
-<summary><strong>WF-SY-04: Edit a game system's name or primary color (draft)</strong></summary>
+<summary><strong>WF-SY-04: Edit a game system's name or primary color</strong></summary>
 
 **Source:** WF-SY-04; FR-SY-13–16; Q-SY-04. Shared criteria apply.
 
@@ -1142,7 +1177,7 @@ edited values and error explanation remain available for correction.
 ## Calendar and session history
 
 <details>
-<summary><strong>WF-HI-01: Browse the calendar or mobile agenda (draft)</strong></summary>
+<summary><strong>WF-HI-01: Browse the calendar or mobile agenda</strong></summary>
 
 **Source:** WF-HI-01; FR-HI-01–04. Shared read-only criteria apply.
 
@@ -1191,7 +1226,7 @@ empty state. Navigation and display changes leave stored records unchanged.
 </details>
 
 <details>
-<summary><strong>WF-HI-02: Open a session to view its details (draft)</strong></summary>
+<summary><strong>WF-HI-02: Open a session to view its details</strong></summary>
 
 **Source:** WF-HI-02; FR-HI-05–08. Shared read-only criteria apply.
 
@@ -1241,7 +1276,7 @@ session or invent the missing record's details, and do not write data.
 </details>
 
 <details>
-<summary><strong>WF-HI-03: Search and filter session history (draft)</strong></summary>
+<summary><strong>WF-HI-03: Search and filter session history</strong></summary>
 
 **Source:** WF-HI-03; FR-HI-09–12; Q-HI-01–02. Shared read-only criteria apply.
 
@@ -1262,8 +1297,10 @@ that clear the corresponding restrictions.
 
 Given distinct text in campaign/one-shot names, GM names, system names, recorded
 dates, notes and links, when searching each value, then names, GM, system and
-`yyyy-mm-dd` date text can match without case sensitivity. A term found only in
-notes or a link does not make a row match.
+displayed `dd/mm/yyyy` date text can match; text matching ignores case. For
+example, searching `28/10/2026` finds a session whose displayed date is
+`28/10/2026` and whose stored date is `2026-10-28`. A term found only in notes or
+a link does not make a row match.
 
 ### AC-HI-11 — Combine every active condition
 
@@ -1300,7 +1337,7 @@ the complete history in its current sort order without changing stored records.
 </details>
 
 <details>
-<summary><strong>WF-HI-04: Sort session history (draft)</strong></summary>
+<summary><strong>WF-HI-04: Sort session history</strong></summary>
 
 **Source:** WF-HI-04; FR-HI-13–17; Q-HI-03. Shared read-only criteria apply.
 
@@ -1341,7 +1378,7 @@ filter selections and stored values remain unchanged.
 (FR-HI-16)
 
 Given a sort column and direction are selected, when history is displayed, then
-the owner can identify both from the interface. This is a proposed **Should**
+the owner can identify both from the interface. This is a **Should**
 criterion, following its source requirement.
 
 ### AC-HI-18 — Use stable session-ID ordering for ties
@@ -1360,7 +1397,7 @@ direction beyond the source decision is prescribed here.
 ## Statistics
 
 <details>
-<summary><strong>WF-ST-01: View statistics for a selected month (draft)</strong></summary>
+<summary><strong>WF-ST-01: View statistics for a selected month</strong></summary>
 
 **Source:** WF-ST-01; FR-ST-01–04; Q-CS-03; Q-ST-01. Shared read-only criteria apply.
 
@@ -1418,7 +1455,7 @@ applicable result as a tie instead of presenting one as the sole winner.
 </details>
 
 <details>
-<summary><strong>WF-ST-02: View the Year Review for a selected year (draft)</strong></summary>
+<summary><strong>WF-ST-02: View the Year Review for a selected year</strong></summary>
 
 **Source:** WF-ST-02; FR-ST-05–08; Q-ST-01–02. Shared read-only criteria apply.
 
@@ -1479,7 +1516,7 @@ GM setting remains a separate write.
 </details>
 
 <details>
-<summary><strong>WF-ST-03: Set or change My GM name and compare games ran versus played (draft)</strong></summary>
+<summary><strong>WF-ST-03: Set or change My GM name and compare games ran versus played</strong></summary>
 
 **Source:** WF-ST-03; FR-ST-09–12; Q-ST-03. Shared criteria apply, including
 pending-write protection for the setting change.
@@ -1543,7 +1580,7 @@ choice as saved. An unknown result follows AC-SH-08 instead.
 ## Import and export
 
 <details>
-<summary><strong>WF-DA-01: Export tracker data to CSV (draft)</strong></summary>
+<summary><strong>WF-DA-01: Export tracker data to CSV</strong></summary>
 
 **Source:** WF-DA-01; FR-DA-01–04; Q-DA-01. Shared read-only criteria apply.
 
@@ -1594,7 +1631,7 @@ inclusion of My GM name; that setting is absent from the CSV.
 </details>
 
 <details>
-<summary><strong>WF-DA-02: Preview and import new records from a tracker CSV export (draft)</strong></summary>
+<summary><strong>WF-DA-02: Preview and import new records from a tracker CSV export</strong></summary>
 
 **Source:** WF-DA-02; FR-DA-05–09; Q-DA-02–03. Shared write criteria apply to
 Import new records. Preview itself must not write records or settings.
@@ -1684,7 +1721,7 @@ that nothing was imported or automatically apply the file again.
 </details>
 
 <details>
-<summary><strong>WF-DA-03: Export tracker data to JSON through the API (draft)</strong></summary>
+<summary><strong>WF-DA-03: Export tracker data to JSON through the API</strong></summary>
 
 **Source:** WF-DA-03; FR-DA-10–13; Q-DA-01. Shared read-only criteria apply.
 
@@ -1739,7 +1776,7 @@ criteria concern the guide and the resulting app state; they do not require new
 in-app backup, restore or reset controls.
 
 <details>
-<summary><strong>WF-MA-01: Start the app for the first time with demo sessions (draft)</strong></summary>
+<summary><strong>WF-MA-01: Start the app for the first time with demo sessions</strong></summary>
 
 **Source:** WF-MA-01; FR-MA-01–04.
 
@@ -1782,7 +1819,7 @@ copy is appended. Systems, campaigns and session counts remain unchanged.
 
 Given the supplied demo's date range, when setup guidance is read, then it names
 that range so the owner can browse a demo month and understand an empty current
-calendar. This is a proposed **Should** criterion; the current Getting started
+calendar. This is a **Should** criterion; the current Getting started
 guide identifies January–May 2026.
 
 </details>
@@ -1790,7 +1827,7 @@ guide identifies January–May 2026.
 </details>
 
 <details>
-<summary><strong>WF-MA-02: Start the app for the first time without demo sessions (draft)</strong></summary>
+<summary><strong>WF-MA-02: Start the app for the first time without demo sessions</strong></summary>
 
 **Source:** WF-MA-02; FR-MA-05–08.
 
@@ -1840,7 +1877,7 @@ whether storage remains empty or contains personal records.
 </details>
 
 <details>
-<summary><strong>WF-MA-03: Make a full database backup (draft)</strong></summary>
+<summary><strong>WF-MA-03: Make a full database backup</strong></summary>
 
 **Source:** WF-MA-03; FR-MA-09–12; Q-MA-01. This is a manual procedure.
 
@@ -1892,7 +1929,7 @@ claim that file existence alone proves restore success; verify that under WF-MA-
 </details>
 
 <details>
-<summary><strong>WF-MA-04: Restore a full database backup (draft)</strong></summary>
+<summary><strong>WF-MA-04: Restore a full database backup</strong></summary>
 
 **Source:** WF-MA-04; FR-MA-13–16; Q-MA-02. Verification uses disposable storage
 and the same app version before any cross-version migration claim.
@@ -1953,7 +1990,7 @@ and tested migration procedure.
 </details>
 
 <details>
-<summary><strong>WF-MA-05: Start over with an empty tracker after trying the demo (draft)</strong></summary>
+<summary><strong>WF-MA-05: Start over with an empty tracker after trying the demo</strong></summary>
 
 **Source:** WF-MA-05; FR-MA-17–20; Q-MA-03. This is a manual reset, including
 personal additions in the active dataset; selective demo removal is out of scope.
@@ -2008,12 +2045,12 @@ previous dataset remains in the separate full backup.
 
 ## Planned workflows and improvements
 
-These criteria express agreed product decisions through draft requirements.
+These approved criteria express the approved product decisions and requirements.
 Quick Add and the improved campaign-deletion interaction remain planned; no
 implementation, reproduced diagnosis or passed retest is implied.
 
 <details>
-<summary><strong>WF-QA-01: Record a campaign session through Quick Add (planned, draft criteria)</strong></summary>
+<summary><strong>WF-QA-01: Record a campaign session through Quick Add (planned)</strong></summary>
 
 **Source:** WF-QA-01; FR-QA-01–04; Q-QA-01–02. Shared criteria apply when the
 shortcut is implemented. The separate ordinary campaign-session form retains its
@@ -2028,7 +2065,7 @@ existing scope and archived-campaign selection.
 
 Given Quick Add is implemented for an active campaign, when its identifiable
 Add shortcut is chosen, then the campaign is clear and its GM, system and optional
-link prefill session entry. Providing this shortcut is a proposed **Should**
+link prefill session entry. Providing this shortcut is a **Should**
 criterion under FR-QA-01; the following requirements apply when it is provided.
 
 ### AC-QA-02 — Require explicit date confirmation
@@ -2080,7 +2117,7 @@ Creation-request identification remains part of the shared design action.
 
 <a id="blocked-campaign-deletion-acceptance-criteria"></a>
 <details>
-<summary><strong>WF-CP-06: Improve blocked campaign deletion and error feedback (planned, draft criteria)</strong></summary>
+<summary><strong>WF-CP-06: Improve blocked campaign deletion and error feedback (planned)</strong></summary>
 
 **Source:** [WF-CP-06](requirements-and-rules.md#wf-cp-06-improve-blocked-campaign-deletion);
 FR-CP-22–26; Q-CP-04–06;
@@ -2097,7 +2134,7 @@ AC-CP numbering continues after WF-CP-05.
 Given the loaded data shows a campaign has linked sessions, when its Manage
 actions are reviewed, then Delete is unavailable with a visible reason and cannot
 open a usable Delete confirmation. An active campaign still offers a separate
-Archive action. This follows proposed **Should** priority FR-CP-22; Q-CP-05 itself
+Archive action. This follows **Should** priority FR-CP-22; Q-CP-05 itself
 is an agreed product decision.
 
 ### AC-CP-24 — Identify an already archived linked campaign
@@ -2176,21 +2213,21 @@ separate criteria above.
 
 ## Actions needed
 
-**Current state:** WF-CS-01 remains tentatively agreed. New criteria are drafts;
-no application behavior has been changed or tested by populating this document.
-Start with A-01. The remaining actions can be completed in separate review,
-implementation and test tasks.
+**Current state:** All acceptance criteria are approved as version 1.0, together
+with the approved Main workflow tables, business rules and requirements.
+A-01 and A-11 are complete. Recovery design, implementation and verification
+actions remain open; approval does not establish that the app meets the criteria.
 
 <details>
-<summary><strong>Review and unresolved decisions</strong></summary>
+<summary><strong>Approval, recorded decisions and open design</strong></summary>
 
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
-| A-01 — Review one new workflow at a time | Choose the first workflow to review (about 2 minutes), then agree its detailed requirements, rules where needed, criteria and Must/Should priorities. Record approval explicitly; agreement on the 34 product decisions does not approve all draft details. | All new workflow sections and shared criteria |
+| A-01 — Review acceptance criteria | Complete — the owner approved all workflow and shared acceptance criteria on 28 October 2026 as version 1.0. | All workflow and shared criteria; FU-SH-01 |
 | A-02 — Finish save-recovery design | Define how a creation attempt is identified even when deliberate records can look identical. Specify messages, form state, safe reconciliation/retry and failed rollback handling. Update WF-CS-01 requirements and criteria only after its gap is resolved; the agreed Q-SH-01 principle does not itself close GAP-CS-01. | GAP-CS-01; Q-SH-01; AC-SH-07–08; AC-CS-29; AC-SY-11, AC-SY-16; AC-QA-05 |
-| A-03 — Decide repeated campaign-session entries | Decide whether separate deliberate sessions for the same campaign and date are allowed, then add the matching WF-CS-01 criterion. Q-OS-01 already permits repeated one-shots and does not settle this campaign-session question. | WF-CS-01 follow-up; AC-OS-04 |
-| A-04 — Decide Escape and closing during save | Define Escape with an open picker and whether Close/Escape is blocked while saving. Update FR-CS-16, FR-CS-18 and AC-CS-20/22 after agreement; the existing cancellation criterion covers no save in progress. | WF-CS-01 follow-up; AC-HI-07 |
-| A-05 — Decide API defaults versus required form inputs | Confirm whether API requests may omit GM/System and use campaign defaults. Clarify FR-CS-11 and corresponding UI/API criteria without weakening required browser inputs by assumption. | WF-CS-01 follow-up; AC-CS-11, AC-CS-13 |
+| A-03 — Decision recorded: repeated campaign-session entries | Q-CS-06 permits deliberate sessions for the same campaign and date. BR-CS-13, FR-CS-25 and approved AC-CS-31 record the result. Execution remains planned. | FU-CS-02; Q-CS-06; AC-CS-31 |
+| A-04 — Decision recorded: Escape and closing during save | Q-CS-07 makes Escape close an open picker first and blocks form closing during save. FR-CS-16/18 and approved AC-CS-20/22 record the result; implementation verification remains planned. | FU-CS-03; Q-CS-07; AC-CS-20/22 |
+| A-05 — Decision recorded: API defaults and browser inputs | Q-CS-08 retains API fallback to campaign GM/System defaults for omitted inputs while keeping both required in the browser. FR-CS-11 and approved AC-CS-11/32 record the result; verification remains planned. | FU-CS-04; Q-CS-08; AC-CS-11/32 |
 
 </details>
 
@@ -2212,9 +2249,17 @@ implementation and test tasks.
 | --- | --- | --- |
 | A-09 — Align the data and backup guide | Correct the CSV description that currently says exports include “settings”: Q-DA-01 excludes My GM name. Explain full-backup settings coverage and record-backup limits; add custom-storage guidance, dated backup filenames and a copy-existence check. Document same-version restore checks, settings replacement and recovery using the preserved pre-restore copy. | [Data guide](../data-and-backups.md); Q-DA-01; FR-MA-09–16; AC-DA-04, AC-DA-08, AC-DA-16; AC-MA-09–17 |
 | A-10 — Write and execute linked tests | Complete the test plan with app version, browser/launch method, isolated data, UI/API scope, priorities and completion conditions. Turn criteria into test cases, map reusable existing checks, then record actual results, evidence, defects and retests. Include both Python and Docker maintenance paths; keep unexecuted cases explicit. | [Test plan](test-plan.md); [Test cases](test-records.md#test-cases); [Execution results](test-records.md#execution-results) |
-| A-11 — Update the portfolio index | Revise its acceptance-criteria purpose/status to reflect the expanded workflow coverage while keeping WF-CS-01 tentative and new criteria draft. Its current row describes campaign-session outcomes only. | [Documentation checklist](README.md) |
+| A-11 — Update the portfolio index | Complete — the index now records approved acceptance criteria version 1.0 for all 31 workflows and shared behavior. | [Documentation checklist](README.md) |
 
 </details>
+
+## Version history
+
+| Version | Date | Changes |
+| --- | --- | --- |
+| 1.0 | 28 October 2026 | First reviewed baseline: the owner approved all workflow and shared acceptance criteria, including Q-CS-06–08 updates. Recovery design, implementation and verification work remains tracked as follow-ups. |
+
+---
 
 **Related documents:**
 

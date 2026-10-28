@@ -46,7 +46,7 @@ session, item 01. Add new abbreviations to this table when first introduced.
 | Product decisions | **All 37 agreed**, including Q-CS-06–08 recorded on 28 October 2026. My GM name remains excluded from current record exports; its planned inclusion is tracked as FU-DA-02. |
 | Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities. |
 | Main workflows | All 31 Main workflow tables reviewed and approved, including the planned WF-CP-06 and WF-QA-01 flows. |
-| Acceptance criteria | WF-CS-01's existing criteria remain tentatively agreed; updated criteria and other workflow/shared criteria still need their own review. |
+| Acceptance criteria | All workflow and shared criteria approved by the owner on 28 October 2026 as version 1.0, including updates reflecting Q-CS-06–08. |
 | Open design work | Detailed recovery design remains open under GAP-CS-01 and FU-SH-02. Approval of the requirements does not close implementation or verification tasks. |
 | Implementation and evidence | An agreed decision is not proof of a working feature. Each workflow's source section distinguishes current code from planned behavior. |
 
@@ -3074,10 +3074,9 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 <details>
 <summary><strong>Shared review and recovery · SH</strong></summary>
 
-- [ ] **FU-SH-01 — Review acceptance criteria:** All 31 Main workflow tables,
-  business rules, functional requirements and their recorded priorities are
-  approved. Review [acceptance criteria](acceptance-criteria.md) one workflow at
-  a time and record their separate review outcomes. See A-01.
+- [x] **FU-SH-01 — Review acceptance criteria:** The owner approved all workflow
+  and shared [acceptance criteria](acceptance-criteria.md) on 28 October 2026 as
+  version 1.0, including updates reflecting Q-CS-06–08. See A-01.
 - [ ] **FU-SH-02 — Finish recovery design:** Apply [Q-SH-01](#shared-decisions) to
   [GAP-CS-01](#open-decision) and relevant write workflows. Define creation-request
   identification even when deliberate records look identical, messages, form
@@ -3095,16 +3094,16 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   [WF-CS-01 UML activity diagram](models.md#wf-cs-01-activity-diagram).
 - [x] **FU-CS-02 — Decide repeated campaign-session entries:** Recorded
   [Q-CS-06](#wf-cs-01-decisions): allow deliberate entries for the same campaign
-  and date. BR-CS-13, FR-CS-25 and draft AC-CS-31 record the result; accidental
+  and date. BR-CS-13, FR-CS-25 and approved AC-CS-31 record the result; accidental
   retries remain separate. The decision is complete; verification remains under
   FU-SH-04–05. See A-03.
 - [x] **FU-CS-03 — Clarify Escape and closing during save:** Recorded
   [Q-CS-07](#wf-cs-01-decisions): Escape closes an open picker first; block form
-  closing while saving. FR-CS-16/18 and draft updates to AC-CS-20/22 record the
+  closing while saving. FR-CS-16/18 and approved AC-CS-20/22 record the
   result. Implementation verification remains under FU-SH-04–05. See A-04.
 - [x] **FU-CS-04 — Decide API defaults:** Recorded
   [Q-CS-08](#wf-cs-01-decisions): retain campaign GM/System defaults for omitted
-  API inputs while requiring both in the browser. FR-CS-11 and draft
+  API inputs while requiring both in the browser. FR-CS-11 and approved
   AC-CS-11/32 record the result. Verification remains under FU-SH-04–05. See A-05.
 - [ ] **FU-CS-05 — Implement campaign-plus-session rollback:**
   [WF-CS-02](#wf-cs-02) currently creates the campaign and session in separate
@@ -3278,11 +3277,9 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   defects and retests against the selected app version. Keep unexecuted cases
   explicit; source review and linked checks are not new passed-test evidence.
   See A-10.
-- [ ] **FU-SH-06 — Update the portfolio index:** Update the
-  [documentation checklist](README.md) acceptance-criteria purpose/status for
-  the expanded workflow coverage and approved business rules/requirements. Keep
-  WF-CS-01's existing acceptance criteria tentatively agreed and new or updated
-  criteria draft until their separate reviews are recorded. See A-11.
+- [x] **FU-SH-06 — Update the portfolio index:** The
+  [documentation checklist](README.md) now records approved acceptance criteria
+  version 1.0 for all 31 workflows and shared behavior. See A-11.
 
 </details>
 

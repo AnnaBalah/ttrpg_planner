@@ -167,7 +167,9 @@ async function loadTrackerSettings() {
     ownerGmSave.available = false;
     ownerGmSave.loadError = error.status === 404
       ? "Restart the app to enable your GM name setting, then refresh this page."
-      : "Your GM name could not be loaded. Refresh this page to try again.";
+      : error instanceof TypeError
+        ? "Could not reach Tablelog. Make sure the app is running, then refresh this page."
+        : "Your GM name could not be loaded. Refresh this page to try again.";
   }
   if (sequence === ownerSettingsSequence) renderYearReview();
 }
@@ -760,7 +762,9 @@ async function saveOwnerGm(name) {
   try {
     state.settings = await api("/api/settings", { method: "PUT", body: { owner_gm_name: name } });
   } catch (error) {
-    ownerGmSave.error = `Could not save your GM name. ${error.message} Try choosing it again.`;
+    ownerGmSave.error = error instanceof TypeError
+      ? "Could not reach Tablelog to save your GM name. Make sure the app is running, then choose it again."
+      : `Could not save your GM name. ${error.message} Try choosing it again.`;
   } finally {
     ownerGmSave.busy = false;
     ownerGmSave.pendingName = null;

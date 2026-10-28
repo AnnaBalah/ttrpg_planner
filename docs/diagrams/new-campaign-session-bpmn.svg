@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1370" viewBox="0 0 1840 1370" role="img" aria-labelledby="title description">
+<title id="title">WF-CS-02 · Add a session to a new campaign</title>
+<desc id="description">BPMN version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. Agreed intended behavior using an existing game system. Generic BPMN tasks, exclusive gateways, none start/end events and sequence flows. The overview uses User and Tablelog lanes in one process. Saving detail distinguishes confirmed rejection, unknown responses and confirmed rollback.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#475569"/></marker></defs>
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#1e293b}.title{font-size:27px;font-weight:650}.subtitle{font-size:18px;fill:#526277}.node-text{font-size:18px}.label{font-size:17px;fill:#475569;paint-order:stroke;stroke:white;stroke-width:7px;stroke-linejoin:round}.lane-label{font-size:18px;font-weight:650}.flow{fill:none;stroke:#475569;stroke-width:1.8;marker-end:url(#arrow)}.task{fill:white;stroke:#475569;stroke-width:1.8}.call{fill:#eff6ff;stroke:#245b80;stroke-width:3.5}.gateway{fill:white;stroke:#475569;stroke-width:1.8}.event{fill:white;stroke:#475569}.note{font-size:17px;fill:#526277}.footer{font-size:17px;fill:#526277}</style>
+<rect width="1840" height="1370" fill="white"/>
+<text x="30" y="45" class="title" text-anchor="start"><tspan x="30" dy="0">WF-CS-02 · Add a session to a new campaign</tspan></text>
+<text x="30" y="79" class="subtitle" text-anchor="start"><tspan x="30" dy="0">BPMN v0.1 · approved 29 October 2026 · intended behavior · existing game system</tspan></text>
+<text x="30" y="113" class="note" text-anchor="start"><tspan x="30" dy="0">Circle: start / end · rounded box: task · diamond X: exclusive choice / merge · solid arrow: sequence flow</tspan></text>
+<rect x="30" y="160" width="1780" height="1050" fill="white" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M60 160 V1210" stroke="#94a3b8"/>
+<text transform="translate(51 685.0) rotate(-90)" class="lane-label" text-anchor="middle">Add first session to a new campaign</text>
+<rect x="60" y="160" width="1750" height="260" fill="#f8fafc" stroke="#cbd5e1"/>
+<path d="M90 160 V420" stroke="#cbd5e1"/>
+<text transform="translate(81 290.0) rotate(-90)" class="lane-label" text-anchor="middle">User</text>
+<rect x="60" y="420" width="1750" height="790" fill="#fff" stroke="#cbd5e1"/>
+<path d="M90 420 V1210" stroke="#cbd5e1"/>
+<text transform="translate(81 815.0) rotate(-90)" class="lane-label" text-anchor="middle">Tablelog</text>
+<path id="M01" data-source="Start_Main" data-target="Open_Form" class="flow" d="M156 280 L210 280"/>
+<path id="M02" data-source="Open_Form" data-target="Enter_Details" class="flow" d="M450 280 L520 280"/>
+<path id="M03" data-source="Enter_Details" data-target="Choose_Action" class="flow" d="M820 280 L900 280"/>
+<path id="M04" data-source="Choose_Action" data-target="Cancel_Form" class="flow" d="M950 280 L1040 280"/>
+<path id="M05" data-source="Cancel_Form" data-target="End_Cancelled" class="flow" d="M1280 280 L1322 280"/>
+<path id="M06" data-source="Choose_Action" data-target="Validate_Both" class="flow" d="M925 305 L925 500"/>
+<path id="M07" data-source="Validate_Both" data-target="Valid_Both" class="flow" d="M1050 545 L1100 545"/>
+<path id="M08" data-source="Valid_Both" data-target="Show_Validation" class="flow" d="M1125 570 L1125 625 L615 625 L615 590"/>
+<path id="M09" data-source="Show_Validation" data-target="Enter_Details" class="flow" d="M615 500 L615 390 L670 390 L670 320"/>
+<path id="M10" data-source="Valid_Both" data-target="Save_Pair" class="flow" d="M1150 545 L1260 545"/>
+<path id="M11" data-source="Save_Pair" data-target="Pair_Result" class="flow" d="M1405 600 L1405 690"/>
+<path id="M12" data-source="Pair_Result" data-target="Refresh_Views" class="flow" d="M1380 715 L1270 715"/>
+<path id="M13" data-source="Pair_Result" data-target="Show_Failure" class="flow" d="M1405 740 L1405 840 L1380 840 L1380 900"/>
+<path id="M14" data-source="Pair_Result" data-target="Show_Unresolved" class="flow" d="M1430 715 L1650 715 L1650 860"/>
+<path id="M15" data-source="Refresh_Views" data-target="Refresh_Result" class="flow" d="M1010 715 L925 715"/>
+<path id="M16" data-source="Refresh_Result" data-target="Show_Success" class="flow" d="M875 715 L770 715"/>
+<path id="M17" data-source="Show_Success" data-target="End_Success" class="flow" d="M500 715 L448 715"/>
+<path id="M18" data-source="Refresh_Result" data-target="Show_Stale" class="flow" d="M900 740 L900 850 L895 850 L895 900"/>
+<path id="M19" data-source="Show_Stale" data-target="End_Stale" class="flow" d="M895 990 L895 1082"/>
+<path id="M20" data-source="Show_Failure" data-target="End_Failure" class="flow" d="M1380 990 L1380 1060 L1405 1060 L1405 1082"/>
+<path id="M21" data-source="Show_Unresolved" data-target="End_Unresolved" class="flow" d="M1650 970 L1650 1082"/>
+<g id="Start_Main" data-bpmn-kind="start">
+<circle cx="138.0" cy="280.0" r="18.0" class="event" stroke-width="1.8"/>
+<text x="138.0" y="324" class="label" text-anchor="middle"><tspan x="138.0" dy="0">Start</tspan></text>
+</g>
+<g id="Open_Form" data-bpmn-kind="task">
+<rect x="210" y="240" width="240" height="80" rx="12" class="task"/>
+<text x="330.0" y="274.5" class="node-text" text-anchor="middle"><tspan x="330.0" dy="0">Open Add session</tspan><tspan x="330.0" dy="23">Choose New campaign</tspan></text>
+</g>
+<g id="Enter_Details" data-bpmn-kind="task">
+<rect x="520" y="240" width="300" height="80" rx="12" class="task"/>
+<text x="670.0" y="263.0" class="node-text" text-anchor="middle"><tspan x="670.0" dy="0">Enter campaign defaults</tspan><tspan x="670.0" dy="23">and first-session details</tspan><tspan x="670.0" dy="23">Choose an existing system</tspan></text>
+</g>
+<g id="Choose_Action" data-bpmn-kind="gateway">
+<polygon points="925.0,255 950,280.0 925.0,305 900,280.0" class="gateway"/>
+<path d="M918.0 273.0 L932.0 287.0 M918.0 287.0 L932.0 273.0" stroke="#475569" stroke-width="2.3"/>
+<text x="925" y="220" class="label" text-anchor="middle"><tspan x="925" dy="0">Save or cancel?</tspan></text>
+</g>
+<g id="Cancel_Form" data-bpmn-kind="task">
+<rect x="1040" y="240" width="240" height="80" rx="12" class="task"/>
+<text x="1160.0" y="274.5" class="node-text" text-anchor="middle"><tspan x="1160.0" dy="0">Close without saving</tspan><tspan x="1160.0" dy="23">Discard unsaved values</tspan></text>
+</g>
+<g id="End_Cancelled" data-bpmn-kind="end">
+<circle cx="1340.0" cy="280.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="1340.0" y="324" class="label" text-anchor="middle"><tspan x="1340.0" dy="0">Cancelled</tspan><tspan x="1340.0" dy="23">No writes</tspan></text>
+</g>
+<g id="Validate_Both" data-bpmn-kind="task">
+<rect x="800" y="500" width="250" height="90" rx="12" class="task"/>
+<text x="925.0" y="539.5" class="node-text" text-anchor="middle"><tspan x="925.0" dy="0">Validate both records</tspan><tspan x="925.0" dy="23">Derive effective defaults</tspan></text>
+</g>
+<g id="Valid_Both" data-bpmn-kind="gateway">
+<polygon points="1125.0,520 1150,545.0 1125.0,570 1100,545.0" class="gateway"/>
+<path d="M1118.0 538.0 L1132.0 552.0 M1118.0 552.0 L1132.0 538.0" stroke="#475569" stroke-width="2.3"/>
+<text x="1125" y="485" class="label" text-anchor="middle"><tspan x="1125" dy="0">Both records valid?</tspan></text>
+</g>
+<g id="Show_Validation" data-bpmn-kind="task">
+<rect x="500" y="500" width="230" height="90" rx="12" class="task"/>
+<text x="615.0" y="539.5" class="node-text" text-anchor="middle"><tspan x="615.0" dy="0">Explain validation errors</tspan><tspan x="615.0" dy="23">Retain entered values</tspan></text>
+</g>
+<g id="Save_Pair" data-bpmn-kind="call">
+<rect x="1260" y="480" width="290" height="120" rx="12" class="call"/>
+<text x="1405.0" y="518.0" class="node-text" text-anchor="middle"><tspan x="1405.0" dy="0">Save new campaign</tspan><tspan x="1405.0" dy="23">and its first session</tspan><tspan x="1405.0" dy="23">See saving / rollback detail</tspan></text>
+<rect x="1398.0" y="578" width="14" height="14" fill="white" stroke="#245b80"/>
+<path d="M1401.0 585 H1409.0 M1405.0 581 V589" stroke="#245b80"/>
+</g>
+<g id="Pair_Result" data-bpmn-kind="gateway">
+<polygon points="1405.0,690 1430,715.0 1405.0,740 1380,715.0" class="gateway"/>
+<path d="M1398.0 708.0 L1412.0 722.0 M1398.0 722.0 L1412.0 708.0" stroke="#475569" stroke-width="2.3"/>
+<text x="1480" y="660" class="label" text-anchor="middle"><tspan x="1480" dy="0">Save result?</tspan></text>
+</g>
+<g id="Refresh_Views" data-bpmn-kind="task">
+<rect x="1010" y="670" width="260" height="90" rx="12" class="task"/>
+<text x="1140.0" y="709.5" class="node-text" text-anchor="middle"><tspan x="1140.0" dy="0">Refresh campaign choices,</tspan><tspan x="1140.0" dy="23">calendar, history and stats</tspan></text>
+</g>
+<g id="Refresh_Result" data-bpmn-kind="gateway">
+<polygon points="900.0,690 925,715.0 900.0,740 875,715.0" class="gateway"/>
+<path d="M893.0 708.0 L907.0 722.0 M893.0 722.0 L907.0 708.0" stroke="#475569" stroke-width="2.3"/>
+<text x="900" y="650" class="label" text-anchor="middle"><tspan x="900" dy="0">Refresh succeeded?</tspan></text>
+</g>
+<g id="Show_Success" data-bpmn-kind="task">
+<rect x="500" y="670" width="270" height="90" rx="12" class="task"/>
+<text x="635.0" y="709.5" class="node-text" text-anchor="middle"><tspan x="635.0" dy="0">Close form</tspan><tspan x="635.0" dy="23">Show completion</tspan></text>
+</g>
+<g id="End_Success" data-bpmn-kind="end">
+<circle cx="430.0" cy="715.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="430" y="804" class="label" text-anchor="middle"><tspan x="430" dy="0">Campaign + session saved</tspan><tspan x="430" dy="23">Views refreshed</tspan></text>
+</g>
+<g id="Show_Stale" data-bpmn-kind="task">
+<rect x="750" y="900" width="290" height="90" rx="12" class="task"/>
+<text x="895.0" y="928.0" class="node-text" text-anchor="middle"><tspan x="895.0" dy="0">Report both records saved</tspan><tspan x="895.0" dy="23">Explain view is outdated</tspan><tspan x="895.0" dy="23">Refresh only; never resave</tspan></text>
+</g>
+<g id="End_Stale" data-bpmn-kind="end">
+<circle cx="895.0" cy="1100.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="895.0" y="1144" class="label" text-anchor="middle"><tspan x="895.0" dy="0">Both records saved</tspan><tspan x="895.0" dy="23">View recovery required</tspan></text>
+</g>
+<g id="Show_Failure" data-bpmn-kind="task">
+<rect x="1260" y="900" width="240" height="90" rx="12" class="task"/>
+<text x="1380.0" y="928.0" class="node-text" text-anchor="middle"><tspan x="1380.0" dy="0">Explain confirmed failure</tspan><tspan x="1380.0" dy="23">Confirm cleanup status</tspan><tspan x="1380.0" dy="23">Retain entered values</tspan></text>
+</g>
+<g id="End_Failure" data-bpmn-kind="end">
+<circle cx="1405.0" cy="1100.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="1405.0" y="1144" class="label" text-anchor="middle"><tspan x="1405.0" dy="0">No saved pair</tspan><tspan x="1405.0" dy="23">Correction / retry available</tspan></text>
+</g>
+<g id="Show_Unresolved" data-bpmn-kind="task">
+<rect x="1530" y="860" width="240" height="110" rx="12" class="task"/>
+<text x="1650.0" y="898.0" class="node-text" text-anchor="middle"><tspan x="1650.0" dy="0">Explain known state</tspan><tspan x="1650.0" dy="23">or uncertainty</tspan><tspan x="1650.0" dy="23">Retain entered values</tspan></text>
+</g>
+<g id="End_Unresolved" data-bpmn-kind="end">
+<circle cx="1650.0" cy="1100.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="1650.0" y="1144" class="label" text-anchor="middle"><tspan x="1650.0" dy="0">Recovery unresolved</tspan><tspan x="1650.0" dy="23">Reconcile before retry</tspan></text>
+</g>
+<text x="995" y="259" class="label" text-anchor="middle"><tspan x="995" dy="0">Cancel</tspan></text>
+<text x="957" y="390" class="label" text-anchor="middle"><tspan x="957" dy="0">Save</tspan></text>
+<text x="1097" y="610" class="label" text-anchor="middle"><tspan x="1097" dy="0">No</tspan></text>
+<text x="667" y="367" class="label" text-anchor="middle"><tspan x="667" dy="0">Correct</tspan></text>
+<text x="1203" y="524" class="label" text-anchor="middle"><tspan x="1203" dy="0">Yes</tspan></text>
+<text x="1324" y="691" class="label" text-anchor="middle"><tspan x="1324" dy="0">Both saved</tspan></text>
+<text x="1405" y="820" class="label" text-anchor="middle"><tspan x="1405" dy="0">Confirmed failure</tspan></text>
+<text x="1638" y="784" class="label" text-anchor="middle"><tspan x="1638" dy="0">Recovery unresolved</tspan></text>
+<text x="824" y="692" class="label" text-anchor="middle"><tspan x="824" dy="0">Yes</tspan></text>
+<text x="928" y="818" class="label" text-anchor="middle"><tspan x="928" dy="0">No</tspan></text>
+<text x="30" y="1255" class="footer" text-anchor="start"><tspan x="30" dy="0">Thick-bordered activity calls the saving / rollback process shown in the detail diagram.</tspan></text>
+<text x="30" y="1281" class="footer" text-anchor="start"><tspan x="30" dy="0">Before submission: Close cancels; Escape closes an open picker first. During all save stages: block repeated Save and form dismissal.</tspan></text>
+<text x="30" y="1307" class="footer" text-anchor="start"><tspan x="30" dy="0">Confirmed failures retain values for another deliberate attempt. Unresolved recovery is not success, confirmed rejection or proof of unchanged data.</tspan></text>
+<text x="30" y="1333" class="footer" text-anchor="start"><tspan x="30" dy="0">GAP-CS-01 / FU-SH-02: creation identification, exact form state and detailed recovery messages remain open.</tspan></text>
+</svg>

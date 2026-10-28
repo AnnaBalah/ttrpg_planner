@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1180" viewBox="0 0 1360 1180" role="img" aria-labelledby="diagram-title diagram-description">
+<title id="diagram-title">Tablelog: current data model</title>
+<desc id="diagram-description">All 22 stored fields in four tables. Each campaign has one default system; each session has one actual system and optionally one campaign. Each system or campaign may have zero or many related records. Tracker settings has at most one independent row. Question marks mark nullable fields. The diagram documents source at commit 4e56ef7, not runtime verification.</desc>
+<style>
+text{font-family:'Segoe UI',Arial,sans-serif;fill:#1e293b}
+.title{font-size:28px;font-weight:650}
+.subtitle{font-size:18px;fill:#526277}
+.table-name{font-family:Consolas,'Courier New',monospace;font-size:22px;font-weight:650}
+.table-purpose{font-size:16px;fill:#526277}
+.column-title{font-size:14px;font-weight:650;fill:#526277}
+.field{font-family:Consolas,'Courier New',monospace;font-size:17px}
+.type{font-size:16px;fill:#526277}
+.key{font-size:15px;font-weight:650;fill:#245b80}
+.card{fill:#fff;stroke:#94a3b8;stroke-width:1.5}
+.heading{fill:#eff6ff}
+.settings-heading{fill:#ecfdf5}
+.divider{stroke:#e2e8f0;stroke-width:1}
+.relation{fill:none;stroke:#475569;stroke-width:2}
+.multiplicity{font-size:18px;font-weight:650;fill:#334155}
+.relationship-label{font-size:17px;fill:#475569}
+.note-title{font-size:18px;font-weight:650}
+.note{font-size:17px;fill:#526277}
+.footer{font-size:16px;fill:#526277}
+</style>
+<rect width="1360" height="1180" fill="#fff"/>
+<text x="48" y="47" class="title">Tablelog · Current data model</text>
+<text x="48" y="79" class="subtitle">Existing stored data · 4 tables · 22 fields · Source reviewed 28 October 2026</text>
+<text x="48" y="112" class="footer">PK primary key · FK foreign key · UQ database uniqueness · ? nullable · Types show integer/text values</text>
+<text x="48" y="138" class="footer">1 exactly one · 0..1 optional one · 0..* zero or more</text>
+
+<g id="systems" data-table="systems">
+<rect x="48" y="190" width="410" height="248" rx="10" class="card"/>
+<path d="M58 190 H448 Q458 190 458 200 V258 H48 V200 Q48 190 58 190 Z" class="heading"/>
+<text x="68" y="219" class="table-name">systems</text>
+<text x="68" y="244" class="table-purpose">Reusable game systems</text>
+<text x="68" y="281" class="column-title">FIELD</text><text x="285" y="281" class="column-title">TYPE</text><text x="378" y="281" class="column-title">KEY</text>
+<path d="M48 292 H458" class="divider"/>
+<g data-field="id"><text x="68" y="317" class="field">id</text><text x="285" y="317" class="type">integer</text><text x="378" y="317" class="key">PK</text></g>
+<g data-field="name"><text x="68" y="351" class="field">name</text><text x="285" y="351" class="type">text</text><text x="378" y="351" class="key">UQ</text></g>
+<g data-field="color"><text x="68" y="385" class="field">color</text><text x="285" y="385" class="type">text</text></g>
+<g data-field="created_at"><text x="68" y="419" class="field">created_at</text><text x="285" y="419" class="type">text</text></g>
+</g>
+
+<g id="campaigns" data-table="campaigns">
+<rect x="842" y="190" width="470" height="350" rx="10" class="card"/>
+<path d="M852 190 H1302 Q1312 190 1312 200 V258 H842 V200 Q842 190 852 190 Z" class="heading"/>
+<text x="862" y="219" class="table-name">campaigns</text>
+<text x="862" y="244" class="table-purpose">Reusable session defaults</text>
+<text x="862" y="281" class="column-title">FIELD</text><text x="1090" y="281" class="column-title">TYPE</text><text x="1220" y="281" class="column-title">KEY</text>
+<path d="M842 292 H1312" class="divider"/>
+<g data-field="id"><text x="862" y="317" class="field">id</text><text x="1090" y="317" class="type">integer</text><text x="1220" y="317" class="key">PK</text></g>
+<g data-field="name"><text x="862" y="351" class="field">name</text><text x="1090" y="351" class="type">text</text><text x="1220" y="351" class="key">UQ</text></g>
+<g data-field="default_gm"><text x="862" y="385" class="field">default_gm</text><text x="1090" y="385" class="type">text</text></g>
+<g data-field="system_id"><text x="862" y="419" class="field">system_id</text><text x="1090" y="419" class="type">integer</text><text x="1220" y="419" class="key">FK</text></g>
+<g data-field="default_link"><text x="862" y="453" class="field">default_link</text><text x="1090" y="453" class="type">text ?</text></g>
+<g data-field="archived"><text x="862" y="487" class="field">archived</text><text x="1090" y="487" class="type">integer</text></g>
+<g data-field="created_at"><text x="862" y="521" class="field">created_at</text><text x="1090" y="521" class="type">text</text></g>
+</g>
+
+<g id="sessions" data-table="sessions">
+<rect x="842" y="650" width="470" height="418" rx="10" class="card"/>
+<path d="M852 650 H1302 Q1312 650 1312 660 V718 H842 V660 Q842 650 852 650 Z" class="heading"/>
+<text x="862" y="679" class="table-name">sessions</text>
+<text x="862" y="704" class="table-purpose">Campaign sessions and standalone one-shots</text>
+<text x="862" y="741" class="column-title">FIELD</text><text x="1090" y="741" class="column-title">TYPE</text><text x="1220" y="741" class="column-title">KEY</text>
+<path d="M842 752 H1312" class="divider"/>
+<g data-field="id"><text x="862" y="777" class="field">id</text><text x="1090" y="777" class="type">integer</text><text x="1220" y="777" class="key">PK</text></g>
+<g data-field="campaign_id"><text x="862" y="811" class="field">campaign_id</text><text x="1090" y="811" class="type">integer ?</text><text x="1220" y="811" class="key">FK</text></g>
+<g data-field="name"><text x="862" y="845" class="field">name</text><text x="1090" y="845" class="type">text ?</text></g>
+<g data-field="date"><text x="862" y="879" class="field">date</text><text x="1090" y="879" class="type">text</text></g>
+<g data-field="gm"><text x="862" y="913" class="field">gm</text><text x="1090" y="913" class="type">text</text></g>
+<g data-field="system_id"><text x="862" y="947" class="field">system_id</text><text x="1090" y="947" class="type">integer</text><text x="1220" y="947" class="key">FK</text></g>
+<g data-field="link"><text x="862" y="981" class="field">link</text><text x="1090" y="981" class="type">text ?</text></g>
+<g data-field="notes"><text x="862" y="1015" class="field">notes</text><text x="1090" y="1015" class="type">text ?</text></g>
+<g data-field="created_at"><text x="862" y="1049" class="field">created_at</text><text x="1090" y="1049" class="type">text</text></g>
+</g>
+
+<g id="tracker-settings" data-table="tracker_settings">
+<rect x="48" y="740" width="410" height="180" rx="10" class="card"/>
+<path d="M58 740 H448 Q458 740 458 750 V808 H48 V750 Q48 740 58 740 Z" class="settings-heading"/>
+<text x="68" y="769" class="table-name">tracker_settings</text>
+<text x="68" y="794" class="table-purpose">Shared dataset settings · no relationships</text>
+<text x="68" y="831" class="column-title">FIELD</text><text x="285" y="831" class="column-title">TYPE</text><text x="378" y="831" class="column-title">KEY</text>
+<path d="M48 842 H458" class="divider"/>
+<g data-field="id"><text x="68" y="867" class="field">id</text><text x="285" y="867" class="type">integer</text><text x="378" y="867" class="key">PK</text></g>
+<g data-field="owner_gm_name"><text x="68" y="901" class="field">owner_gm_name</text><text x="285" y="901" class="type">text ?</text></g>
+</g>
+
+<g id="system-campaign-relationship" data-from="systems" data-to="campaigns" data-field="system_id" data-parent-count="1" data-child-count="0..*">
+<path d="M458 318 H842" class="relation"/>
+<text x="477" y="306" class="multiplicity">1</text><text x="787" y="306" class="multiplicity">0..*</text>
+<text x="572" y="295" class="relationship-label">default system</text>
+</g>
+<g id="system-session-relationship" data-from="systems" data-to="sessions" data-field="system_id" data-parent-count="1" data-child-count="0..*">
+<path d="M458 404 H600 V948 H842" class="relation"/>
+<text x="477" y="393" class="multiplicity">1</text><text x="787" y="936" class="multiplicity">0..*</text>
+<text x="616" y="577" class="relationship-label">actual system</text>
+<text x="616" y="603" class="note">May differ from</text><text x="616" y="627" class="note">campaign default</text>
+</g>
+<g id="campaign-session-relationship" data-from="campaigns" data-to="sessions" data-field="campaign_id" data-parent-count="0..1" data-child-count="0..*">
+<path d="M1077 540 V650" class="relation"/>
+<text x="1093" y="565" class="multiplicity">0..1</text><text x="1093" y="638" class="multiplicity">0..*</text>
+<text x="862" y="600" class="relationship-label">optional campaign</text>
+</g>
+
+<text x="48" y="507" class="note-title">Campaign defaults ≠ session values</text>
+<text x="48" y="536" class="note">A session stores its actual GM, system and link.</text>
+<text x="48" y="562" class="note">Changing defaults does not rewrite past entries.</text>
+<text x="48" y="622" class="note-title">One-shots share the sessions table</text>
+<text x="48" y="651" class="note">No campaign; the API requires a nonblank name.</text>
+<text x="48" y="677" class="note">Campaign-session names are cleared by the API.</text>
+<text x="48" y="960" class="note">At most one settings row: id = 1.</text>
+<text x="48" y="986" class="note">GM names are text, not person-table references.</text>
+<text x="48" y="1012" class="note">Settings do not represent a user account.</text>
+
+<path d="M48 1100 H1312" class="divider"/>
+<text x="48" y="1130" class="footer">Source: main.py · 4e56ef7 · See models.md for field notes and database-versus-application constraints.</text>
+<text x="48" y="1156" class="footer">No planned fields shown. Source review does not establish runtime behavior or close recovery-design work.</text>
+</svg>

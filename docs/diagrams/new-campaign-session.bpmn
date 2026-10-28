@@ -1,0 +1,676 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_Tablelog_NewCampaign" targetNamespace="https://tablelog.local/documentation/bpmn" exporter="Tablelog documentation" exporterVersion="1.0">
+  <bpmn:process id="Process_Main" name="WF-CS-02 · Add a session to a new campaign" isExecutable="false">
+    <bpmn:documentation>Model version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. BPMN overview: agreed intended behavior using an existing game system. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Main">
+      <bpmn:lane id="Lane_User" name="User">
+        <bpmn:flowNodeRef>Start_Main</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Open_Form</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Enter_Details</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Choose_Action</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Cancel_Form</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Cancelled</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_App" name="Tablelog">
+        <bpmn:flowNodeRef>Validate_Both</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Valid_Both</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Show_Validation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Save_Pair</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Pair_Result</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Refresh_Views</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Refresh_Result</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Show_Success</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Success</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Show_Stale</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Stale</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Show_Failure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Failure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Show_Unresolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Unresolved</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Main" name="Start">
+      <bpmn:outgoing>M01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Open_Form" name="Open Add session / Choose New campaign">
+      <bpmn:incoming>M01</bpmn:incoming>
+      <bpmn:outgoing>M02</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Enter_Details" name="Enter campaign defaults / and first-session details / Choose an existing system">
+      <bpmn:incoming>M02</bpmn:incoming>
+      <bpmn:outgoing>M03</bpmn:outgoing>
+      <bpmn:incoming>M09</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Choose_Action" name="Save or cancel?" gatewayDirection="Diverging">
+      <bpmn:incoming>M03</bpmn:incoming>
+      <bpmn:outgoing>M04</bpmn:outgoing>
+      <bpmn:outgoing>M06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Cancel_Form" name="Close without saving / Discard unsaved values">
+      <bpmn:incoming>M04</bpmn:incoming>
+      <bpmn:outgoing>M05</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Cancelled" name="Cancelled / No writes">
+      <bpmn:incoming>M05</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Validate_Both" name="Validate both records / Derive effective defaults">
+      <bpmn:incoming>M06</bpmn:incoming>
+      <bpmn:outgoing>M07</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Valid_Both" name="Both records valid?" gatewayDirection="Diverging">
+      <bpmn:incoming>M07</bpmn:incoming>
+      <bpmn:outgoing>M08</bpmn:outgoing>
+      <bpmn:outgoing>M10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Show_Validation" name="Explain validation errors / Retain entered values">
+      <bpmn:incoming>M08</bpmn:incoming>
+      <bpmn:outgoing>M09</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:callActivity id="Save_Pair" name="Save new campaign / and its first session / See saving / rollback detail" calledElement="Process_SavePair">
+      <bpmn:incoming>M10</bpmn:incoming>
+      <bpmn:outgoing>M11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Pair_Result" name="Save result?" gatewayDirection="Diverging">
+      <bpmn:incoming>M11</bpmn:incoming>
+      <bpmn:outgoing>M12</bpmn:outgoing>
+      <bpmn:outgoing>M13</bpmn:outgoing>
+      <bpmn:outgoing>M14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Refresh_Views" name="Refresh campaign choices, / calendar, history and stats">
+      <bpmn:incoming>M12</bpmn:incoming>
+      <bpmn:outgoing>M15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Refresh_Result" name="Refresh succeeded?" gatewayDirection="Diverging">
+      <bpmn:incoming>M15</bpmn:incoming>
+      <bpmn:outgoing>M16</bpmn:outgoing>
+      <bpmn:outgoing>M18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Show_Success" name="Close form / Show completion">
+      <bpmn:incoming>M16</bpmn:incoming>
+      <bpmn:outgoing>M17</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Success" name="Campaign + session saved / Views refreshed">
+      <bpmn:incoming>M17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Show_Stale" name="Report both records saved / Explain view is outdated / Refresh only; never resave">
+      <bpmn:incoming>M18</bpmn:incoming>
+      <bpmn:outgoing>M19</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Stale" name="Both records saved / View recovery required">
+      <bpmn:incoming>M19</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Show_Failure" name="Explain confirmed failure / Confirm cleanup status / Retain entered values">
+      <bpmn:incoming>M13</bpmn:incoming>
+      <bpmn:outgoing>M20</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Failure" name="No saved pair / Correction / retry available">
+      <bpmn:incoming>M20</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Show_Unresolved" name="Explain known state / or uncertainty / Retain entered values">
+      <bpmn:incoming>M14</bpmn:incoming>
+      <bpmn:outgoing>M21</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Unresolved" name="Recovery unresolved / Reconcile before retry">
+      <bpmn:incoming>M21</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="M01" sourceRef="Start_Main" targetRef="Open_Form" />
+    <bpmn:sequenceFlow id="M02" sourceRef="Open_Form" targetRef="Enter_Details" />
+    <bpmn:sequenceFlow id="M03" sourceRef="Enter_Details" targetRef="Choose_Action" />
+    <bpmn:sequenceFlow id="M04" sourceRef="Choose_Action" targetRef="Cancel_Form" name="Cancel">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Cancel</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M05" sourceRef="Cancel_Form" targetRef="End_Cancelled" />
+    <bpmn:sequenceFlow id="M06" sourceRef="Choose_Action" targetRef="Validate_Both" name="Save">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Save</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M07" sourceRef="Validate_Both" targetRef="Valid_Both" />
+    <bpmn:sequenceFlow id="M08" sourceRef="Valid_Both" targetRef="Show_Validation" name="No">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">No</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M09" sourceRef="Show_Validation" targetRef="Enter_Details" name="Correct" />
+    <bpmn:sequenceFlow id="M10" sourceRef="Valid_Both" targetRef="Save_Pair" name="Yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Yes</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M11" sourceRef="Save_Pair" targetRef="Pair_Result" />
+    <bpmn:sequenceFlow id="M12" sourceRef="Pair_Result" targetRef="Refresh_Views" name="Both saved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Both saved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M13" sourceRef="Pair_Result" targetRef="Show_Failure" name="Confirmed failure">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Confirmed failure</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M14" sourceRef="Pair_Result" targetRef="Show_Unresolved" name="Recovery unresolved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Recovery unresolved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M15" sourceRef="Refresh_Views" targetRef="Refresh_Result" />
+    <bpmn:sequenceFlow id="M16" sourceRef="Refresh_Result" targetRef="Show_Success" name="Yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Yes</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M17" sourceRef="Show_Success" targetRef="End_Success" />
+    <bpmn:sequenceFlow id="M18" sourceRef="Refresh_Result" targetRef="Show_Stale" name="No">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">No</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="M19" sourceRef="Show_Stale" targetRef="End_Stale" />
+    <bpmn:sequenceFlow id="M20" sourceRef="Show_Failure" targetRef="End_Failure" />
+    <bpmn:sequenceFlow id="M21" sourceRef="Show_Unresolved" targetRef="End_Unresolved" />
+  </bpmn:process>
+  <bpmn:collaboration id="Collaboration_Main">
+    <bpmn:participant id="Participant_Main" name="Add first session to a new campaign" processRef="Process_Main" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_SavePair" name="WF-CS-02 · Saving and rollback detail" isExecutable="false">
+    <bpmn:documentation>Model version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. Called BPMN process with intended saving and rollback outcomes. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
+    <bpmn:startEvent id="Start_Pair" name="Start save attempt">
+      <bpmn:outgoing>D01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Create_Campaign" name="Derive campaign defaults / Create new campaign">
+      <bpmn:incoming>D01</bpmn:incoming>
+      <bpmn:outgoing>D02</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Campaign_Result" name="Campaign result?" gatewayDirection="Diverging">
+      <bpmn:incoming>D02</bpmn:incoming>
+      <bpmn:outgoing>D03</bpmn:outgoing>
+      <bpmn:outgoing>D04</bpmn:outgoing>
+      <bpmn:outgoing>D06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Create_Session" name="Create first session / Link to confirmed campaign ID">
+      <bpmn:incoming>D03</bpmn:incoming>
+      <bpmn:outgoing>D07</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Session_Result" name="Session result?" gatewayDirection="Diverging">
+      <bpmn:incoming>D07</bpmn:incoming>
+      <bpmn:outgoing>D08</bpmn:outgoing>
+      <bpmn:outgoing>D09</bpmn:outgoing>
+      <bpmn:outgoing>D10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Pair_Saved" name="Both records / confirmed saved">
+      <bpmn:incoming>D08</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Campaign_Rejected" name="Keep entered values / Explain campaign rejection">
+      <bpmn:incoming>D04</bpmn:incoming>
+      <bpmn:outgoing>D05</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Campaign_Rejected" name="Confirmed failure / No campaign created">
+      <bpmn:incoming>D05</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Rollback_Campaign" name="Remove only the campaign / created by this attempt">
+      <bpmn:incoming>D09</bpmn:incoming>
+      <bpmn:outgoing>D11</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Rollback_Result" name="Rollback confirmed?" gatewayDirection="Diverging">
+      <bpmn:incoming>D11</bpmn:incoming>
+      <bpmn:outgoing>D12</bpmn:outgoing>
+      <bpmn:outgoing>D14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Report_Rollback" name="Confirm failed session save / and campaign removal / Keep entered values">
+      <bpmn:incoming>D12</bpmn:incoming>
+      <bpmn:outgoing>D13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Rolled_Back" name="First session unsaved / Campaign removed">
+      <bpmn:incoming>D13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Merge_Recovery" name="Alternative recovery paths" gatewayDirection="Converging">
+      <bpmn:incoming>D06</bpmn:incoming>
+      <bpmn:incoming>D10</bpmn:incoming>
+      <bpmn:incoming>D14</bpmn:incoming>
+      <bpmn:outgoing>D15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Report_Recovery" name="Report recovery required / Keep entered values / No automatic retry">
+      <bpmn:incoming>D15</bpmn:incoming>
+      <bpmn:outgoing>D16</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Pair_Unresolved" name="Recovery unresolved / Return known state / uncertainty">
+      <bpmn:incoming>D16</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="D01" sourceRef="Start_Pair" targetRef="Create_Campaign" />
+    <bpmn:sequenceFlow id="D02" sourceRef="Create_Campaign" targetRef="Campaign_Result" />
+    <bpmn:sequenceFlow id="D03" sourceRef="Campaign_Result" targetRef="Create_Session" name="Saved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Saved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D04" sourceRef="Campaign_Result" targetRef="Campaign_Rejected" name="Confirmed rejection">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Confirmed rejection</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D05" sourceRef="Campaign_Rejected" targetRef="End_Campaign_Rejected" />
+    <bpmn:sequenceFlow id="D06" sourceRef="Campaign_Result" targetRef="Merge_Recovery" name="Outcome unknown">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Outcome unknown</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D07" sourceRef="Create_Session" targetRef="Session_Result" />
+    <bpmn:sequenceFlow id="D08" sourceRef="Session_Result" targetRef="End_Pair_Saved" name="Saved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Saved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D09" sourceRef="Session_Result" targetRef="Rollback_Campaign" name="Confirmed unsaved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Confirmed unsaved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D10" sourceRef="Session_Result" targetRef="Merge_Recovery" name="Outcome unknown">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Outcome unknown</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D11" sourceRef="Rollback_Campaign" targetRef="Rollback_Result" />
+    <bpmn:sequenceFlow id="D12" sourceRef="Rollback_Result" targetRef="Report_Rollback" name="Yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Yes</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D13" sourceRef="Report_Rollback" targetRef="End_Rolled_Back" />
+    <bpmn:sequenceFlow id="D14" sourceRef="Rollback_Result" targetRef="Merge_Recovery" name="Rejected / unknown">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Rejected / unknown</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="D15" sourceRef="Merge_Recovery" targetRef="Report_Recovery" />
+    <bpmn:sequenceFlow id="D16" sourceRef="Report_Recovery" targetRef="End_Pair_Unresolved" />
+    <bpmn:textAnnotation id="Annotation_Defaults">
+      <bpmn:text>Q-CS-05: retain explicit default GM; otherwise use session GM. Use the first session system and optional link as campaign defaults.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Annotation_Recovery">
+      <bpmn:text>GAP-CS-01 / FU-SH-02: a lost response proves neither success nor failure. Identify and reconcile this creation attempt before retry or cleanup claims. Detailed mechanism and interaction remain open.</bpmn:text>
+    </bpmn:textAnnotation>
+  </bpmn:process>
+  <bpmn:collaboration id="Collaboration_Pair">
+    <bpmn:participant id="Participant_Pair" name="Tablelog — save campaign and first session" processRef="Process_SavePair" />
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_Main" name="WF-CS-02 · Add a session to a new campaign">
+    <bpmndi:BPMNPlane id="Plane_Main" bpmnElement="Collaboration_Main">
+      <bpmndi:BPMNShape id="Participant_Main_di" bpmnElement="Participant_Main" isHorizontal="true">
+        <dc:Bounds x="30" y="160" width="1780" height="1050" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_User_di" bpmnElement="Lane_User" isHorizontal="true">
+        <dc:Bounds x="60" y="160" width="1750" height="260" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_App_di" bpmnElement="Lane_App" isHorizontal="true">
+        <dc:Bounds x="60" y="420" width="1750" height="790" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Main_di" bpmnElement="Start_Main">
+        <dc:Bounds x="120" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="-7.0" y="305" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Open_Form_di" bpmnElement="Open_Form">
+        <dc:Bounds x="210" y="240" width="240" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Enter_Details_di" bpmnElement="Enter_Details">
+        <dc:Bounds x="520" y="240" width="300" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Choose_Action_di" bpmnElement="Choose_Action" isMarkerVisible="true">
+        <dc:Bounds x="900" y="255" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="780" y="202" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cancel_Form_di" bpmnElement="Cancel_Form">
+        <dc:Bounds x="1040" y="240" width="240" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Cancelled_di" bpmnElement="End_Cancelled">
+        <dc:Bounds x="1322" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1195.0" y="305" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Validate_Both_di" bpmnElement="Validate_Both">
+        <dc:Bounds x="800" y="500" width="250" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Valid_Both_di" bpmnElement="Valid_Both" isMarkerVisible="true">
+        <dc:Bounds x="1100" y="520" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="980" y="467" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Show_Validation_di" bpmnElement="Show_Validation">
+        <dc:Bounds x="500" y="500" width="230" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Save_Pair_di" bpmnElement="Save_Pair" isExpanded="false">
+        <dc:Bounds x="1260" y="480" width="290" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pair_Result_di" bpmnElement="Pair_Result" isMarkerVisible="true">
+        <dc:Bounds x="1380" y="690" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1335" y="642" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Refresh_Views_di" bpmnElement="Refresh_Views">
+        <dc:Bounds x="1010" y="670" width="260" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Refresh_Result_di" bpmnElement="Refresh_Result" isMarkerVisible="true">
+        <dc:Bounds x="875" y="690" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="755" y="632" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Show_Success_di" bpmnElement="Show_Success">
+        <dc:Bounds x="500" y="670" width="270" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Success_di" bpmnElement="End_Success">
+        <dc:Bounds x="412" y="697" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="285" y="786" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Show_Stale_di" bpmnElement="Show_Stale">
+        <dc:Bounds x="750" y="900" width="290" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Stale_di" bpmnElement="End_Stale">
+        <dc:Bounds x="877" y="1082" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="750.0" y="1125" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Show_Failure_di" bpmnElement="Show_Failure">
+        <dc:Bounds x="1260" y="900" width="240" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Failure_di" bpmnElement="End_Failure">
+        <dc:Bounds x="1387" y="1082" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260.0" y="1125" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Show_Unresolved_di" bpmnElement="Show_Unresolved">
+        <dc:Bounds x="1530" y="860" width="240" height="110" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Unresolved_di" bpmnElement="End_Unresolved">
+        <dc:Bounds x="1632" y="1082" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1505.0" y="1125" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="M01_di" bpmnElement="M01">
+        <di:waypoint x="156" y="280" />
+        <di:waypoint x="210" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M02_di" bpmnElement="M02">
+        <di:waypoint x="450" y="280" />
+        <di:waypoint x="520" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M03_di" bpmnElement="M03">
+        <di:waypoint x="820" y="280" />
+        <di:waypoint x="900" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M04_di" bpmnElement="M04">
+        <di:waypoint x="950" y="280" />
+        <di:waypoint x="1040" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="910" y="241" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M05_di" bpmnElement="M05">
+        <di:waypoint x="1280" y="280" />
+        <di:waypoint x="1322" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M06_di" bpmnElement="M06">
+        <di:waypoint x="925" y="305" />
+        <di:waypoint x="925" y="500" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="872" y="372" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M07_di" bpmnElement="M07">
+        <di:waypoint x="1050" y="545" />
+        <di:waypoint x="1100" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M08_di" bpmnElement="M08">
+        <di:waypoint x="1125" y="570" />
+        <di:waypoint x="1125" y="625" />
+        <di:waypoint x="615" y="625" />
+        <di:waypoint x="615" y="590" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1012" y="592" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M09_di" bpmnElement="M09">
+        <di:waypoint x="615" y="500" />
+        <di:waypoint x="615" y="390" />
+        <di:waypoint x="670" y="390" />
+        <di:waypoint x="670" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="582" y="349" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M10_di" bpmnElement="M10">
+        <di:waypoint x="1150" y="545" />
+        <di:waypoint x="1260" y="545" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1118" y="506" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M11_di" bpmnElement="M11">
+        <di:waypoint x="1405" y="600" />
+        <di:waypoint x="1405" y="690" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M12_di" bpmnElement="M12">
+        <di:waypoint x="1380" y="715" />
+        <di:waypoint x="1270" y="715" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1239" y="673" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M13_di" bpmnElement="M13">
+        <di:waypoint x="1405" y="740" />
+        <di:waypoint x="1405" y="840" />
+        <di:waypoint x="1380" y="840" />
+        <di:waypoint x="1380" y="900" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1320" y="802" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M14_di" bpmnElement="M14">
+        <di:waypoint x="1430" y="715" />
+        <di:waypoint x="1650" y="715" />
+        <di:waypoint x="1650" y="860" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1553" y="766" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M15_di" bpmnElement="M15">
+        <di:waypoint x="1010" y="715" />
+        <di:waypoint x="925" y="715" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M16_di" bpmnElement="M16">
+        <di:waypoint x="875" y="715" />
+        <di:waypoint x="770" y="715" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="674" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M17_di" bpmnElement="M17">
+        <di:waypoint x="500" y="715" />
+        <di:waypoint x="448" y="715" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M18_di" bpmnElement="M18">
+        <di:waypoint x="900" y="740" />
+        <di:waypoint x="900" y="850" />
+        <di:waypoint x="895" y="850" />
+        <di:waypoint x="895" y="900" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="843" y="800" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M19_di" bpmnElement="M19">
+        <di:waypoint x="895" y="990" />
+        <di:waypoint x="895" y="1082" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M20_di" bpmnElement="M20">
+        <di:waypoint x="1380" y="990" />
+        <di:waypoint x="1380" y="1060" />
+        <di:waypoint x="1405" y="1060" />
+        <di:waypoint x="1405" y="1082" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M21_di" bpmnElement="M21">
+        <di:waypoint x="1650" y="970" />
+        <di:waypoint x="1650" y="1082" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="Diagram_Pair" name="WF-CS-02 · Saving and rollback detail">
+    <bpmndi:BPMNPlane id="Plane_Pair" bpmnElement="Collaboration_Pair">
+      <bpmndi:BPMNShape id="Participant_Pair_di" bpmnElement="Participant_Pair" isHorizontal="true">
+        <dc:Bounds x="30" y="160" width="1780" height="1025" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Pair_di" bpmnElement="Start_Pair">
+        <dc:Bounds x="112" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="-15.0" y="295" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Create_Campaign_di" bpmnElement="Create_Campaign">
+        <dc:Bounds x="210" y="220" width="280" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Campaign_Result_di" bpmnElement="Campaign_Result" isMarkerVisible="true">
+        <dc:Bounds x="580" y="245" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="460" y="200" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Create_Session_di" bpmnElement="Create_Session">
+        <dc:Bounds x="750" y="220" width="280" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Session_Result_di" bpmnElement="Session_Result" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="245" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1000" y="200" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Pair_Saved_di" bpmnElement="End_Pair_Saved">
+        <dc:Bounds x="1437" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1310.0" y="295" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Campaign_Rejected_di" bpmnElement="Campaign_Rejected">
+        <dc:Bounds x="480" y="480" width="250" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Campaign_Rejected_di" bpmnElement="End_Campaign_Rejected">
+        <dc:Bounds x="587" y="742" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="460.0" y="785" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Rollback_Campaign_di" bpmnElement="Rollback_Campaign">
+        <dc:Bounds x="1010" y="480" width="270" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Rollback_Result_di" bpmnElement="Rollback_Result" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="675" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1000" y="617" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Report_Rollback_di" bpmnElement="Report_Rollback">
+        <dc:Bounds x="780" y="655" width="250" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Rolled_Back_di" bpmnElement="End_Rolled_Back">
+        <dc:Bounds x="887" y="772" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="760.0" y="815" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Merge_Recovery_di" bpmnElement="Merge_Recovery" isMarkerVisible="true">
+        <dc:Bounds x="1625" y="745" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1505" y="707" width="290" height="23" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Report_Recovery_di" bpmnElement="Report_Recovery">
+        <dc:Bounds x="1510" y="890" width="280" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Pair_Unresolved_di" bpmnElement="End_Pair_Unresolved">
+        <dc:Bounds x="1632" y="1072" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1505.0" y="1115" width="290" height="46" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="D01_di" bpmnElement="D01">
+        <di:waypoint x="148" y="270" />
+        <di:waypoint x="210" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D02_di" bpmnElement="D02">
+        <di:waypoint x="490" y="270" />
+        <di:waypoint x="580" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D03_di" bpmnElement="D03">
+        <di:waypoint x="630" y="270" />
+        <di:waypoint x="750" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="605" y="228" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D04_di" bpmnElement="D04">
+        <di:waypoint x="605" y="295" />
+        <di:waypoint x="605" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="520" y="376" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D05_di" bpmnElement="D05">
+        <di:waypoint x="605" y="580" />
+        <di:waypoint x="605" y="742" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D06_di" bpmnElement="D06">
+        <di:waypoint x="605" y="245" />
+        <di:waypoint x="605" y="190" />
+        <di:waypoint x="1650" y="190" />
+        <di:waypoint x="1650" y="745" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="765" y="158" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D07_di" bpmnElement="D07">
+        <di:waypoint x="1030" y="270" />
+        <di:waypoint x="1120" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D08_di" bpmnElement="D08">
+        <di:waypoint x="1170" y="270" />
+        <di:waypoint x="1437" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1225" y="228" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D09_di" bpmnElement="D09">
+        <di:waypoint x="1145" y="295" />
+        <di:waypoint x="1145" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1060" y="376" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D10_di" bpmnElement="D10">
+        <di:waypoint x="1145" y="245" />
+        <di:waypoint x="1145" y="170" />
+        <di:waypoint x="1730" y="170" />
+        <di:waypoint x="1730" y="770" />
+        <di:waypoint x="1675" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1645" y="460" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D11_di" bpmnElement="D11">
+        <di:waypoint x="1145" y="580" />
+        <di:waypoint x="1145" y="675" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D12_di" bpmnElement="D12">
+        <di:waypoint x="1120" y="700" />
+        <di:waypoint x="1030" y="700" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="988" y="661" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D13_di" bpmnElement="D13">
+        <di:waypoint x="905" y="745" />
+        <di:waypoint x="905" y="772" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D14_di" bpmnElement="D14">
+        <di:waypoint x="1170" y="700" />
+        <di:waypoint x="1530" y="700" />
+        <di:waypoint x="1530" y="770" />
+        <di:waypoint x="1625" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1303" y="658" width="170" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D15_di" bpmnElement="D15">
+        <di:waypoint x="1650" y="795" />
+        <di:waypoint x="1650" y="890" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="D16_di" bpmnElement="D16">
+        <di:waypoint x="1650" y="990" />
+        <di:waypoint x="1650" y="1072" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Annotation_Defaults_di" bpmnElement="Annotation_Defaults">
+        <dc:Bounds x="120" y="865" width="650" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Annotation_Recovery_di" bpmnElement="Annotation_Recovery">
+        <dc:Bounds x="850" y="865" width="570" height="170" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

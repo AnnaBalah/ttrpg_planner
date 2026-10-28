@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1320" viewBox="0 0 1840 1320" role="img" aria-labelledby="title description">
+<title id="title">WF-CS-02 · Saving and rollback detail</title>
+<desc id="description">BPMN version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. Called process with intended outcomes; implementation and runtime verification remain separate. Generic BPMN tasks, exclusive gateways, none start/end events and sequence flows. Saving detail distinguishes confirmed rejection, unknown responses and confirmed rollback.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#475569"/></marker></defs>
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#1e293b}.title{font-size:27px;font-weight:650}.subtitle{font-size:18px;fill:#526277}.node-text{font-size:18px}.label{font-size:17px;fill:#475569;paint-order:stroke;stroke:white;stroke-width:7px;stroke-linejoin:round}.lane-label{font-size:18px;font-weight:650}.flow{fill:none;stroke:#475569;stroke-width:1.8;marker-end:url(#arrow)}.task{fill:white;stroke:#475569;stroke-width:1.8}.call{fill:#eff6ff;stroke:#245b80;stroke-width:3.5}.gateway{fill:white;stroke:#475569;stroke-width:1.8}.event{fill:white;stroke:#475569}.note{font-size:17px;fill:#526277}.footer{font-size:17px;fill:#526277}</style>
+<rect width="1840" height="1320" fill="white"/>
+<text x="30" y="45" class="title" text-anchor="start"><tspan x="30" dy="0">WF-CS-02 · Saving and rollback detail</tspan></text>
+<text x="30" y="79" class="subtitle" text-anchor="start"><tspan x="30" dy="0">BPMN v0.1 · approved 29 October 2026 · saving / rollback detail · implementation and verification remain separate</tspan></text>
+<text x="30" y="113" class="note" text-anchor="start"><tspan x="30" dy="0">Circle: start / end · rounded box: task · diamond X: exclusive choice / merge · solid arrow: sequence flow</tspan></text>
+<rect x="30" y="160" width="1780" height="1025" fill="white" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M60 160 V1185" stroke="#94a3b8"/>
+<text transform="translate(51 672.5) rotate(-90)" class="lane-label" text-anchor="middle">Tablelog · Save campaign and first session</text>
+<path id="D01" data-source="Start_Pair" data-target="Create_Campaign" class="flow" d="M148 270 L210 270"/>
+<path id="D02" data-source="Create_Campaign" data-target="Campaign_Result" class="flow" d="M490 270 L580 270"/>
+<path id="D03" data-source="Campaign_Result" data-target="Create_Session" class="flow" d="M630 270 L750 270"/>
+<path id="D04" data-source="Campaign_Result" data-target="Campaign_Rejected" class="flow" d="M605 295 L605 480"/>
+<path id="D05" data-source="Campaign_Rejected" data-target="End_Campaign_Rejected" class="flow" d="M605 580 L605 742"/>
+<path id="D06" data-source="Campaign_Result" data-target="Merge_Recovery" class="flow" d="M605 245 L605 190 L1650 190 L1650 745"/>
+<path id="D07" data-source="Create_Session" data-target="Session_Result" class="flow" d="M1030 270 L1120 270"/>
+<path id="D08" data-source="Session_Result" data-target="End_Pair_Saved" class="flow" d="M1170 270 L1437 270"/>
+<path id="D09" data-source="Session_Result" data-target="Rollback_Campaign" class="flow" d="M1145 295 L1145 480"/>
+<path id="D10" data-source="Session_Result" data-target="Merge_Recovery" class="flow" d="M1145 245 L1145 170 L1730 170 L1730 770 L1675 770"/>
+<path id="D11" data-source="Rollback_Campaign" data-target="Rollback_Result" class="flow" d="M1145 580 L1145 675"/>
+<path id="D12" data-source="Rollback_Result" data-target="Report_Rollback" class="flow" d="M1120 700 L1030 700"/>
+<path id="D13" data-source="Report_Rollback" data-target="End_Rolled_Back" class="flow" d="M905 745 L905 772"/>
+<path id="D14" data-source="Rollback_Result" data-target="Merge_Recovery" class="flow" d="M1170 700 L1530 700 L1530 770 L1625 770"/>
+<path id="D15" data-source="Merge_Recovery" data-target="Report_Recovery" class="flow" d="M1650 795 L1650 890"/>
+<path id="D16" data-source="Report_Recovery" data-target="End_Pair_Unresolved" class="flow" d="M1650 990 L1650 1072"/>
+<g id="Start_Pair" data-bpmn-kind="start">
+<circle cx="130.0" cy="270.0" r="18.0" class="event" stroke-width="1.8"/>
+<text x="130.0" y="314" class="label" text-anchor="middle"><tspan x="130.0" dy="0">Start save attempt</tspan></text>
+</g>
+<g id="Create_Campaign" data-bpmn-kind="task">
+<rect x="210" y="220" width="280" height="100" rx="12" class="task"/>
+<text x="350.0" y="264.5" class="node-text" text-anchor="middle"><tspan x="350.0" dy="0">Derive campaign defaults</tspan><tspan x="350.0" dy="23">Create new campaign</tspan></text>
+</g>
+<g id="Campaign_Result" data-bpmn-kind="gateway">
+<polygon points="605.0,245 630,270.0 605.0,295 580,270.0" class="gateway"/>
+<path d="M598.0 263.0 L612.0 277.0 M598.0 277.0 L612.0 263.0" stroke="#475569" stroke-width="2.3"/>
+<text x="605" y="218" class="label" text-anchor="middle"><tspan x="605" dy="0">Campaign result?</tspan></text>
+</g>
+<g id="Create_Session" data-bpmn-kind="task">
+<rect x="750" y="220" width="280" height="100" rx="12" class="task"/>
+<text x="890.0" y="264.5" class="node-text" text-anchor="middle"><tspan x="890.0" dy="0">Create first session</tspan><tspan x="890.0" dy="23">Link to confirmed campaign ID</tspan></text>
+</g>
+<g id="Session_Result" data-bpmn-kind="gateway">
+<polygon points="1145.0,245 1170,270.0 1145.0,295 1120,270.0" class="gateway"/>
+<path d="M1138.0 263.0 L1152.0 277.0 M1138.0 277.0 L1152.0 263.0" stroke="#475569" stroke-width="2.3"/>
+<text x="1145" y="218" class="label" text-anchor="middle"><tspan x="1145" dy="0">Session result?</tspan></text>
+</g>
+<g id="End_Pair_Saved" data-bpmn-kind="end">
+<circle cx="1455.0" cy="270.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="1455.0" y="314" class="label" text-anchor="middle"><tspan x="1455.0" dy="0">Both records</tspan><tspan x="1455.0" dy="23">confirmed saved</tspan></text>
+</g>
+<g id="Campaign_Rejected" data-bpmn-kind="task">
+<rect x="480" y="480" width="250" height="100" rx="12" class="task"/>
+<text x="605.0" y="524.5" class="node-text" text-anchor="middle"><tspan x="605.0" dy="0">Keep entered values</tspan><tspan x="605.0" dy="23">Explain campaign rejection</tspan></text>
+</g>
+<g id="End_Campaign_Rejected" data-bpmn-kind="end">
+<circle cx="605.0" cy="760.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="605.0" y="804" class="label" text-anchor="middle"><tspan x="605.0" dy="0">Confirmed failure</tspan><tspan x="605.0" dy="23">No campaign created</tspan></text>
+</g>
+<g id="Rollback_Campaign" data-bpmn-kind="task">
+<rect x="1010" y="480" width="270" height="100" rx="12" class="task"/>
+<text x="1145.0" y="524.5" class="node-text" text-anchor="middle"><tspan x="1145.0" dy="0">Remove only the campaign</tspan><tspan x="1145.0" dy="23">created by this attempt</tspan></text>
+</g>
+<g id="Rollback_Result" data-bpmn-kind="gateway">
+<polygon points="1145.0,675 1170,700.0 1145.0,725 1120,700.0" class="gateway"/>
+<path d="M1138.0 693.0 L1152.0 707.0 M1138.0 707.0 L1152.0 693.0" stroke="#475569" stroke-width="2.3"/>
+<text x="1145" y="635" class="label" text-anchor="middle"><tspan x="1145" dy="0">Rollback confirmed?</tspan></text>
+</g>
+<g id="Report_Rollback" data-bpmn-kind="task">
+<rect x="780" y="655" width="250" height="90" rx="12" class="task"/>
+<text x="905.0" y="683.0" class="node-text" text-anchor="middle"><tspan x="905.0" dy="0">Confirm failed session save</tspan><tspan x="905.0" dy="23">and campaign removal</tspan><tspan x="905.0" dy="23">Keep entered values</tspan></text>
+</g>
+<g id="End_Rolled_Back" data-bpmn-kind="end">
+<circle cx="905.0" cy="790.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="905.0" y="834" class="label" text-anchor="middle"><tspan x="905.0" dy="0">First session unsaved</tspan><tspan x="905.0" dy="23">Campaign removed</tspan></text>
+</g>
+<g id="Merge_Recovery" data-bpmn-kind="gateway">
+<polygon points="1650.0,745 1675,770.0 1650.0,795 1625,770.0" class="gateway"/>
+<path d="M1643.0 763.0 L1657.0 777.0 M1643.0 777.0 L1657.0 763.0" stroke="#475569" stroke-width="2.3"/>
+<text x="1650" y="725" class="label" text-anchor="middle"><tspan x="1650" dy="0">Alternative recovery paths</tspan></text>
+</g>
+<g id="Report_Recovery" data-bpmn-kind="task">
+<rect x="1510" y="890" width="280" height="100" rx="12" class="task"/>
+<text x="1650.0" y="923.0" class="node-text" text-anchor="middle"><tspan x="1650.0" dy="0">Report recovery required</tspan><tspan x="1650.0" dy="23">Keep entered values</tspan><tspan x="1650.0" dy="23">No automatic retry</tspan></text>
+</g>
+<g id="End_Pair_Unresolved" data-bpmn-kind="end">
+<circle cx="1650.0" cy="1090.0" r="18.0" class="event" stroke-width="3.8"/>
+<text x="1650.0" y="1134" class="label" text-anchor="middle"><tspan x="1650.0" dy="0">Recovery unresolved</tspan><tspan x="1650.0" dy="23">Return known state / uncertainty</tspan></text>
+</g>
+<text x="690" y="246" class="label" text-anchor="middle"><tspan x="690" dy="0">Saved</tspan></text>
+<text x="605" y="394" class="label" text-anchor="middle"><tspan x="605" dy="0">Confirmed rejection</tspan></text>
+<text x="850" y="176" class="label" text-anchor="middle"><tspan x="850" dy="0">Outcome unknown</tspan></text>
+<text x="1310" y="246" class="label" text-anchor="middle"><tspan x="1310" dy="0">Saved</tspan></text>
+<text x="1145" y="394" class="label" text-anchor="middle"><tspan x="1145" dy="0">Confirmed unsaved</tspan></text>
+<text x="1730" y="478" class="label" text-anchor="middle"><tspan x="1730" dy="0">Outcome unknown</tspan></text>
+<text x="1073" y="679" class="label" text-anchor="middle"><tspan x="1073" dy="0">Yes</tspan></text>
+<text x="1388" y="676" class="label" text-anchor="middle"><tspan x="1388" dy="0">Rejected / unknown</tspan></text>
+<path d="M136 865 H120 V1000 H136" fill="none" stroke="#b7791f" stroke-width="1.5"/>
+<text x="142" y="890" class="note" text-anchor="start"><tspan x="142" dy="0">Campaign defaults · Q-CS-05</tspan><tspan x="142" dy="23">Keep explicit default GM; otherwise use session GM.</tspan><tspan x="142" dy="23">Use the first session system and optional link.</tspan><tspan x="142" dy="23">Rollback affects only this attempt’s new campaign.</tspan></text>
+<path d="M866 865 H850 V1000 H866" fill="none" stroke="#b7791f" stroke-width="1.5"/>
+<text x="872" y="890" class="note" text-anchor="start"><tspan x="872" dy="0">Recovery boundary · GAP-CS-01 / FU-SH-02</tspan><tspan x="872" dy="23">A missing response proves neither success nor failure.</tspan><tspan x="872" dy="23">Identify and reconcile this attempt before retry / cleanup claims.</tspan><tspan x="872" dy="23">Mechanism and detailed interaction remain open.</tspan></text>
+<text x="30" y="1230" class="footer" text-anchor="start"><tspan x="30" dy="0">Rollback applies only after the first session is confirmed unsaved; an unknown response must be reconciled before cleanup or retry.</tspan></text>
+<text x="30" y="1256" class="footer" text-anchor="start"><tspan x="30" dy="0">The three end outcomes return to the overview: both saved, confirmed failure with known cleanup state, or recovery unresolved.</tspan></text>
+<text x="30" y="1282" class="footer" text-anchor="start"><tspan x="30" dy="0">This is a descriptive model, not an executable workflow. No automatic retry or unverified cleanup success is prescribed.</tspan></text>
+</svg>

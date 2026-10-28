@@ -578,6 +578,9 @@ Track recovery design as FU-SH-02 and the remaining actions in the document-wide
 <details>
 <summary><strong>Main workflow</strong></summary>
 
+[BPMN overview and saving/rollback detail](models.md#wf-cs-02-bpmn) — intended
+process; model review is separate from implementation and execution evidence.
+
 | Step | Owner action | App response |
 | --- | --- | --- |
 | 1 | Open a new session and choose New campaign. | Show campaign name, default GM and session fields. |
@@ -3130,6 +3133,13 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   remove only the campaign created by a failed attempt. Include combined new
   campaign/system attempts and uncertain cleanup under FU-SH-02. Existing retry
   checks cover earlier behavior and do not establish that rollback works. See A-06.
+- [x] **FU-CS-06 — Review and approve the BPMN process:** Anna approved version
+  0.1 of the intended [WF-CS-02 overview and saving/rollback detail](models.md#wf-cs-02-bpmn)
+  on 29 October 2026 within its stated scope, including the explicit
+  GAP-CS-01 / FU-SH-02 recovery boundaries. The
+  [approval record](models.md#process-model-approval) preserves the version,
+  date and decision. Detailed recovery design, FU-CS-05 implementation and
+  test-execution tasks remain open.
 
 </details>
 

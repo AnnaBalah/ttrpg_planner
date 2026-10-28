@@ -266,17 +266,22 @@ session **or** a named one-shot, never neither.
   - Replaced session date, monthly stats, and year review picker controls with app-styled popovers while keeping ISO values internally.
 
 **Session entry UX**
+- [ ] Players present — add a per-session field for campaign sessions and one-shots to record who attended each game. Allow entering/editing attendees in the session form and viewing them in session details; define the name-entry format and handling of existing sessions during design.
 - [ ] Add Session defaults — default `Type` to `Campaign session`, keep `Date` defaulted to today, and keep Campaign blank until the user chooses one
 - [ ] Quick Add redesign — rethink campaign cards and actions; add an `Add` flow that prefills campaign defaults but leaves Date blank and required
 - [ ] Quick Add design brainstorm — explore smaller cards, split primary/secondary actions, icon-only edit controls, and clearer distinction between `Log today`, `Add`, and edit-before-save
 - [ ] Implement the agreed inline-creation rollback rules with clear error messages: remove the campaign created by an attempt if its first session cannot be saved (Q-CS-04), and remove only the new system if its parent campaign/session cannot be saved (Q-SY-02). Retain entered values, protect existing records and reconcile unknown outcomes before claiming rollback success. Product decisions agreed on 28 October 2026; see [requirements and rules](docs/portfolio/requirements-and-rules.md).
+- [ ] Complete the agreed all-session-form keyboard behavior: Escape closes an open picker first without losing entered values; Close/Escape must not dismiss a pending save. The shared busy guard exists, but date-picker cancellation still needs work. Track implementation and per-context verification under FU-SH-07 in the [workflow follow-ups](docs/portfolio/requirements-and-rules.md#workflow-follow-up); use TC-SH-01–03, currently Not run.
 
 **System color UX**
 - [x] Generated colors — when generating or suggesting system colors, avoid repeating the same color that was chosen previously
   - Added a shared system-color suggestion palette that avoids existing system colors and avoids duplicate visible suggestions across new-system forms.
 
 **Campaign actions**
-- [ ] Implement the agreed [blocked campaign-deletion feedback](docs/portfolio/requirements-and-rules.md#wf-cp-06-improve-blocked-campaign-deletion): explain why Delete is unavailable for campaigns with sessions, offer explicit Archive where appropriate, retain context on rejection, and check current state after an unknown outcome before another deletion attempt. Keep the server deletion guard. Q-CP-04–06 agreed on 28 October 2026; detailed requirement wording and priorities remain drafts. Reproduce and retest [DEF-002](docs/portfolio/test-records.md#def-002-campaign-delete-feedback).
+- [ ] Implement the agreed [blocked campaign-deletion feedback](docs/portfolio/requirements-and-rules.md#wf-cp-06-improve-blocked-campaign-deletion): explain why Delete is unavailable for campaigns with sessions, offer explicit Archive where appropriate, retain context on rejection, and check current state after an unknown outcome before another deletion attempt. Keep the server deletion guard. Q-CP-04–06 and the detailed business rules, functional requirements and priorities are approved; implementation and verification remain planned. Reproduce and retest [DEF-002](docs/portfolio/test-records.md#def-002-campaign-delete-feedback).
+
+**Import usability**
+- [ ] Import discrepancy handling — design ways to correct invalid rows in the preview, resolve conflicting values explicitly, or skip selected invalid rows without manually editing the CSV. Define how skipped rows affect dependent campaigns, systems and sessions, show the resulting additions before confirmation, and preserve existing values unless replacement is explicitly chosen. This is a future enhancement; current import validation remains unchanged.
 
 **Admin and maintenance**
 - [ ] Deployment guide — add `DEPLOY.md` with NAS/home-server setup, Tailscale/LAN notes, Docker volume persistence verification, and safe exposure guidance
@@ -284,10 +289,17 @@ session **or** a named one-shot, never neither.
 - [ ] Import/admin tooling — add a reset-and-reimport command or admin action for early development and data cleanup
 - [ ] Tests — add backend tests for import, delete guards, export, and core API behavior; consider lightweight frontend tests later
 - [ ] Stats discussion — brainstorm what else would be useful to track before adding more charts
+- [ ] Identify all tied leaders and their shared counts in existing monthly and annual statistics highlights; verify that system breakdowns show every tied most-played system with its count. Favorite System means most played by recorded session count, as clarified under Q-ST-01; no extra annual highlight is required. Current highlight tiles select one leader; implementation and TC-ST-02 verification remain under FU-ST-01 in the [workflow follow-ups](docs/portfolio/requirements-and-rules.md#workflow-follow-up).
 
 ---
 
 ## Decisions (resolved)
+
+The [product decision register](docs/portfolio/requirements-and-rules.md#product-decisions)
+records all 37 product decisions, including Q-CS-06–08 added on 28 October 2026, rollback
+with clear errors, campaign-deletion recovery and the temporary exclusion of
+My GM name from record exports. The architecture choices below remain context;
+implementation notes earlier in this build plan may describe older behavior.
 
 1. **Remote access / login — no app login.** LAN-direct at home, Tailscale away. Network handles
    identity; never expose the port to the public internet.
@@ -295,7 +307,7 @@ session **or** a named one-shot, never neither.
 3. **One-shots — first-class concept** (own `name` + `color`, `campaign_id = NULL`), *not* archived
    campaigns. See Data Model.
 4. **Per-session title — dropped.** Sessions aren't numbered/labelled; one-shots use `name`.
-5. **"Games I ran vs played" — yes**, in Year in Review (GM = `Anna`).
+5. **"Games I ran vs played" — yes**, in Year Review. Match the configurable **My GM name** setting rather than a fixed name; matching sessions count as Ran and the other attended games as Played (Q-ST-03).
 6. **Session time of day — date-only.** No start-time field.
 
 ---

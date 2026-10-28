@@ -1,18 +1,49 @@
 # Acceptance criteria
 
-**Version:** 1.0 — reviewed baseline
+**Version:** 1.1 — approved baseline
 
-**Status — 28 October 2026:** All acceptance criteria are approved by the owner,
-including shared criteria and updates reflecting Q-CS-06–08. All Main workflow tables, business
-rules, functional requirements and recorded Must/Should priorities in
-[requirements and rules](requirements-and-rules.md) are approved, together with
-the 37 product decisions. These criteria are not implementation or test results.
+**Status — 28 October 2026:** The owner approved all 14 new or amended criteria
+listed below and the shared recovery-applicability clarification. Together with
+the unchanged approved version 1.0 criteria, all 187 criteria form the approved
+version 1.1 baseline. The owner confirmed that Q-CS-07 applies to every
+session form. Main workflows, business rules, functional requirements and recorded
+Must/Should priorities in [requirements and rules](requirements-and-rules.md)
+remain the source of expected behavior. These criteria are not implementation or
+test results.
+
+<details>
+<summary><strong>Version 1.1 amendment scope — approved</strong></summary>
+
+| Area | New or amended criteria | Reason |
+| --- | --- | --- |
+| Shared keyboard behavior — R-05 | New AC-SH-09–10; references in AC-CS-20/22, AC-OS-07, AC-SE-07 and AC-HI-07 | Apply Q-CS-07 and FR-SH-06 to every session form; implementation and verification remain under FU-SH-07. |
+| Import identity — R-01 | AC-DA-09–10 | Explicit file-ID remapping, normalized identity and occurrence counts; verify through TC-DA-01–04. |
+| Actual session system — R-02 | AC-SY-19, AC-ST-03 and AC-ST-08 | Distinguish the session's system from campaign defaults; verify through TC-ST-01 and TC-SY-01. |
+| Tied leaders — R-03 | AC-ST-05 and AC-ST-08 | Identify every leader in existing tied count highlights and every tied most-played system in its breakdown; implementation remains under FU-ST-01 and verification under TC-ST-02. |
+| Shared recovery scope — R-04 | Introduction and WF-CS-01 note linking AC-SH-06–08 | Applicability wording is addressed; detailed recovery design remains GAP-CS-01 / FU-SH-02. |
+| Campaign identity wording | AC-CP-05; corresponding FR-CP-05 clarification | State explicitly that editing retains the campaign's ID, consistent with approved BR-CP-04. |
+
+The five review findings now live in the criteria and linked
+[workflow follow-ups](requirements-and-rules.md#workflow-follow-up), with
+[focused draft test cases](test-records.md#focused-review-test-cases) for later
+verification. This table replaces the separate acceptance-review disposition.
+The review's other wording note is redundant: AC-CP-23 already reflects the
+approved **Should** priority of FR-CP-22.
+Criterion review is complete under [A-01](#actions-needed); implementation and
+verification remain separate. The owner clarified Q-ST-01 on 28 October 2026:
+Favorite System means most played by session count. Monthly and annual system
+breakdowns show every tied most-played system with its shared count; an additional
+annual Favorite System highlight is not required. AC-ST-05/08 and TC-ST-02 reflect
+that resolved scope.
+
+</details>
 
 Each workflow has a collapsed section with category toggles. Criterion IDs are
 unique within an area and continue across its workflows. Linked requirements
 determine priority; criteria for a **Should** requirement are identified explicitly.
-Shared criteria apply where relevant to the newer workflows. Detailed recovery
-design remains open under GAP-CS-01.
+Shared criteria apply to every relevant workflow, including WF-CS-01.
+FR-SH-06 and AC-SH-09–10 apply to every session form. Detailed recovery design
+remains open under GAP-CS-01.
 
 Use fictional data and isolated storage for verification. Record test setup,
 cases, execution evidence and retests in [test records](test-records.md), including
@@ -33,7 +64,7 @@ or reset. Open decisions and follow-up work are listed under
 <details>
 <summary><strong>Shared acceptance criteria</strong></summary>
 
-**Source:** FR-SH-01–05; Q-SH-01. Apply to the workflows identified in the source
+**Source:** FR-SH-01–06; Q-SH-01; Q-CS-07. Apply to the workflows identified in the source
 shared-requirements table, where the operation is relevant. Creation-request
 identification and detailed recovery design remain open under GAP-CS-01.
 
@@ -117,6 +148,39 @@ action, not an agreed solution in this criterion.
 
 </details>
 
+<details>
+<summary><strong>Every session form — version 1.1 approved</strong></summary>
+
+These criteria apply to new campaign sessions, one-shots, campaign-plus-first-session
+entry, existing-session viewing/editing and inline new-system entry. They also
+apply to any session form opened by Quick Add when implemented. Separate Manage
+forms and deletion confirmations retain their own workflow rules.
+
+### AC-SH-09 — Close or dismiss unsaved session values consistently
+
+(FR-SH-06; Q-CS-07)
+
+Given any session form with no save pending, when Escape is pressed with a picker
+open, then close only that picker and retain the form and all entered values.
+With no picker open, Escape closes the form and discards unsaved changes. Close
+does the same with or without a picker open. Neither action sends a write or
+changes stored sessions, campaigns or systems; an edited record retains its
+previously saved values.
+
+### AC-SH-10 — Keep every session form open while its save is pending
+
+(FR-SH-06; FR-SH-03; Q-CS-07)
+
+Given a session form's create or update save is pending, when Close or Escape is
+used, then the form remains open with entered values retained. Escape may close
+an open picker while retaining the form. This applies during every pending stage,
+including creation of an inline campaign or system before the session save.
+Repeated Save or Enter actions start no additional save operation under AC-SH-03.
+Confirmed success and refresh follow AC-SH-06; lost responses and failed refreshes
+retain the recovery policy and open design boundaries in AC-SH-07–08.
+
+</details>
+
 </details>
 
 ## Sessions
@@ -125,8 +189,9 @@ action, not an agreed solution in this criterion.
 <details>
 <summary><strong>Campaign-session acceptance criteria</strong></summary>
 
-**Status:** All criteria are approved, including changes reflecting Q-CS-06–08
-and AC-CS-31/32. These are expected outcomes for
+**Status:** Version 1.1 criteria are approved, including the version 1.0 baseline
+for Q-CS-06–08 and AC-CS-31/32, the cross-workflow references in AC-CS-20/22 and
+new shared AC-SH-09–10. These are expected outcomes for
 [WF-CS-01](requirements-and-rules.md#wf-cs-01-add-a-session-to-an-existing-campaign),
 not execution results. Existing requirement IDs and priorities are preserved.
 
@@ -297,7 +362,7 @@ or re-entering unaffected values. Success adds one session.
 
 ### AC-CS-20 — Cancel before saving
 
-(FR-CS-16; Q-CS-07)
+(FR-CS-16; FR-SH-06; Q-CS-07)
 
 Given entered values and no save in progress, when Close is used or Escape is
 pressed with no picker open, then the form closes without changing stored data.
@@ -318,7 +383,7 @@ across the two attempts.
 
 ### AC-CS-22 — Prevent repeated submissions and form closing while saving
 
-(FR-CS-18; Q-CS-07)
+(FR-CS-18; FR-SH-06; Q-CS-07)
 
 Given a save request is pending, when Save or Enter is used repeatedly, then
 only one creation request is sent from the form during that pending request.
@@ -361,8 +426,11 @@ AC-CS-11; missing effective references remain covered by AC-CS-13.
 
 </details>
 
-All WF-CS-01 requirements have linked criteria. Recovery after a lost save response or a
-failed refresh remains [GAP-CS-01](requirements-and-rules.md#open-decision).
+All WF-CS-01 requirements have linked criteria. Shared AC-SH-06–08 cover the
+agreed completion and recovery principles, including refresh without repeating
+a confirmed write and reconciliation before retry. Creation identification,
+precise form state and detailed recovery messages remain
+[GAP-CS-01](requirements-and-rules.md#open-decision).
 
 </details>
 
@@ -433,11 +501,13 @@ include it in its recorded period.
 
 ### AC-OS-07 — Cancel or correct a rejected save
 
-(FR-OS-04; FR-SH-04)
+(FR-OS-04; FR-SH-04, FR-SH-06; Q-CS-07)
 
 Given unsaved one-shot values, when cancelling before submission or receiving a
 confirmed rejection, then no session is created. Cancellation closes the form;
 rejection explains the reason and retains values for correction or permitted retry.
+Close, picker-first Escape and blocking form dismissal during saving follow
+AC-SH-09–10, as for every session form.
 
 </details>
 
@@ -589,11 +659,13 @@ input error, retain edited values and leave the stored original unchanged.
 
 ### AC-SE-07 — Cancel or retain a rejected edit
 
-(FR-SE-04; FR-SH-04)
+(FR-SE-04; FR-SH-04, FR-SH-06; Q-CS-07)
 
 Given unsaved edits, when cancelling before submission, then no update is sent.
 Given a confirmed rejected update, then explain the cause and retain a usable
 form. In both cases the stored original and campaign defaults are unchanged.
+The all-session-form keyboard rules in AC-SH-09–10 also apply: Escape closes a
+picker first, and Close/Escape cannot dismiss the form during a pending edit save.
 
 ### AC-SE-08 — Refresh the affected views
 
@@ -729,8 +801,8 @@ values, explain the cause and create no campaign.
 (FR-CP-05)
 
 Given an existing campaign, when Edit is chosen, then its saved name, defaults
-and status load. Saving valid edits updates that campaign's ID, creates no new
-campaign and retains the changes after reload.
+and status load. Saving valid edits updates the existing campaign while retaining
+its ID, creates no new campaign and retains the changes after reload.
 
 ### AC-CP-06 — Validate edited defaults without self-duplicates
 
@@ -1155,12 +1227,19 @@ stored system unchanged.
 
 ### AC-SY-19 — Refresh historical labels and derived colors
 
-(FR-SY-15; Q-SY-04)
+(FR-SY-15; BR-SY-12; Q-SY-04)
 
 Given campaigns and sessions reference the system, when its name or color update
 is confirmed and views refresh, then applicable labels, primary colors, previews
 and derived shades use the new values, including historical displays. Campaign
 and session system IDs remain unchanged and the updated values persist after reload.
+
+Given a campaign defaults to system A but one of its sessions records system B,
+then that session's labels and derived color follow B. Changing only A's primary
+color must not make the session use A's color. Changing B's primary color refreshes
+the session's derived color, while the campaign still references A and the session
+still references B. Campaign displays follow their own default system. The exact
+shade formula is not prescribed by this criterion.
 
 ### AC-SY-20 — Clear or correct a rejected system edit
 
@@ -1256,12 +1335,15 @@ recorded session. Current campaign defaults do not replace recorded values.
 
 ### AC-HI-07 — Close details without writing
 
-(FR-HI-07)
+(FR-HI-07; FR-SH-06; Q-CS-07)
 
-Given the unsaved details form with no write pending and no picker open, when
-Close or Escape is used, then no create, update or delete request is sent and
-the previous view remains available. Picker and pending-save Escape behavior
-remain a separate open decision.
+Given an unsaved details form with no save pending, when Close is used, or Escape
+is pressed with no picker open, then close the form and return to the previous
+view without a create, update or delete request. Unsaved edits are discarded and
+the stored session remains unchanged. Escape with a picker open closes only that
+picker and retains the form and entered values. If an edit save is pending, Close
+and Escape cannot dismiss the form; Escape may still close a picker. These are
+the agreed all-session-form rules in AC-SH-09–10, not a separate open decision.
 
 ### AC-HI-08 — Explain that a selected record is unavailable
 
@@ -1422,12 +1504,19 @@ the selected statistics period or its total.
 
 ### AC-ST-03 — Reconcile totals with breakdowns
 
-(FR-ST-03)
+(FR-ST-03; BR-ST-02)
 
 Given campaign sessions and standalone one-shots, when monthly breakdowns are
 displayed, then each session contributes once to its campaign group and system
 group. Standalone sessions use **One-shots** in the campaign breakdown. Each
 complete breakdown sums to the monthly session total.
+
+If a campaign defaults to system A but a session records system B, that session
+counts once under B and contributes nothing to A's system count. It still counts
+under its campaign in the campaign breakdown. For example, one such campaign
+session and one one-shot recorded with A give total 2, campaign counts 1 and 1,
+and system counts A=1 and B=1; changing campaign defaults alone does not change
+these recorded-session counts.
 
 </details>
 
@@ -1449,6 +1538,11 @@ most-played group or favorite system as if sessions existed.
 Given two or more groups share the highest count or two or more systems share
 the highest count, when monthly highlights are displayed, then identify the
 applicable result as a tie instead of presenting one as the sole winner.
+Every tied group's or system's name must be identifiable with its shared highest
+count. A generic tie indication without identifying all leaders is insufficient;
+no particular layout is required. Favorite System means the system with the
+highest recorded session count for that month. The system breakdown displays
+every tied most-played system and its shared count, consistent with the highlight.
 
 </details>
 
@@ -1480,12 +1574,24 @@ monthly counts sum to the annual total and exclude sessions from other years.
 
 ### AC-ST-08 — Show consistent annual breakdowns and tied highlights
 
-(FR-ST-07; Q-ST-01)
+(FR-ST-07; BR-ST-02, BR-ST-06; Q-ST-01)
 
 Given a selected year with recorded sessions, when Year Review is displayed, then
 campaign, system and GM breakdowns account for its sessions and each sums to its
-annual total. Busiest-month, most-played and favorite-system highlights identify
-ties where counts are equal rather than implying a sole winner.
+annual total. Each system count uses the session's recorded system even when the
+campaign defaults to another system. The system breakdown displays every system
+sharing the highest annual session count with that count, so every tied
+most-played system is identifiable. For example, systems A, B and C with two
+sessions each are all shown at 2. This satisfies the Favorite System scope;
+no separate annual system highlight is required.
+
+Busiest-month and most-played-group highlights identify every tied leader by
+name or month and show the shared highest count rather than implying a sole
+winner. A generic tie indication alone is insufficient. For example, when January,
+February and March each have two sessions and every other month has zero, all
+three months are identifiable as busiest, each with count 2. The choice of
+presentation remains open; an empty year follows AC-ST-10 instead of inventing
+count leaders.
 
 </details>
 
@@ -1681,7 +1787,7 @@ My GM name, with no in-app restore action, rather than as a full database backup
 
 ### AC-DA-09 — Commit additions together and retain existing values
 
-(FR-DA-08; Q-DA-02)
+(FR-DA-08, FR-DA-09; BR-DA-04; Q-DA-02)
 
 Given new records and conflicts with existing values, when apply succeeds, then
 all permitted additions commit together and conflicts are explained without
@@ -1689,15 +1795,34 @@ overwriting existing names, defaults, colors, links, notes or settings. A confir
 failed apply leaves no partial additions. My GM name remains unchanged. Exact-state
 recovery is directed to database restore rather than CSV import.
 
+If file numeric IDs coincide with unrelated destination system, campaign or
+session IDs, no destination record is overwritten or associated merely because
+the numbers match. File references resolve to the correctly matched or newly
+created destination system and campaign; imported sessions reference those
+destination IDs. For example, a file campaign ID of 7 for Campaign New must not
+link its session to unrelated destination campaign ID 7, Campaign Existing.
+
 ### AC-DA-10 — Preserve deliberate session multiplicity on reimport
 
-(FR-DA-09; Q-DA-03)
+(FR-DA-09; BR-DA-05; Q-DA-03)
 
 Given session identity is compared by date, campaign/one-shot identity, GM and
-system, when a CSV contains two occurrences of one identity but the tracker has
-one, then preview and apply add one occurrence. Reimporting that same file again
-adds none for that identity. Existing occurrences keep their recorded links and
-notes even if the file supplies different ones.
+system under BR-DA-05, when names differ only in surrounding whitespace, case or
+equivalent character forms, then preview and apply use the same logical identity.
+This includes campaign/one-shot names, GM names and system-name matching; it does
+not equate different aliases or remove accents. A campaign session and a one-shot
+remain different identities even if their names and other values match.
+
+When a CSV contains two deliberate occurrences of one normalized identity but
+the tracker has one, preview and apply add exactly one occurrence. The file's
+occurrences are distinct rows, not duplicate copies of the same source session
+ID. Reimporting that file again adds none for that identity. Existing occurrences
+keep their recorded links and notes even if the file supplies different ones.
+Changing an identity component such as date, GM or actual system creates a
+different identity; file numeric session IDs do not replace this comparison.
+
+Occurrence counts preserve the greater count found in the file or tracker; they
+cannot distinguish independently recorded sessions with identical identity values.
 
 ### AC-DA-11 — Report counts and retain imported records
 
@@ -2213,20 +2338,21 @@ separate criteria above.
 
 ## Actions needed
 
-**Current state:** All acceptance criteria are approved as version 1.0, together
-with the approved Main workflow tables, business rules and requirements.
-A-01 and A-11 are complete. Recovery design, implementation and verification
-actions remain open; approval does not establish that the app meets the criteria.
+**Current state:** All version 1.1 criteria are approved, preserving the version
+1.0 baseline approval. Ten focused test cases remain drafts, Not run. A-01 records
+the completed baseline and amendment reviews; A-11 records the index update.
+Recovery design, implementation and verification actions remain open; approval
+does not establish that the app meets the criteria.
 
 <details>
 <summary><strong>Approval, recorded decisions and open design</strong></summary>
 
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
-| A-01 — Review acceptance criteria | Complete — the owner approved all workflow and shared acceptance criteria on 28 October 2026 as version 1.0. | All workflow and shared criteria; FU-SH-01 |
+| A-01 — Review acceptance criteria | Complete — the owner approved the version 1.0 baseline, all 14 version 1.1 new or amended criteria and the recovery-applicability clarification on 28 October 2026. All 187 criteria are approved. Q-ST-01 records Favorite System as most played by session count, with all tied system leaders shown in the breakdown; no extra annual highlight is required. Implementation and verification remain open. | Version 1.1 amendment-scope table; FU-SH-01; Q-ST-01; FR-ST-07; AC-ST-05/08; TC-ST-02 |
 | A-02 — Finish save-recovery design | Define how a creation attempt is identified even when deliberate records can look identical. Specify messages, form state, safe reconciliation/retry and failed rollback handling. Update WF-CS-01 requirements and criteria only after its gap is resolved; the agreed Q-SH-01 principle does not itself close GAP-CS-01. | GAP-CS-01; Q-SH-01; AC-SH-07–08; AC-CS-29; AC-SY-11, AC-SY-16; AC-QA-05 |
 | A-03 — Decision recorded: repeated campaign-session entries | Q-CS-06 permits deliberate sessions for the same campaign and date. BR-CS-13, FR-CS-25 and approved AC-CS-31 record the result. Execution remains planned. | FU-CS-02; Q-CS-06; AC-CS-31 |
-| A-04 — Decision recorded: Escape and closing during save | Q-CS-07 makes Escape close an open picker first and blocks form closing during save. FR-CS-16/18 and approved AC-CS-20/22 record the result; implementation verification remains planned. | FU-CS-03; Q-CS-07; AC-CS-20/22 |
+| A-04 — Decision recorded: Escape and closing during save | The owner confirmed that Q-CS-07 applies to every session form. FR-SH-06 and FR-CS-16/18 record the result; AC-SH-09–10 and workflow references are approved in version 1.1. The date picker's Escape-first behavior still needs implementation; shared keyboard verification remains planned. | FU-CS-03; FU-SH-07; Q-CS-07; AC-SH-09–10; AC-CS-20/22; TC-SH-01–03 |
 | A-05 — Decision recorded: API defaults and browser inputs | Q-CS-08 retains API fallback to campaign GM/System defaults for omitted inputs while keeping both required in the browser. FR-CS-11 and approved AC-CS-11/32 record the result; verification remains planned. | FU-CS-04; Q-CS-08; AC-CS-11/32 |
 
 </details>
@@ -2248,8 +2374,8 @@ actions remain open; approval does not establish that the app meets the criteria
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
 | A-09 — Align the data and backup guide | Correct the CSV description that currently says exports include “settings”: Q-DA-01 excludes My GM name. Explain full-backup settings coverage and record-backup limits; add custom-storage guidance, dated backup filenames and a copy-existence check. Document same-version restore checks, settings replacement and recovery using the preserved pre-restore copy. | [Data guide](../data-and-backups.md); Q-DA-01; FR-MA-09–16; AC-DA-04, AC-DA-08, AC-DA-16; AC-MA-09–17 |
-| A-10 — Write and execute linked tests | Complete the test plan with app version, browser/launch method, isolated data, UI/API scope, priorities and completion conditions. Turn criteria into test cases, map reusable existing checks, then record actual results, evidence, defects and retests. Include both Python and Docker maintenance paths; keep unexecuted cases explicit. | [Test plan](test-plan.md); [Test cases](test-records.md#test-cases); [Execution results](test-records.md#execution-results) |
-| A-11 — Update the portfolio index | Complete — the index now records approved acceptance criteria version 1.0 for all 31 workflows and shared behavior. | [Documentation checklist](README.md) |
+| A-10 — Write and execute linked tests | Ten focused cases and their scope/data are drafted: TC-DA-01–04, TC-ST-01–02, TC-SY-01 and TC-SH-01–03, all Not run. Record run-specific environment and evidence when execution is selected. The broader suite, both maintenance paths, automation, defect reproduction and retests remain separate work. | [Test plan](test-plan.md); [Focused cases](test-records.md#focused-review-test-cases); [Execution results](test-records.md#execution-results) |
+| A-11 — Update the portfolio index | Complete — the index records the approved version 1.1 baseline separately from draft focused cases awaiting execution. | [Documentation checklist](README.md) |
 
 </details>
 
@@ -2258,6 +2384,7 @@ actions remain open; approval does not establish that the app meets the criteria
 | Version | Date | Changes |
 | --- | --- | --- |
 | 1.0 | 28 October 2026 | First reviewed baseline: the owner approved all workflow and shared acceptance criteria, including Q-CS-06–08 updates. Recovery design, implementation and verification work remains tracked as follow-ups. |
+| 1.1 approved | 28 October 2026 | The owner approved all 14 new or amended criteria and the shared recovery-applicability clarification. Added AC-SH-09–10 for all-session-form keyboard scope; strengthened import identity, actual-system behavior and all-tied-leader outcomes; clarified retained campaign identity in AC-CP-05. Incorporated the separate review's dispositions into existing criteria and actions. Q-ST-01 defines Favorite System as most played by session count; tied system leaders appear in the breakdown without an extra annual highlight. All 187 criteria are approved; ten linked draft test cases are Not run. |
 
 ---
 

@@ -1,6 +1,6 @@
 # Requirements and rules
 
-**Version:** 1.0 — reviewed baseline
+**Version:** 1.1 — reviewed baseline with agreed session-form and statistics clarifications
 
 ## Legend
 
@@ -19,6 +19,7 @@ session, item 01. Add new abbreviations to this table when first introduced.
 | GAP | Unresolved gap or open decision |
 | DEF | Defect record |
 | RET | Retest record |
+| TC | Test case |
 | SH | Shared workflow behavior |
 | CS | Campaign session |
 | OS | One-shot |
@@ -46,7 +47,7 @@ session, item 01. Add new abbreviations to this table when first introduced.
 | Product decisions | **All 37 agreed**, including Q-CS-06–08 recorded on 28 October 2026. My GM name remains excluded from current record exports; its planned inclusion is tracked as FU-DA-02. |
 | Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities. |
 | Main workflows | All 31 Main workflow tables reviewed and approved, including the planned WF-CP-06 and WF-QA-01 flows. |
-| Acceptance criteria | All workflow and shared criteria approved by the owner on 28 October 2026 as version 1.0, including updates reflecting Q-CS-06–08. |
+| Acceptance criteria | All 187 criteria are approved as version 1.1 on 28 October 2026, including all 14 new or amended criteria and the shared recovery-applicability clarification. Version 1.0 approval is preserved; implementation and verification remain separate. |
 | Open design work | Detailed recovery design remains open under GAP-CS-01 and FU-SH-02. Approval of the requirements does not close implementation or verification tasks. |
 | Implementation and evidence | An agreed decision is not proof of a working feature. Each workflow's source section distinguishes current code from planned behavior. |
 
@@ -94,7 +95,7 @@ and verification remain separate work.
 | ID | Agreed result |
 | --- | --- |
 | [Q-CS-06](#wf-cs-01-decisions) | Allow separate deliberate sessions for the same campaign and date; distinguish them from accidental retries. |
-| [Q-CS-07](#wf-cs-01-decisions) | Escape closes an open picker first. Block closing the session form while its save is pending. |
+| [Q-CS-07](#wf-cs-01-decisions) | In every session form, Escape closes an open picker first. Block closing the form while its save is pending. |
 | [Q-CS-08](#wf-cs-01-decisions) | API creation may omit GM/System and use campaign defaults; both remain required in the browser form. |
 
 </details>
@@ -150,7 +151,7 @@ and verification remain separate work.
 
 | ID | Agreed result |
 | --- | --- |
-| [Q-ST-01](#wf-st-01-decisions) | Identify tied leaders rather than implying a sole winner. |
+| [Q-ST-01](#wf-st-01-decisions) | Favorite System means most played by session count; show all tied system leaders in the breakdown and identify ties in existing highlights. |
 | [Q-ST-02](#wf-st-02-decisions) | Longest Break counts elapsed days between consecutive session dates within the year; exclude year boundaries and use zero for fewer than two sessions. |
 | [Q-ST-03](#wf-st-03-decisions) | Sessions matching My GM name count as Ran; the remaining attended games count as Played. |
 
@@ -250,6 +251,7 @@ in-app backup, restore or reset buttons exist.
 | FR-SH-03 | While a browser write is pending, repeating its action must not start another request for that operation. | Must | Create, edit, delete, archive, settings and import |
 | FR-SH-04 | A confirmed rejected write must explain the business or input reason and retain a usable form or action context; cancellation before submission must leave stored data unchanged. | Must | Browser write workflows |
 | FR-SH-05 | After a confirmed write, affected views must refresh before normal completion feedback. If refresh alone fails, explain that the write succeeded but the view is outdated. If the write response is lost, explain that its outcome is unknown. Neither case may trigger an automatic repeat write. Follow the agreed recovery principle Q-SH-01; creation-request identification still needs design. | Must | Browser write workflows; Q-SH-01; related gap GAP-CS-01 |
+| FR-SH-06 | Every session form must follow Q-CS-07. Before saving, Close must discard unsaved form changes without a write; Escape must close an open picker first and retain the form and values, or close the form without a write when no picker is open. While any part of that form's create/update save is pending, Close and Escape must not dismiss the form; Escape may close a picker while retaining the form and entered values. Existing stored records remain unchanged by cancellation. | Must | WF-CS-01–02, WF-OS-01, WF-SE-01, WF-HI-02 and any session form opened by planned WF-QA-01; includes inline new-campaign/system save stages |
 
 </details>
 
@@ -273,6 +275,7 @@ in-app backup, restore or reset buttons exist.
 | --- | --- |
 | Owner decisions and review recorded on 28 October 2026 | All 37 product decisions, Main workflow tables, business rules, functional requirements and recorded priorities are approved. |
 | [Frontend](../../ttrpg_tracker/app/frontend/app.js) and [backend](../../ttrpg_tracker/app/main.py) at `f7fa230` | Current implementation inspected on 28 October 2026. Symbol names in each workflow locate the relevant code. Source inspection is not runtime evidence. |
+| Acceptance-review retirement audit at `0a1dcf4`, 28 October 2026 | Rechecked import identity, actual-system counts/colors, statistics leaders and session-form cancellation against current source. Open implementation work stays in FU-ST-01, FU-SH-02 and FU-SH-07; execution stays in the test plan and test records. No application tests were run. |
 | [Project brief](project-brief.md) and [data guide](../data-and-backups.md) | Scope and operational procedures. Note any discrepancy with the agreed decisions or current source. |
 | [Build plan](../../ttrpg-plan.md) | Planned work and historical notes; older completion statements do not establish current feature availability. |
 | Linked automated checks and [test records](test-records.md) | Candidate coverage and previously recorded evidence. No application tests, restore or reset operations were executed for this documentation review. |
@@ -392,9 +395,9 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 | FR-CS-13 | A saved session must remain available with its recorded values after the owner reloads the app. | Must | Project brief; successful outcome |
 | FR-CS-14 | After a confirmed save and successful refresh, the app must close the form, update the calendar, session history and statistics, and show **Session saved**. Displayed records must respect the selected calendar month and active history filters. | Must | Workflow step 6 |
 | FR-CS-15 | If validation fails, the app must create no session, retain the form and entered values, explain the invalid or missing input, and allow correction and resubmission. | Must | Validation failure |
-| FR-CS-16 | Before saving starts, Close or Escape with no picker open must close the form and discard the unsaved session without changing stored data. When a picker is open, Escape must close the picker first and retain the form and entered values. | Must | Cancellation; Q-CS-07 |
+| FR-CS-16 | Before saving starts, Close must close the form and discard the unsaved session without changing stored data. Escape with no picker open must do the same; with a picker open, Escape must close only the picker and retain the form and entered values. | Must | Cancellation; Q-CS-07; FR-SH-06 |
 | FR-CS-17 | If the save is rejected before a session is created, the app must retain the form and entered values, show the error, and allow correction or retry after the pending request ends. | Must | Rejected save |
-| FR-CS-18 | While a session save is pending, repeated form submissions must not start additional session-save requests, and Close or Escape must not close the session form. Escape may close an open picker while retaining the form. | Must | Workflow step 4; Q-CS-07 |
+| FR-CS-18 | While a session save is pending, repeated form submissions must not start additional session-save requests, and Close or Escape must not close the session form. Escape may close an open picker while retaining the form and entered values. | Must | Workflow step 4; Q-CS-07; FR-SH-06 |
 | FR-CS-19 | A future-dated session must contribute to statistics for its recorded month and year even before its date, without a separate played/planned classification. | Must | Q-CS-03 |
 | FR-CS-25 | The app must allow separate deliberate submissions for the same campaign and date, including otherwise identical final values. A confirmed successful deliberate submission adds one session; pending submissions and uncertain outcomes remain subject to FR-CS-18 and Q-SH-01. | Must | Q-CS-06; BR-CS-13 |
 
@@ -411,7 +414,7 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 | Q-CS-02 | Archived campaigns remain selectable when adding a session and are labeled **(archived)**. | Agreed |
 | Q-CS-03 | Future-dated sessions are allowed and count in statistics for the selected period even before their date. There is no played/planned distinction. | Agreed |
 | Q-CS-06 | Allow separate deliberate sessions for the same campaign and date, including otherwise identical values. Distinguish them from accidental repeated submissions and retries after an unknown outcome. | Agreed |
-| Q-CS-07 | Escape closes an open picker first and retains the session form. While a session save is pending, block closing the form through Close or Escape. Before saving, Close or Escape with no picker open may discard the form. | Agreed |
+| Q-CS-07 | Applies to every session form: new campaign sessions, one-shots, campaign-plus-first-session entry, viewing/editing existing sessions, inline new-system entry and any session form opened by Quick Add when implemented. Escape closes an open picker first and retains the form and values. While any create/update save stage is pending, block form closing through Close or Escape; Escape may still close a picker. Before saving, Close discards unsaved changes; Escape does so when no picker is open. Viewing or cancelling never changes stored records. | Agreed; all-session-form scope confirmed by the owner on 28 October 2026 |
 | Q-CS-08 | API campaign-session creation may omit GM and/or System and use the selected campaign's corresponding defaults. The browser form must still require valid GM and System inputs. | Agreed |
 
 **Also applies:** [Q-SH-01](#shared-decisions).
@@ -522,7 +525,7 @@ Track recovery design as FU-SH-02 and the remaining actions in the document-wide
 | FR-OS-01 | The app must allow One-shot entry from Add session or a calendar date and initialize Date from that entry point. | Must | Step 1 |
 | FR-OS-02 | A one-shot must require a name and GM containing non-whitespace text, a valid calendar date and an existing system; Link and Notes must be optional. | Must | Step 2; FR-SH-02 |
 | FR-OS-03 | Saving must create one session with no campaign association and preserve its final values after reload. | Must | Step 3 |
-| FR-OS-04 | The one-shot must appear by its name in the applicable calendar, history and statistics period; cancellation or confirmed rejection must create no session. | Must | Step 4; FR-SH-04 |
+| FR-OS-04 | The one-shot must appear by its name in the applicable calendar, history and statistics period; cancellation or confirmed rejection must create no session. Session-form Close, Escape and pending-save behavior must follow FR-SH-06. | Must | Step 4; FR-SH-04, FR-SH-06; Q-CS-07 |
 
 </details>
 
@@ -694,7 +697,7 @@ Track recovery design as FU-SH-02 and the remaining actions in the document-wide
 | FR-QA-01 | Quick Add should provide an identifiable campaign shortcut that supplies the campaign's GM, system and optional link. | Should | Step 1; planned feature |
 | FR-QA-02 | When implemented, Add must require explicit confirmation of a valid date before saving; every shortcut must make its campaign and date behavior clear, including any separate Log today action. | Must | Steps 1–3; Q-QA-01 |
 | FR-QA-03 | The owner must be able to review and override session values without changing campaign defaults. Quick Add shortcuts must include only active campaigns, while the ordinary session form retains archived campaign selection. | Must | Step 2; Q-QA-02; Q-CS-02 |
-| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views; uncertain outcomes require reconciliation before retry. | Must | Steps 3–4; FR-SH-02–05 |
+| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views; uncertain outcomes require reconciliation before retry. Any opened session form must follow FR-SH-06 for Close, Escape and pending saves. | Must | Steps 3–4; FR-SH-02–06 |
 
 </details>
 
@@ -778,7 +781,7 @@ Track recovery design as FU-SH-02 and the remaining actions in the document-wide
 | FR-SE-01 | Opening Edit Session must load the recorded type, campaign or name, date, GM, system, link and notes without replacing them with current campaign defaults. | Must | Step 1 |
 | FR-SE-02 | Editing must allow moving between campaigns and converting between campaign session and one-shot; saving valid edits must retain the same session ID and create no additional session. | Must | Steps 2–3; Q-SE-01 |
 | FR-SE-03 | A campaign session must reference an existing campaign and store no separate title; a one-shot must have a name and no campaign association. Changing campaigns during editing must offer an explicit choice before applying the new campaign defaults. | Must | Q-SE-01–02 |
-| FR-SE-04 | Cancellation or confirmed rejection must retain the stored original; successful edits must refresh applicable calendar, history and statistics views. Campaign defaults must remain unchanged. | Must | Step 4; FR-SH-04 |
+| FR-SE-04 | Cancellation or confirmed rejection must retain the stored original; successful edits must refresh applicable calendar, history and statistics views. Campaign defaults must remain unchanged. Session-form Close, Escape and pending-save behavior must follow FR-SH-06. | Must | Step 4; FR-SH-04, FR-SH-06; Q-CS-07 |
 
 </details>
 
@@ -1032,7 +1035,7 @@ Track recovery design as FU-SH-02 and the remaining actions in the document-wide
 
 | ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
-| FR-CP-05 | Edit must load the selected campaign's saved values and update that campaign's ID rather than create a new record. | Must | Steps 1, 3 |
+| FR-CP-05 | Edit must load the selected campaign's saved values and update the existing campaign while retaining its ID rather than create a new record. | Must | Steps 1, 3; BR-CP-04 |
 | FR-CP-06 | Edited defaults must satisfy FR-CP-02, excluding the campaign itself from duplicate-name checking. | Must | Steps 2–3 |
 | FR-CP-07 | New session entry must use the saved defaults; existing session GM, system, link and notes must remain unchanged. Campaign name display follows Q-CP-02. | Must | Step 4; Q-CP-02 |
 | FR-CP-08 | Reset must leave the stored campaign unchanged, and a rejected save must retain edited values and explain the cause. | Must | FR-SH-04 |
@@ -1765,7 +1768,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- | --- |
 | FR-SY-13 | Edit must load and update the selected system's existing ID without creating another system. | Must | Steps 1–2 |
 | FR-SY-14 | Edited name and color must satisfy FR-SY-01–02, excluding the edited system itself from duplicate-name checks. | Must | Step 2 |
-| FR-SY-15 | Updated values must persist and affected labels, primary colors and derived shades must refresh while campaign and session system IDs remain unchanged. | Must | Step 3; Q-SY-04 |
+| FR-SY-15 | Updated values must persist and affected labels, primary colors and derived shades must refresh while campaign and session system IDs remain unchanged. A session's color must follow its recorded system even when the campaign defaults to another system; changing only that campaign-default system's primary color must not change which system supplies the session's color. | Must | Step 3; Q-SY-04; BR-SY-12 |
 | FR-SY-16 | Clear or confirmed rejection must leave the stored system intact; rejected edits must remain available for correction. | Must | FR-SH-04 |
 
 </details>
@@ -1796,7 +1799,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** Current source derives displayed names and colors from shared systems. Editing a system does not rewrite stored session-to-system or campaign-to-system IDs.
+**Source review:** Current source derives displayed names and colors from shared systems. `session_read` resolves the system from the session's own `system_id`; `sessionColor` derives the session shade from that system's color even when its campaign defaults to another system. `saveSystem` calls `refreshLists` after a confirmed update. Editing a system does not rewrite stored session-to-system or campaign-to-system IDs. Runtime color/count checks remain TC-ST-01 and TC-SY-01, Not run.
 
 </details>
 
@@ -1931,7 +1934,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- | --- |
 | FR-HI-05 | Calendar, agenda and history entry points must open the session identified by the selected record ID. | Must | Step 1 |
 | FR-HI-06 | The form must display recorded session values rather than replacing them with the campaign's current defaults. | Must | Step 2 |
-| FR-HI-07 | Closing an unsaved details form through Close or Escape must send no create, update or delete request. | Must | Step 3 |
+| FR-HI-07 | With no save pending, Close must close unsaved details without a create, update or delete request. Escape must do the same when no picker is open; with a picker open, it must close only the picker and retain the form and values. If viewing proceeds to editing and saving, Close and Escape must not dismiss the form while its save is pending, under FR-SH-06. | Must | Step 3; FR-SH-06; Q-CS-07 |
 | FR-HI-08 | A session that is no longer available must produce a clear unavailable-record message rather than open another session or fabricate details. | Must | Alternative outcome; FR-SH-01 |
 
 </details>
@@ -2165,7 +2168,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- |
 | BR-ST-01 | Every session counts once in its recorded month, including future dates, without a separate played/planned classification. History filters do not constrain monthly statistics. | [Q-CS-03](#wf-cs-01-decisions); renderMonthlyStats; [FR-ST-01–02](#wf-st-01-requirements) |
 | BR-ST-02 | Campaign totals group standalone sessions as One-shots; system totals use each session's actual system, not its campaign default. | renderMonthlyStats; groupedCountRows; [FR-ST-03](#wf-st-01-requirements) |
-| BR-ST-03 | Equal highest counts are ties and must not imply a sole favorite system or most-played group. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-04](#wf-st-01-requirements) |
+| BR-ST-03 | Favorite System means the system with the highest recorded session count in the selected period. Equal highest counts are ties: every tied system and its shared count must be identifiable in the system breakdown, and existing highlights must not imply a sole favorite system or most-played group. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-04](#wf-st-01-requirements) |
 
 </details>
 
@@ -2178,8 +2181,8 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- | --- |
 | FR-ST-01 | Monthly Stats must support selecting a month and year and clearly identify the selected period. | Must | Steps 1–2 |
 | FR-ST-02 | Each session dated in the selected month must count once, including future-dated sessions; calendar/history filters must not constrain these totals. | Must | Step 2; agreed Q-CS-03 |
-| FR-ST-03 | Monthly totals must agree with campaign and system breakdowns; standalone sessions must be grouped as One-shots in the campaign breakdown. | Must | Step 3 |
-| FR-ST-04 | A month with no sessions must show a clear empty state; tied most-played groups or favorite systems must be identified as ties rather than presented as a sole winner. | Must | Step 3; Q-ST-01 |
+| FR-ST-03 | Monthly totals must agree with campaign and system breakdowns; standalone sessions must be grouped as One-shots in the campaign breakdown. System breakdowns must use each session's recorded system even when it differs from the campaign's default. | Must | Step 3; BR-ST-02 |
+| FR-ST-04 | A month with no sessions must show a clear empty state; tied most-played groups or favorite systems must be identified as ties rather than presented as a sole winner. The system breakdown must display every system sharing the highest session count and that count; Favorite System is based on those counts. | Must | Step 3; Q-ST-01 |
 
 </details>
 
@@ -2190,7 +2193,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-ST-01 | Identify ties in favorite systems, most-played groups and busiest months rather than implying a sole winner. | Agreed |
+| Q-ST-01 | Favorite System means most played by recorded session count within the selected period. Show every system sharing the highest count with that count in the monthly and annual system breakdowns. Existing favorite-system, most-played-group and busiest-month highlights must identify all tied leaders rather than imply a sole winner. The annual system breakdown satisfies the system-leader scope; a separate annual Favorite System highlight is not required. Ties are derived from recorded session counts. | Agreed; meaning and breakdown scope clarified by the owner on 28 October 2026 |
 
 **Also applies:** [Q-CS-03](#wf-cs-01-decisions).
 
@@ -2208,7 +2211,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
 
-**Source review:** Current source counts monthly records and groups one-shots, but highlight tiles take the first sorted group and do not explain a tie.
+**Source review:** Current source counts monthly records and groups one-shots. System groups use `session.system_name`, supplied by `session_read` from the recorded system rather than the campaign default. Highlight tiles take the first sorted group and do not explain a tie; FU-ST-01 tracks the implementation and TC-ST-02 its planned verification.
 
 </details>
 
@@ -2248,7 +2251,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- |
 | BR-ST-04 | The annual total includes each session dated in that year once, including future dates, and equals the sum of its twelve monthly counts. | [Q-CS-03](#wf-cs-01-decisions); monthlyCountRows; [FR-ST-05–06](#wf-st-02-requirements) |
 | BR-ST-05 | Longest Break is elapsed calendar days between consecutive recorded dates within the selected year, excluding boundary gaps; fewer than two sessions gives zero. | [Q-ST-02](#wf-st-02-decisions); [FR-ST-07](#wf-st-02-requirements) |
-| BR-ST-06 | Busiest-month and most-played highlights identify all tied leaders rather than implying a sole winner. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-07–08](#wf-st-02-requirements) |
+| BR-ST-06 | Busiest-month and most-played highlights identify all tied leaders rather than implying a sole winner. The annual system breakdown displays every system sharing the highest session count and that count, identifying tied most-played systems under Q-ST-01. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-07–08](#wf-st-02-requirements) |
 
 </details>
 
@@ -2261,7 +2264,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- | --- |
 | FR-ST-05 | Year Review must offer the current year and years containing sessions, including future years with recorded sessions. | Must | Steps 1–2 |
 | FR-ST-06 | Annual totals must count each session dated in that year once and equal the sum of the twelve displayed monthly counts. | Must | Steps 2–3; Q-CS-03 |
-| FR-ST-07 | The review must provide campaign, system and GM breakdowns plus busiest-month, most-played and longest-break highlights; identify highlight ties and calculate Longest Break using Q-ST-01–02. | Must | Step 3; Q-ST-01–02 |
+| FR-ST-07 | The review must provide campaign, system and GM breakdowns plus busiest-month, most-played and longest-break highlights; identify every leader in tied count highlights and calculate Longest Break using Q-ST-01–02. The system breakdown must use each session's recorded system rather than its campaign's default and display every system sharing the highest count with that count. A separate annual Favorite System highlight is not required. | Must | Step 3; Q-ST-01–02; BR-ST-02, BR-ST-06 |
 | FR-ST-08 | An empty year must show an empty state and allow changing year or configuring My GM name without creating or changing session records. | Must | Step 3; WF-ST-03 |
 
 </details>
@@ -2291,7 +2294,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
 
-**Source review:** Current source computes annual/monthly counts and the agreed within-year gap. Highlight selection still chooses one leader without reporting ties.
+**Source review:** Current source computes annual/monthly counts and the agreed within-year gap. System groups use the session's recorded system. Highlight selection still chooses one leader without reporting ties; FU-ST-01 tracks the implementation and TC-ST-02 its planned verification. The current annual highlights are Busiest Month, Most Played and Longest Break. Systems have a breakdown of names and counts, consistent with the owner's clarified scope; runtime verification of tied system leaders remains Not run.
 
 </details>
 
@@ -2499,7 +2502,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
 | BR-DA-04 | Import adds records without overwriting existing values or tracker settings. External numeric IDs identify rows in the file, not destination database identities. | [Q-DA-02](#wf-da-02-decisions); plan_csv_import; [FR-DA-08–09](#wf-da-02-requirements) |
-| BR-DA-05 | Session duplicate handling compares date, normalized campaign/one-shot identity, GM and system plus occurrence counts, preserving deliberate multiplicity and existing notes/links. | [Q-DA-03](#wf-da-02-decisions); [FR-DA-09](#wf-da-02-requirements) |
+| BR-DA-05 | Session duplicate handling compares date, normalized campaign/one-shot identity, GM and system plus occurrence counts, preserving deliberate multiplicity and existing notes/links. Name comparisons trim surrounding whitespace, normalize equivalent character forms and ignore case; campaign and one-shot identities remain distinct even when their names match. This does not introduce aliases or fuzzy matching. | [Q-DA-03](#wf-da-02-decisions); import_name; [FR-DA-09](#wf-da-02-requirements) |
 | BR-DA-06 | Preview is read-only and applies only while its file and underlying record data remain unchanged. Any invalid row prevents application. | import_preview; import_revision; apply_csv_import; [FR-DA-05–07](#wf-da-02-requirements) |
 | BR-DA-07 | All additions commit together, and a successful automatic record backup precedes additions. Backup failure prevents writes; that JSON record backup is not a complete database backup. | save_import_backup; apply_csv_import; [Q-DA-01](#wf-da-01-decisions); [FR-DA-08](#wf-da-02-requirements) |
 
@@ -2516,7 +2519,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | FR-DA-06 | Preview must distinguish additions, existing records and duplicates and permit import only when no validation errors exist and at least one new record is present. | Must | Step 2 |
 | FR-DA-07 | If the file or underlying record data changes after preview, applying the stale preview must be blocked and a new preview required. | Must | Step 3 |
 | FR-DA-08 | Before additions, the app must save the automatic record backup; backup failure must prevent import. Import additions must commit together and preserve existing records and tracker settings. | Must | Steps 3–4; Q-DA-02 |
-| FR-DA-09 | Matching and duplicate handling must follow the agreed identity/multiplicity policy; success must show added counts and persist the records, while a failed apply must require another preview before retry. | Must | Step 4; Q-DA-03 |
+| FR-DA-09 | Matching and duplicate handling must follow BR-DA-04–05 and Q-DA-03: resolve file relationships to matched or newly created destination records rather than treating file numeric IDs as destination IDs, and compare normalized session identities with occurrence counts. Success must show added counts and persist the records, while a failed apply must require another preview before retry. | Must | Step 4; Q-DA-03; BR-DA-04–05 |
 
 The automatic JSON record backup is not a full database backup and does not
 include My GM name. It has no in-app restore action.
@@ -2550,7 +2553,7 @@ include My GM name. It has no in-app restore action.
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
 | Existing checks · not executed for this review | [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py); [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** Current backend validates and commits imports together. It also limits a file to 10,000 records and 5,000,000 encoded bytes; these implementation limits are not new product decisions.
+**Source review:** Current backend validates and commits imports together. `import_name` uses NFC normalization, surrounding-whitespace removal and case folding. `plan_csv_import` resolves file references to normalized names and compares session identities with occurrence counts; `apply_csv_import` resolves those names to destination IDs instead of reusing file IDs. Existing CSV-import tests cover collisions, case/whitespace matching, multiplicity and record-type distinction, but were not executed for this audit; canonical Unicode matching and the full UI cases still need verification. The backend also limits a file to 10,000 records and 5,000,000 encoded bytes; these implementation limits are not new product decisions.
 
 </details>
 
@@ -3076,7 +3079,10 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 
 - [x] **FU-SH-01 — Review acceptance criteria:** The owner approved all workflow
   and shared [acceptance criteria](acceptance-criteria.md) on 28 October 2026 as
-  version 1.0, including updates reflecting Q-CS-06–08. See A-01.
+  version 1.0, including updates reflecting Q-CS-06–08, and subsequently approved
+  all 14 new or amended version 1.1 criteria and the recovery-applicability
+  clarification. All 187 criteria are approved; A-01 is complete. Implementation,
+  test-case preparation and execution remain tracked separately.
 - [ ] **FU-SH-02 — Finish recovery design:** Apply [Q-SH-01](#shared-decisions) to
   [GAP-CS-01](#open-decision) and relevant write workflows. Define creation-request
   identification even when deliberate records look identical, messages, form
@@ -3084,6 +3090,17 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   failed rollback handling. Update requirements and acceptance criteria after
   agreement, then verify the behavior. A missing response does not establish
   whether a write succeeded. See A-02.
+- [ ] **FU-SH-07 — Implement and verify shared session-form keyboard behavior:**
+  Complete FR-SH-06 and Q-CS-07 across all session-form contexts. In current
+  [frontend source](../../ttrpg_tracker/app/frontend/app.js), `beginFormSave`
+  disables Close and the dialog's `cancel` handler blocks Escape while busy;
+  the GM input handles Escape for its suggestions. The date picker has no
+  equivalent Escape-first handling, and the dialog's non-busy `cancel` path
+  does not check for an open picker. Add picker-first cancellation while retaining
+  values and pending-save protection. Verify TC-SH-01–03 per matrix K in the
+  [test records](test-records.md#focused-review-test-cases). Keep unavailable
+  Quick Add contexts Not run. FU-CS-03 records the completed scope decision,
+  not completion of this implementation task. See A-04.
 
 </details>
 
@@ -3098,9 +3115,11 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   retries remain separate. The decision is complete; verification remains under
   FU-SH-04–05. See A-03.
 - [x] **FU-CS-03 — Clarify Escape and closing during save:** Recorded
-  [Q-CS-07](#wf-cs-01-decisions): Escape closes an open picker first; block form
-  closing while saving. FR-CS-16/18 and approved AC-CS-20/22 record the
-  result. Implementation verification remains under FU-SH-04–05. See A-04.
+  [Q-CS-07](#wf-cs-01-decisions): the owner confirmed applicability to every
+  session form on 28 October 2026. FR-SH-06 and FR-CS-16/18 record the rule;
+  approved version 1.1 AC-SH-09–10 and workflow references extend the criteria.
+  The decision and criterion review are complete; implementation and verification
+  remain under FU-SH-07. See A-04 and TC-SH-01–03 in the test records.
 - [x] **FU-CS-04 — Decide API defaults:** Recorded
   [Q-CS-08](#wf-cs-01-decisions): retain campaign GM/System defaults for omitted
   API inputs while requiring both in the browser. FR-CS-11 and approved
@@ -3198,10 +3217,18 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 <details>
 <summary><strong>Statistics · ST</strong></summary>
 
-- [ ] **FU-ST-01 — Display tied statistics highlights:** Implement and verify
+- [ ] **FU-ST-01 — Display tied statistics leaders:** Implement and verify
   all tied leaders under [Q-ST-01](#wf-st-01-decisions) in
   [WF-ST-01](#wf-st-01) and [WF-ST-02](#wf-st-02). Current highlight selection
-  chooses one leader without explaining ties.
+  chooses one leader without explaining ties: `renderMonthlyStats` uses the first
+  campaign/system row, and `renderYearReview` uses the first busiest-month and
+  campaign row. Identify every tied leader and its shared count; retain sole-leader
+  and empty-period behavior. Verify that monthly and annual system breakdowns
+  display every tied most-played system and its shared count. Favorite System
+  means most played by session count; no additional annual highlight is required.
+  Use TC-ST-02 in the
+  [test records](test-records.md#focused-review-test-cases); presentation remains
+  open under the agreed requirements.
 
 </details>
 
@@ -3271,15 +3298,17 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   [test cases](test-records.md#test-cases) for defaults, overrides, campaign
   switching, validation, cancellation and rejected-save retry; extend coverage
   to the other reviewed workflows and recovery/rollback branches. Map and reuse
-  existing automated checks where applicable. See A-10.
+  existing automated checks where applicable. Draft TC-DA-01–04, TC-ST-01–02,
+  TC-SY-01 and TC-SH-01–03 now cover the focused acceptance-review amendments;
+  they are Not run and do not complete the broader workflow suite. See A-10.
 - [ ] **FU-SH-05 — Record execution and retests:** Record
   [execution results](test-records.md#execution-results), evidence, findings,
   defects and retests against the selected app version. Keep unexecuted cases
   explicit; source review and linked checks are not new passed-test evidence.
   See A-10.
 - [x] **FU-SH-06 — Update the portfolio index:** The
-  [documentation checklist](README.md) now records approved acceptance criteria
-  version 1.0 for all 31 workflows and shared behavior. See A-11.
+  [documentation checklist](README.md) distinguishes approved acceptance criteria
+  version 1.1 from draft focused cases, Not run. See A-11.
 
 </details>
 
@@ -3289,6 +3318,7 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 | Version | Date | Changes |
 | --- | --- | --- |
 | 1.0 | 28 October 2026 | First reviewed baseline: all 31 Main workflow tables, business rules, functional requirements, priorities and 37 product decisions approved. Open design, implementation and verification work remains tracked as follow-ups. |
+| 1.1 | 28 October 2026 | Recorded the owner's all-session-form scope for Q-CS-07 as shared Must requirement FR-SH-06. Made existing import identity, actual-system and all-tied-leader rules explicit in linked requirements. Clarified Q-ST-01 with the owner: Favorite System means most played by session count; show every tied system leader and count in the breakdown, without requiring an extra annual highlight. The owner approved all version 1.1 acceptance amendments, completing the 187-criterion baseline. Ten focused test cases remain drafts, Not run; no application verification was performed. |
 
 ---
 

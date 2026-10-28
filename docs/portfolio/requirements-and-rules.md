@@ -1,5 +1,7 @@
 # Requirements and rules
 
+**Version:** 1.0 — reviewed baseline
+
 ## Legend
 
 IDs follow `type-area-number`: `FR-CS-01` means functional requirement, campaign
@@ -9,6 +11,7 @@ session, item 01. Add new abbreviations to this table when first introduced.
 | --- | --- |
 | ID | Identifier |
 | WF | Workflow |
+| FU | Follow-up action |
 | FR | Functional requirement |
 | BR | Business rule |
 | AC | Acceptance criterion |
@@ -40,15 +43,161 @@ session, item 01. Add new abbreviations to this table when first introduced.
 
 | Area | Current status |
 | --- | --- |
-| Product decisions | **All 34 agreed**, 28 October 2026. My GM name remains excluded from record exports for now. |
-| WF-CS-01 | Requirements and Must/Should priorities agreed; its existing business rules and acceptance criteria tentatively agreed. Detailed recovery remains open. |
-| Other workflows and shared sections | Business-rule wording, main flows, detailed requirements and priorities are **drafts for review**, derived from the agreed decisions and cited sources. |
+| Product decisions | **All 37 agreed**, including Q-CS-06–08 recorded on 28 October 2026. My GM name remains excluded from current record exports; its planned inclusion is tracked as FU-DA-02. |
+| Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities. |
+| Main workflows | All 31 Main workflow tables reviewed and approved, including the planned WF-CP-06 and WF-QA-01 flows. |
+| Acceptance criteria | WF-CS-01's existing criteria remain tentatively agreed; updated criteria and other workflow/shared criteria still need their own review. |
+| Open design work | Detailed recovery design remains open under GAP-CS-01 and FU-SH-02. Approval of the requirements does not close implementation or verification tasks. |
 | Implementation and evidence | An agreed decision is not proof of a working feature. Each workflow's source section distinguishes current code from planned behavior. |
 
-Review one workflow at a time: read its summary and main flow, then open its
-business rules and requirements. Use the agreed decisions and source links for
-context. Refer to IDs when commenting; existing IDs and agreed policy are
-preserved.
+Use each workflow's summary and main flow to navigate its business rules and
+requirements. Use the decisions and source links for context. Refer to IDs when
+commenting; existing IDs and policy are preserved.
+
+<a id="product-decisions"></a>
+
+<details>
+<summary><strong>Product decisions</strong></summary>
+
+This register summarizes the 37 recorded decisions. Each ID links to its full
+wording under the relevant workflow. All Main workflow tables, business rules
+and functional requirements have also been reviewed and approved; implementation
+and verification remain separate work.
+
+<details>
+<summary><strong>Campaign deletion</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-CP-04](#wf-cp-05-decisions) | Keep campaign deletion blocked while sessions reference it; no cascading session deletion. |
+| [Q-CP-05](#wf-cp-06-decisions) | Make Delete unavailable with a visible reason; offer Archive for active campaigns. |
+| [Q-CP-06](#wf-cp-06-decisions) | Keep rejection context visible, check unknown outcomes before another attempt, and archive only on explicit selection. |
+
+</details>
+
+<details>
+<summary><strong>Campaign-session creation</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-CS-01](#wf-cs-01-decisions) | Switching campaigns during creation replaces GM, System and Link without confirmation; retain Date and Notes. |
+| [Q-CS-02](#wf-cs-01-decisions) | Archived campaigns remain selectable in ordinary session entry and are labeled archived. |
+| [Q-CS-03](#wf-cs-01-decisions) | Future sessions count in their recorded period; no played/planned classification. |
+| [Q-CS-04](#wf-cs-02-decisions) | If the first session cannot be saved, roll back its newly created campaign, show a clear error and retain entered values. |
+| [Q-CS-05](#wf-cs-02-decisions) | Use an explicit default GM or fall back to session GM; initial session system and link become campaign defaults. |
+
+</details>
+
+<details>
+<summary><strong>Campaign-session entry and cancellation</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-CS-06](#wf-cs-01-decisions) | Allow separate deliberate sessions for the same campaign and date; distinguish them from accidental retries. |
+| [Q-CS-07](#wf-cs-01-decisions) | Escape closes an open picker first. Block closing the session form while its save is pending. |
+| [Q-CS-08](#wf-cs-01-decisions) | API creation may omit GM/System and use campaign defaults; both remain required in the browser form. |
+
+</details>
+
+<details>
+<summary><strong>One-shots and session changes</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-OS-01](#wf-os-01-decisions) | Allow deliberate repeated one-shot names or dates; distinguish them from accidental request retries. |
+| [Q-SE-01](#wf-se-01-decisions) | Moving or converting a session retains its ID. |
+| [Q-SE-02](#wf-se-01-decisions) | During editing, offer a choice before applying another campaign's defaults. |
+| [Q-SE-03](#wf-se-02-decisions) | Keep confirmed permanent deletion; Undo is outside the current scope. |
+
+</details>
+
+<details>
+<summary><strong>Campaign setup and status</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-CP-01](#wf-cp-01-decisions) | New campaigns default to active but may be created already archived. |
+| [Q-CP-02](#wf-cp-02-decisions) | Campaign renaming updates historical display names without rewriting recorded session values. |
+| [Q-CP-03](#wf-cp-03-decisions) | Archive and Unarchive need no confirmation because they are reversible; give clear feedback. |
+
+</details>
+
+<details>
+<summary><strong>Game systems</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-SY-01](#wf-sy-01-decisions) | Suggest distinct colors but allow intentional shared colors; names remain unique. |
+| [Q-SY-02](#wf-sy-02-decisions) | If the parent save fails, roll back only the newly created system and show a clear error; preserve existing records. |
+| [Q-SY-03](#wf-sy-02-decisions) | Explicitly offer an existing matching system without duplicating or recoloring it. |
+| [Q-SY-04](#wf-sy-04-decisions) | System name/color changes update linked historical displays while preserving associations. |
+
+</details>
+
+<details>
+<summary><strong>History</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-HI-01](#wf-hi-03-decisions) | Search names, GMs, systems and dates; exclude notes and links. |
+| [Q-HI-02](#wf-hi-03-decisions) | Keep history independent of the calendar month, using its own search and filters. |
+| [Q-HI-03](#wf-hi-04-decisions) | Use session ID as the stable secondary sort order for tied values. |
+
+</details>
+
+<details>
+<summary><strong>Statistics</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-ST-01](#wf-st-01-decisions) | Identify tied leaders rather than implying a sole winner. |
+| [Q-ST-02](#wf-st-02-decisions) | Longest Break counts elapsed days between consecutive session dates within the year; exclude year boundaries and use zero for fewer than two sessions. |
+| [Q-ST-03](#wf-st-03-decisions) | Sessions matching My GM name count as Ran; the remaining attended games count as Played. |
+
+</details>
+
+<details>
+<summary><strong>Import and export</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-DA-01](#wf-da-01-decisions) | Exclude My GM name from CSV/JSON record exports for now; full database backups retain it. |
+| [Q-DA-02](#wf-da-02-decisions) | Keep import add-only and preserve existing values; exact-state recovery uses a database restore. |
+| [Q-DA-03](#wf-da-02-decisions) | Compare identical-session occurrence counts to preserve deliberate multiplicity without repeatedly importing it; keep existing notes and links. |
+
+</details>
+
+<details>
+<summary><strong>Backups and maintenance</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-MA-01](#wf-ma-03-decisions) | Keep dated backups outside the project or active Docker storage; scheduling and retention automation remain separate work. |
+| [Q-MA-02](#wf-ma-04-decisions) | Verify same-version restore first; cross-version migration needs a separately verified procedure. |
+| [Q-MA-03](#wf-ma-05-decisions) | Keep reset manual for now; in-app reset or selective demo cleanup needs a separate design. |
+
+</details>
+
+<details>
+<summary><strong>Quick Add</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-QA-01](#wf-qa-01-decisions) | Prefill campaign defaults and require explicit date confirmation; clearly label any separate Log today behavior. |
+| [Q-QA-02](#wf-qa-01-decisions) | Show only active campaign shortcuts; keep archived campaigns selectable in ordinary session entry. |
+
+</details>
+
+<details>
+<summary><strong>Shared recovery</strong></summary>
+
+| ID | Agreed result |
+| --- | --- |
+| [Q-SH-01](#shared-decisions) | Refresh a confirmed write without repeating it; reconcile unknown outcomes before retry. Creation-request identification still needs design. |
+
+</details>
+
+</details>
 
 <a id="workflow-index"></a>
 
@@ -57,14 +206,13 @@ preserved.
 
 | Area | Workflow IDs |
 | --- | --- |
-| [Sessions](#area-sessions) | [WF-CS-01](#wf-cs-01) · [WF-OS-01](#wf-os-01) · [WF-CS-02](#wf-cs-02) · [WF-SE-01](#wf-se-01) · [WF-SE-02](#wf-se-02) |
-| [Campaigns](#area-campaigns) | [WF-CP-01](#wf-cp-01) · [WF-CP-02](#wf-cp-02) · [WF-CP-03](#wf-cp-03) · [WF-CP-04](#wf-cp-04) · [WF-CP-05](#wf-cp-05) |
+| [Sessions](#area-sessions) | [WF-CS-01](#wf-cs-01) · [WF-OS-01](#wf-os-01) · [WF-CS-02](#wf-cs-02) · [WF-QA-01](#wf-qa-01) · [WF-SE-01](#wf-se-01) · [WF-SE-02](#wf-se-02) |
+| [Campaigns](#area-campaigns) | [WF-CP-01](#wf-cp-01) · [WF-CP-02](#wf-cp-02) · [WF-CP-03](#wf-cp-03) · [WF-CP-04](#wf-cp-04) · [WF-CP-05](#wf-cp-05) · [WF-CP-06](#wf-cp-06) |
 | [Game systems](#area-systems) | [WF-SY-01](#wf-sy-01) · [WF-SY-02](#wf-sy-02) · [WF-SY-03](#wf-sy-03) · [WF-SY-04](#wf-sy-04) |
 | [Calendar and session history](#area-history) | [WF-HI-01](#wf-hi-01) · [WF-HI-02](#wf-hi-02) · [WF-HI-03](#wf-hi-03) · [WF-HI-04](#wf-hi-04) |
 | [Statistics](#area-statistics) | [WF-ST-01](#wf-st-01) · [WF-ST-02](#wf-st-02) · [WF-ST-03](#wf-st-03) |
 | [Import and export](#area-transfer) | [WF-DA-01](#wf-da-01) · [WF-DA-02](#wf-da-02) · [WF-DA-03](#wf-da-03) |
 | [Setup and maintenance outside the app UI](#area-maintenance) | [WF-MA-01](#wf-ma-01) · [WF-MA-02](#wf-ma-02) · [WF-MA-03](#wf-ma-03) · [WF-MA-04](#wf-ma-04) · [WF-MA-05](#wf-ma-05) |
-| [Planned workflows and improvements](#area-planned) | [WF-QA-01](#wf-qa-01) · [WF-CP-06](#wf-cp-06) |
 
 </details>
 
@@ -80,7 +228,7 @@ in-app backup, restore or reset buttons exist.
 <a id="shared-rules"></a>
 
 <details>
-<summary><strong>Shared business rules · draft</strong></summary>
+<summary><strong>Shared business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -93,9 +241,9 @@ in-app backup, restore or reset buttons exist.
 <a id="shared-requirements"></a>
 
 <details>
-<summary><strong>Shared functional requirements · draft</strong></summary>
+<summary><strong>Shared functional requirements</strong></summary>
 
-| ID | Draft functional requirement | Priority | Applies to |
+| ID | Functional requirement | Priority | Applies to |
 | --- | --- | --- | --- |
 | FR-SH-01 | Browsing, opening details, filtering, sorting, statistics and exports must leave stored records unchanged; saving My GM name is a separate write. | Must | Read-only workflows |
 | FR-SH-02 | Before a form write, the app must validate required text, dates, existing references and supplied HTTP/HTTPS links as applicable; validation failures must explain the input and retain entered values. | Must | Session, campaign and system forms |
@@ -123,7 +271,7 @@ in-app backup, restore or reset buttons exist.
 
 | Source | Use in this document |
 | --- | --- |
-| Owner decisions recorded on 28 October 2026 | Intended product policy. All 34 decision IDs remain agreed. |
+| Owner decisions and review recorded on 28 October 2026 | All 37 product decisions, Main workflow tables, business rules, functional requirements and recorded priorities are approved. |
 | [Frontend](../../ttrpg_tracker/app/frontend/app.js) and [backend](../../ttrpg_tracker/app/main.py) at `f7fa230` | Current implementation inspected on 28 October 2026. Symbol names in each workflow locate the relevant code. Source inspection is not runtime evidence. |
 | [Project brief](project-brief.md) and [data guide](../data-and-backups.md) | Scope and operational procedures. Note any discrepancy with the agreed decisions or current source. |
 | [Build plan](../../ttrpg-plan.md) | Planned work and historical notes; older completion statements do not establish current feature availability. |
@@ -131,7 +279,9 @@ in-app backup, restore or reset buttons exist.
 
 **Must:** Required for the documented outcome or data integrity.
 **Should:** A usability or presentation improvement that may be deferred.
-Outside WF-CS-01 these priorities and detailed requirement wording remain drafts.
+The business rules, functional requirements and recorded priorities have been
+reviewed and approved. Open design, implementation and verification work remains
+in the follow-up section.
 
 IDs keep their existing meaning and are not renumbered during restructuring.
 New abbreviations belong in the legend. Numbers are unique within each area;
@@ -145,27 +295,8 @@ recovery design still need work under [GAP-CS-01](#open-decision).
 
 </details>
 
-<a id="review-findings"></a>
-
-<details>
-<summary><strong>Review findings and remaining work</strong></summary>
-
-The following differences were found by reading source and documentation.
-They are follow-up work, not new product decisions or test results.
-
-| Area | Finding and next work |
-| --- | --- |
-| Related-record creation | [WF-CS-02](#wf-cs-02), [WF-SY-02](#wf-sy-02) and [WF-SY-03](#wf-sy-03) use separate current requests. Implement the agreed rollback and clear errors; verify that only records created by the attempt are removed. |
-| Session editing and system reuse | [Q-SE-02](#wf-se-01-decisions) requires a choice before applying another campaign's defaults. Current editing applies them immediately. New-system reuse also needs the explicit choice agreed in [Q-SY-03](#wf-sy-02-decisions). |
-| History and statistics | Add the agreed session-ID tie ordering and visible tied highlights. Current sorting has no ID fallback; current highlights choose one leader. See [WF-HI-04](#wf-hi-04), [WF-ST-01](#wf-st-01) and [WF-ST-02](#wf-st-02). |
-| Quick Add | [WF-QA-01](#wf-qa-01) is planned and absent from the current interface. Older build-plan completion notes are historical. |
-| Recovery and deletion | The shared principle and deletion policy are agreed. Request identification, precise form state and recovery behavior still need design. [DEF-002](test-records.md#def-002-campaign-delete-feedback) remains reported, not reproduced or fixed by this review. |
-| Backup and export documentation | The data guide assumes default storage and uses the ambiguous word “settings” for CSV. The current export includes campaign defaults but excludes My GM name. Custom-path guidance, compatibility checks and restore verification need refinement. |
-
-New business rules are draft wording derived from existing policy and sources.
-No new approval, implementation or test result is implied by adding them.
-
-</details>
+Review findings and remaining actions are collected in
+[Workflow follow-up and planned improvements](#workflow-follow-up) at the bottom of this document.
 
 <a id="area-sessions"></a>
 
@@ -209,7 +340,7 @@ If no campaign exists, create one through the separate campaign workflow first.
 <a id="wf-cs-01-rules"></a>
 
 <details>
-<summary><strong>Business rules · tentatively agreed</strong></summary>
+<summary><strong>Business rules</strong></summary>
 
 | ID | Rule | Linked requirements |
 | --- | --- | --- |
@@ -222,13 +353,14 @@ If no campaign exists, create one through the separate campaign workflow first.
 | BR-CS-07 | Notes are optional and may be entered, changed or cleared for this session. | FR-CS-07, FR-CS-11 |
 | BR-CS-08 | A successful creation adds one session with its final values. It does not change campaign defaults or existing sessions, and the new record persists after reload. | FR-CS-12, FR-CS-13 |
 | BR-CS-09 | A session contributes to statistics for its recorded month and year. Future dates do not exclude it from those totals; there is no separate played/planned classification. | FR-CS-19 |
+| BR-CS-13 | Separate deliberate sessions may share the same campaign and date, including otherwise identical values. Accidental repeated submissions and uncertain-outcome retries are handled separately. | Q-CS-06; FR-CS-25; FR-CS-18; Q-SH-01 |
 
 </details>
 
 <a id="wf-cs-01-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · agreed</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
 <a id="functional-requirements"></a>
 
@@ -255,15 +387,16 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 
 | ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
-| FR-CS-11 | Before creating a session, the app must validate that Campaign and System reference existing records, GM contains non-whitespace text, and any supplied Link is a complete HTTP or HTTPS address. Link and Notes must remain optional. | Must | Workflow step 4; BR-CS-02, BR-CS-06, BR-CS-07 |
+| FR-CS-11 | Before creating a session, the app must validate that Campaign and the effective System reference existing records, the effective GM contains non-whitespace text, and any supplied Link is a complete HTTP or HTTPS address. The browser form must require GM and System inputs; API creation may omit either or both and use the selected campaign's corresponding defaults. Link and Notes remain optional. | Must | Workflow step 4; BR-CS-02, BR-CS-06, BR-CS-07; Q-CS-08 |
 | FR-CS-12 | A successful save must create one new session linked to the selected campaign using the final entered values, without changing the campaign's defaults or existing sessions. | Must | Workflow step 5 |
 | FR-CS-13 | A saved session must remain available with its recorded values after the owner reloads the app. | Must | Project brief; successful outcome |
 | FR-CS-14 | After a confirmed save and successful refresh, the app must close the form, update the calendar, session history and statistics, and show **Session saved**. Displayed records must respect the selected calendar month and active history filters. | Must | Workflow step 6 |
 | FR-CS-15 | If validation fails, the app must create no session, retain the form and entered values, explain the invalid or missing input, and allow correction and resubmission. | Must | Validation failure |
-| FR-CS-16 | Before saving starts, the owner must be able to close the form through its Close control or Escape, discarding the unsaved session without changing stored data. | Must | Cancellation |
+| FR-CS-16 | Before saving starts, Close or Escape with no picker open must close the form and discard the unsaved session without changing stored data. When a picker is open, Escape must close the picker first and retain the form and entered values. | Must | Cancellation; Q-CS-07 |
 | FR-CS-17 | If the save is rejected before a session is created, the app must retain the form and entered values, show the error, and allow correction or retry after the pending request ends. | Must | Rejected save |
-| FR-CS-18 | While a session save is pending, repeated submissions from the form must not start additional session-save requests. | Must | Workflow step 4 |
+| FR-CS-18 | While a session save is pending, repeated form submissions must not start additional session-save requests, and Close or Escape must not close the session form. Escape may close an open picker while retaining the form. | Must | Workflow step 4; Q-CS-07 |
 | FR-CS-19 | A future-dated session must contribute to statistics for its recorded month and year even before its date, without a separate played/planned classification. | Must | Q-CS-03 |
+| FR-CS-25 | The app must allow separate deliberate submissions for the same campaign and date, including otherwise identical final values. A confirmed successful deliberate submission adds one session; pending submissions and uncertain outcomes remain subject to FR-CS-18 and Q-SH-01. | Must | Q-CS-06; BR-CS-13 |
 
 </details>
 
@@ -272,11 +405,14 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 <details>
 <summary><strong>Agreed product decisions</strong></summary>
 
-| ID | Decision |
-| --- | --- |
-| Q-CS-01 | Selecting another campaign replaces GM, System and Link with that campaign's defaults, including edited values, without confirmation. Date and Notes are retained. |
-| Q-CS-02 | Archived campaigns remain selectable when adding a session and are labeled **(archived)**. |
-| Q-CS-03 | Future-dated sessions are allowed and count in statistics for the selected period even before their date. There is no played/planned distinction. |
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-CS-01 | Selecting another campaign replaces GM, System and Link with that campaign's defaults, including edited values, without confirmation. Date and Notes are retained. | Agreed |
+| Q-CS-02 | Archived campaigns remain selectable when adding a session and are labeled **(archived)**. | Agreed |
+| Q-CS-03 | Future-dated sessions are allowed and count in statistics for the selected period even before their date. There is no played/planned distinction. | Agreed |
+| Q-CS-06 | Allow separate deliberate sessions for the same campaign and date, including otherwise identical values. Distinguish them from accidental repeated submissions and retries after an unknown outcome. | Agreed |
+| Q-CS-07 | Escape closes an open picker first and retains the session form. While a session save is pending, block closing the form through Close or Escape. Before saving, Close or Escape with no picker open may discard the form. | Agreed |
+| Q-CS-08 | API campaign-session creation may omit GM and/or System and use the selected campaign's corresponding defaults. The browser form must still require valid GM and System inputs. | Agreed |
 
 **Also applies:** [Q-SH-01](#shared-decisions).
 
@@ -289,7 +425,7 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 
 | Source type | Source and what to inspect |
 | --- | --- |
-| Agreed policy | [Q-CS-01](#wf-cs-01-decisions); [Q-CS-02](#wf-cs-01-decisions); [Q-CS-03](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
+| Agreed policy | [Q-CS-01–03 and Q-CS-06–08](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
 | Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `applyCampaignDefaults`, `saveSession`, `beginFormSave`, `refreshLists`. |
 | Current backend | [main.py](../../ttrpg_tracker/app/main.py): `SessionCreate`, `build_session`, `create_session`. |
 | Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Acceptance criteria](acceptance-criteria.md); [Process models](models.md). |
@@ -316,7 +452,7 @@ share an error path. These source reviews are separate from test execution.
 <a id="wf-cs-01-follow-up"></a>
 
 <details>
-<summary><strong>Recovery design and follow-up</strong></summary>
+<summary><strong>Recovery design details</strong></summary>
 
 <a id="open-decision"></a>
 
@@ -327,38 +463,11 @@ workflow-specific messages still need design and verification. A missing
 response does not establish whether a session exists.
 
 FR-CS-17 covers a confirmed rejected save; FR-CS-18 covers repeated submission
-while a request is pending. Neither resolves this gap. Future-session statistics
+and form closing while a request is pending. Neither resolves this gap. Future-session statistics
 are included only for Q-CS-03; broader statistics coverage is outside this workflow.
 
-<a id="campaign-session-follow-up"></a>
-
-<details>
-<summary><strong>Workflow follow-up</strong></summary>
-
-Review actions recorded on 28 October 2026. Check an item when its decision or
-evidence has been recorded in the linked document. Suggestions remain open until
-agreed; existing requirements and priorities are unchanged.
-
-- [x] Add a draft [UML activity diagram](models.md#wf-cs-01-activity-diagram).
-- [ ] Apply the agreed Q-SH-01 principle to GAP-CS-01: define creation-request
-  identification, messages, form state and safe reconciliation before retry,
-  then update the requirements and acceptance criteria.
-- [ ] Decide whether separate sessions for the same campaign and date are allowed.
-  Recommendation: allow deliberate entries; distinguish them from accidental retries.
-- [ ] Clarify Escape when a picker is open and whether closing is blocked while
-  saving. Update FR-CS-16, FR-CS-18 and AC-CS-20/22 as needed after agreement.
-- [ ] Decide whether to retain API fallback to campaign GM/System defaults when
-  those values are omitted, and distinguish this from required form inputs.
-  Clarify FR-CS-11 and the related criteria after agreement.
-- [ ] Complete the [test plan](test-plan.md): version, browser, isolated dataset,
-  UI/API scope, priorities and completion conditions.
-- [ ] Write linked [test cases](test-records.md#test-cases) for defaults, overrides,
-  campaign switching, validation, cancellation and rejected-save retry. Map and
-  reuse existing automated checks where applicable.
-- [ ] Record [execution results](test-records.md#execution-results), evidence,
-  findings and retests against the selected app version.
-
-</details>
+Track recovery design as FU-SH-02 and the remaining actions in the document-wide
+[Workflow follow-up and planned improvements](#workflow-follow-up).
 
 </details>
 
@@ -393,9 +502,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-os-01-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -408,9 +515,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-os-01-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-OS-01 | The app must allow One-shot entry from Add session or a calendar date and initialize Date from that entry point. | Must | Step 1 |
 | FR-OS-02 | A one-shot must require a name and GM containing non-whitespace text, a valid calendar date and an existing system; Link and Notes must be optional. | Must | Step 2; FR-SH-02 |
@@ -480,9 +587,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cs-02-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -495,9 +600,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cs-02-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CS-20 | The session form must offer New campaign without requiring navigation to Manage. | Must | Step 1 |
 | FR-CS-21 | The app must derive the effective default GM under Q-CS-05 and validate that it is nonblank, the campaign name is not already in use, the system exists, any link is valid and the session inputs are valid before starting creation. | Must | Step 2; Q-CS-05 |
@@ -540,6 +645,90 @@ agreed; existing requirements and priorities are unchanged.
 
 </details>
 
+<a id="wf-qa-01"></a>
+
+<details>
+<summary><strong>WF-QA-01: Record a campaign session through Quick Add (planned)</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Record a campaign session with fewer repeated selections. |
+| **Scope** | Planned shortcut for active campaigns that supplies campaign defaults and requires explicit date confirmation. The owner can review session details; any separate Log today action must clearly name its date behavior. |
+| **Preconditions** | A campaign and its default system exist. The Quick Add entry point must be implemented before this workflow can be used in the current app. |
+| **Successful outcome** | Intended result: one session is saved for the chosen campaign using its defaults and any reviewed changes, without changing the campaign defaults. Detailed interaction design and implementation remain planned. |
+
+<a id="wf-qa-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | Planned app response |
+| --- | --- | --- |
+| 1 | Choose an active campaign's Add shortcut. | Identify its campaign and fill the session defaults. |
+| 2 | Explicitly confirm the date and review session overrides. | Show the chosen values without editing the campaign defaults. |
+| 3 | Choose Save. | Validate and save one session linked to that campaign. |
+| 4 | Continue after confirmation. | Refresh affected views and show session completion. |
+
+</details>
+
+<a id="wf-qa-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-QA-01 | Quick Add shortcuts contain active campaigns only; archived campaigns remain available in the ordinary session form. | [Q-QA-02](#wf-qa-01-decisions); [Q-CS-02](#wf-cs-01-decisions); [FR-QA-01](#wf-qa-01-requirements); [FR-QA-03](#wf-qa-01-requirements) |
+| BR-QA-02 | Add supplies campaign defaults but requires explicit confirmation of a valid date. Any separate Log today shortcut must clearly identify that behavior. | [Q-QA-01](#wf-qa-01-decisions); [FR-QA-02](#wf-qa-01-requirements) |
+| BR-QA-03 | Quick Add records a session using reviewed values without changing campaign defaults; it follows the same duplicate-request and uncertain-outcome policy as other new writes. | [Q-SH-01](#shared-decisions); [BR-CS-04](#wf-cs-01-rules); [FR-QA-03–04](#wf-qa-01-requirements) |
+
+</details>
+
+<a id="wf-qa-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-QA-01 | Quick Add should provide an identifiable campaign shortcut that supplies the campaign's GM, system and optional link. | Should | Step 1; planned feature |
+| FR-QA-02 | When implemented, Add must require explicit confirmation of a valid date before saving; every shortcut must make its campaign and date behavior clear, including any separate Log today action. | Must | Steps 1–3; Q-QA-01 |
+| FR-QA-03 | The owner must be able to review and override session values without changing campaign defaults. Quick Add shortcuts must include only active campaigns, while the ordinary session form retains archived campaign selection. | Must | Step 2; Q-QA-02; Q-CS-02 |
+| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views; uncertain outcomes require reconciliation before retry. | Must | Steps 3–4; FR-SH-02–05 |
+
+</details>
+
+<a id="wf-qa-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-QA-01 | Provide an Add shortcut that prefills campaign defaults and requires explicit date confirmation. Any separate Log today action must clearly state its date behavior. | Agreed |
+| Q-QA-02 | Show only active campaigns among Quick Add shortcuts. Archived campaigns remain selectable in the ordinary session form under Q-CS-02. | Agreed |
+
+**Also applies:** [Q-CS-02](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions).
+
+</details>
+
+<a id="wf-qa-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-QA-01](#wf-qa-01-decisions); [Q-QA-02](#wf-qa-01-decisions); [Q-CS-02](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `applyCampaignDefaults`, `saveSession`. |
+| Supporting documents | [Build plan](../../ttrpg-plan.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+
+**Source review:** Quick Add is not present in the current interface. The named frontend functions are reusable baseline behavior, not proof that a shortcut or explicit date-confirmation flow exists. Older completed build-plan notes are historical, not evidence of current availability.
+
+</details>
+
+</details>
+
 <a id="wf-se-01"></a>
 
 <details>
@@ -569,9 +758,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-se-01-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -584,9 +771,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-se-01-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-SE-01 | Opening Edit Session must load the recorded type, campaign or name, date, GM, system, link and notes without replacing them with current campaign defaults. | Must | Step 1 |
 | FR-SE-02 | Editing must allow moving between campaigns and converting between campaign session and one-shot; saving valid edits must retain the same session ID and create no additional session. | Must | Steps 2–3; Q-SE-01 |
@@ -656,9 +843,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-se-02-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -671,9 +856,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-se-02-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-SE-05 | Delete must identify the target session by name and date and require confirmation before sending a deletion request. | Must | Step 1 |
 | FR-SE-06 | Confirmation must delete only the selected session; its campaign, system and other sessions must remain unchanged. | Must | Step 2 |
@@ -708,7 +893,7 @@ agreed; existing requirements and priorities are unchanged.
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** Current confirmation closes before the request result. The draft pending-context and uncertain-outcome behavior requires verification and may require changes.
+**Source review:** Current confirmation closes before the request result. The required pending-context and uncertain-outcome behavior still needs verification and may require implementation changes.
 
 </details>
 
@@ -747,9 +932,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-01-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -762,9 +945,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-01-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-01 | Manage must allow creation with name, default GM, existing system, optional default link and active/archived status. | Must | Steps 1–2; Q-CP-01 |
 | FR-CP-02 | Name and default GM must contain non-whitespace text; the system must exist, any link must be valid HTTP/HTTPS, and campaign names must be unique after trimming, character normalization and case-insensitive comparison. | Must | Step 3; current backend validation |
@@ -832,9 +1015,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-02-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -847,9 +1028,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-02-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-05 | Edit must load the selected campaign's saved values and update that campaign's ID rather than create a new record. | Must | Steps 1, 3 |
 | FR-CP-06 | Edited defaults must satisfy FR-CP-02, excluding the campaign itself from duplicate-name checking. | Must | Steps 2–3 |
@@ -916,9 +1097,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-03-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -931,9 +1110,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-03-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-09 | An active campaign must offer Archive and change only the selected campaign's archive status. | Must | Steps 1–2 |
 | FR-CP-10 | Archiving must retain campaign details, defaults and all linked sessions, including their contributions to calendar, history and statistics. | Must | Step 2 |
@@ -1002,9 +1181,7 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-04-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -1017,9 +1194,9 @@ agreed; existing requirements and priorities are unchanged.
 <a id="wf-cp-04-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-13 | An archived campaign must offer Unarchive and update the same campaign to active status. | Must | Steps 1–2; Q-CP-03 |
 | FR-CP-14 | Reactivation must preserve the campaign's defaults and all recorded session values. | Must | Step 2 |
@@ -1080,7 +1257,7 @@ agreed; existing requirements and priorities are unchanged.
 | 3 | Continue after confirmed deletion. | Refresh campaign choices and show Campaign deleted. |
 
 **Alternative path:** If sessions exist, preserve the campaign and its sessions
-and explain the restriction. The improved presentation is proposed in
+and explain the restriction. The planned improvement is defined in
 [WF-CP-06](#wf-cp-06-improve-blocked-campaign-deletion); see reported
 [DEF-002](test-records.md#def-002-campaign-delete-feedback).
 
@@ -1089,9 +1266,7 @@ and explain the restriction. The improved presentation is proposed in
 <a id="wf-cp-05-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -1104,15 +1279,15 @@ and explain the restriction. The improved presentation is proposed in
 <a id="wf-cp-05-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-17 | Deleting an empty campaign must require confirmation identifying that campaign; Cancel must send no deletion request. | Must | Steps 1–2 |
 | FR-CP-18 | The server must reject deletion whenever sessions reference the campaign, even when the browser's data is stale; the rejection must preserve the campaign and sessions. | Must | Step 2; Q-CP-04 |
 | FR-CP-19 | Successful deletion must remove only the selected empty campaign and leave systems, other campaigns and all sessions unchanged. | Must | Steps 2–3 |
 | FR-CP-20 | Confirmed deletion must persist after reload and refresh campaign choices without showing an unavailable campaign as selectable. | Must | Step 3 |
-| FR-CP-21 | A confirmed linked-session rejection must explain that the campaign cannot be deleted while it has sessions and direct the owner to Archive; it must not be presented as a connectivity error. | Must | Alternative path; DEF-002; proposed WF-CP-06 |
+| FR-CP-21 | A confirmed linked-session rejection must explain that the campaign cannot be deleted while it has sessions and direct the owner to Archive; it must not be presented as a connectivity error. | Must | Alternative path; DEF-002; planned WF-CP-06 |
 
 </details>
 
@@ -1148,1714 +1323,6 @@ and explain the restriction. The improved presentation is proposed in
 
 </details>
 
-<a id="area-systems"></a>
-
-## Game systems
-
-<a id="wf-sy-01"></a>
-
-<details>
-<summary><strong>WF-SY-01: Add a game system in Manage</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Make a game system available for campaigns and sessions. |
-| **Scope** | Create a system in Manage with a name and primary color. Creating a campaign or session is outside this workflow. |
-| **Preconditions** | The app is available and the proposed system name is not already in use. |
-| **Successful outcome** | One system is saved with its name and color, remains available after reload, and appears among system choices. |
-
-<a id="wf-sy-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Manage → Systems with a new-system form. | Show a blank name and a suggested primary color. |
-| 2 | Enter the name and review or change the color. | Retain both values for review. |
-| 3 | Choose Save System. | Validate and save one system. |
-| 4 | Continue after confirmation. | Refresh system choices, clear the form and show System saved. |
-
-</details>
-
-<a id="wf-sy-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-SY-01 | A game system has a nonblank, normalized unique name and a primary color expressed as six hexadecimal digits. | SystemCreate; ensure_unique_name; hex_color; [FR-SY-01–02](#wf-sy-01-requirements) |
-| BR-SY-02 | Different systems may intentionally share a primary color; uniqueness applies to names, not colors. | [Q-SY-01](#wf-sy-01-decisions); [FR-SY-01–02](#wf-sy-01-requirements) |
-| BR-SY-03 | Creating a reusable system does not create a campaign or session. Campaign and session shades derive from their associated systems. | create_system; sessionColor; campaignColor; [FR-SY-03](#wf-sy-01-requirements) |
-
-</details>
-
-<a id="wf-sy-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-SY-01 | Manage must allow creating a system with a nonblank name and valid six-digit hexadecimal primary color. | Must | Steps 1–3; backend validation |
-| FR-SY-02 | System names must be unique after trimming, character normalization and case-insensitive comparison across all creation entry points. | Must | Step 3; backend validation |
-| FR-SY-03 | Successful creation must persist one system and make it selectable for campaigns and sessions without creating either record. | Must | Steps 3–4 |
-| FR-SY-04 | Clear must discard unsaved form values without a write, and a rejected save must retain entered values for correction. | Must | Step 4; FR-SH-04 |
-
-</details>
-
-<a id="wf-sy-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-SY-01 | Suggest distinct system colors where possible, but allow intentionally shared colors. System names remain unique. | Agreed |
-
-</details>
-
-<a id="wf-sy-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-SY-01](#wf-sy-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `saveSystem`, `suggestSystemColor`, `renderSystems`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `SystemCreate`, `create_system`, `ensure_unique_name`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current source validates names and color syntax and suggests colors. The business policy permits an explicitly chosen shared color.
-
-</details>
-
-</details>
-
-<a id="wf-sy-02"></a>
-
-<details>
-<summary><strong>WF-SY-02: Add a game system from the session form</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Record a session using a system that is not yet in the tracker. |
-| **Scope** | Enter a new system name and primary color within the session form and use that system when saving the session. Session creation or editing is covered by its parent workflow. |
-| **Preconditions** | A session form is open, the other required session details are available, and the proposed system name is not already in use. |
-| **Successful outcome** | The new system is saved, the successfully saved session references it, and the system is available for later campaigns and sessions. |
-
-<a id="wf-sy-02-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Choose the new-system option while completing a session. | Show a system name and suggested primary color within the form. |
-| 2 | Enter the new system and complete the session. | Validate the system and parent session inputs. |
-| 3 | Save the session. | Save the system and its parent session; if the parent cannot be saved, roll back only the newly created system and clearly explain the failure. |
-| 4 | Continue after confirmation. | Show the saved session and make the system available for reuse. |
-
-</details>
-
-<a id="wf-sy-02-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-SY-04 | A proposed system whose normalized name already exists must be explicitly offered for reuse without creating a duplicate or changing its color. | [Q-SY-03](#wf-sy-02-decisions); [FR-SY-06–07](#wf-sy-02-requirements) |
-| BR-SY-05 | A failed parent-session save must not leave a system created only for that attempt behind; existing systems and previously stored parent values are protected. | [Q-SY-02](#wf-sy-02-decisions); [FR-SY-08](#wf-sy-02-requirements) |
-| BR-SY-06 | The successfully saved session references one reusable system by ID. Unknown outcomes are reconciled before retry or a claim that rollback succeeded. | [Q-SY-02](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions); [FR-SY-07–08](#wf-sy-02-requirements) |
-
-</details>
-
-<a id="wf-sy-02-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-SY-05 | The session form must expose new-system name and color fields only when the new-system option is selected. | Must | Step 1 |
-| FR-SY-06 | New-system values must satisfy FR-SY-01–02, and other required session values must be validated before creation starts. | Must | Step 2 |
-| FR-SY-07 | Successful completion must save one reusable system and link the saved session to its ID without recoloring or renaming existing systems. | Must | Steps 3–4 |
-| FR-SY-08 | If the parent session cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed parent save and confirmed rollback. Existing systems must remain unchanged; reconcile unknown outcomes before retry or claiming rollback success. | Must | Q-SY-02–03; Q-SH-01 |
-
-</details>
-
-<a id="wf-sy-02-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-SY-02 | If a parent session or campaign cannot be saved, roll back only the new system created by that attempt and show a clear error message. Keep existing systems and the parent's previously stored values unchanged. | Agreed |
-| Q-SY-03 | When a proposed system name already exists, explicitly offer that existing system without creating a duplicate or changing its color. | Agreed |
-
-**Also applies:** [Q-SH-01](#shared-decisions).
-
-</details>
-
-<a id="wf-sy-02-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `resolveSessionSystemId`, `saveSession`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_session`, `update_session`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Stability checks](../../.hallmark/stability-qa.mjs). |
-
-**Source review:** Current source creates the system before saving the parent and implements no rollback. Duplicate names are rejected by the server rather than offered for explicit reuse in this new-system path.
-
-</details>
-
-</details>
-
-<a id="wf-sy-03"></a>
-
-<details>
-<summary><strong>WF-SY-03: Add a game system from the campaign form</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Set up a campaign using a system that is not yet in the tracker. |
-| **Scope** | Enter a new system name and primary color within the campaign form in Manage and use it when saving the campaign. Campaign creation or editing is covered by its parent workflow. |
-| **Preconditions** | A campaign form is available, the other required campaign details are entered, and the proposed system name is not already in use. |
-| **Successful outcome** | The new system is saved, the successfully saved campaign uses it as its default system, and it is available for later selections. |
-
-<a id="wf-sy-03-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Type a system name while creating or editing a campaign in Manage. | Match an existing system, or show a primary color for a new name. |
-| 2 | Review the system and complete the campaign. | Validate system values and the parent campaign inputs. |
-| 3 | Choose Save Campaign. | Reuse or create the system and save its campaign association; if the campaign cannot be saved, roll back only the newly created system and clearly explain the failure. |
-| 4 | Continue after confirmation. | Refresh the campaign and make any new system available for reuse. |
-
-</details>
-
-<a id="wf-sy-03-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-SY-07 | A matched existing system is reused without changing its saved name or color; a new name must satisfy the same uniqueness and color rules as standalone creation. | [Q-SY-03](#wf-sy-02-decisions); [FR-SY-01–02](#wf-sy-01-requirements); [FR-SY-09–10](#wf-sy-03-requirements) |
-| BR-SY-08 | If the parent campaign cannot be saved, only the system created by that attempt is rolled back; existing systems and the campaign's previously stored values remain unchanged. | [Q-SY-02](#wf-sy-02-decisions); [FR-SY-12](#wf-sy-03-requirements) |
-| BR-SY-09 | A saved campaign references the selected system as its default; this does not replace the actual systems recorded in existing sessions. | [Q-CP-02](#wf-cp-02-decisions); update_campaign; [FR-SY-11–12](#wf-sy-03-requirements) |
-
-</details>
-
-<a id="wf-sy-03-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-SY-09 | The campaign form must accept an existing system name or allow entering a new name and primary color without leaving Manage → Campaigns. | Must | Step 1 |
-| FR-SY-10 | Matching an existing system must reuse its ID without changing its name or color; creating a new system must satisfy FR-SY-01–02. | Must | Steps 1–3; Q-SY-03 |
-| FR-SY-11 | Successful completion must associate the saved campaign with the selected system and retain the new system after reload. | Must | Steps 3–4 |
-| FR-SY-12 | If the parent campaign cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed campaign save and confirmed rollback. Previously stored campaign values and existing systems must remain unchanged; unknown outcomes require reconciliation. | Must | Q-SY-02; Q-SH-01 |
-
-</details>
-
-<a id="wf-sy-03-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-**Also applies:** [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-CP-02](#wf-cp-02-decisions).
-
-</details>
-
-<a id="wf-sy-03-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-CP-02](#wf-cp-02-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `systemByName`, `resolveCampaignSystemId`, `saveCampaign`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_campaign`, `update_campaign`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current source reuses a typed existing name automatically and creates a new system before saving the campaign. Explicit reuse confirmation and rollback need implementation work under the agreed policy.
-
-</details>
-
-</details>
-
-<a id="wf-sy-04"></a>
-
-<details>
-<summary><strong>WF-SY-04: Edit a game system's name or primary color</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Update how a game system is named or displayed. |
-| **Scope** | Edit an existing system's name or primary color in Manage. Campaign and session colors are derived from their systems rather than set separately. |
-| **Preconditions** | The app is available and the system exists. Any replacement name is not already used by another system. |
-| **Successful outcome** | The updated name and color persist, linked records keep their system association, and affected names and colors refresh in the views. |
-
-<a id="wf-sy-04-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Choose Edit for a system in Manage. | Load the saved name and primary color. |
-| 2 | Change the name or color and choose Save System. | Validate the final values and update the same system. |
-| 3 | Continue after confirmation. | Refresh system labels, color previews and affected session and campaign displays. |
-
-</details>
-
-<a id="wf-sy-04-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-SY-10 | Editing a system retains its ID and all campaign/session associations; the normalized name remains unique among other systems. | [Q-SY-04](#wf-sy-04-decisions); ensure_unique_name; [FR-SY-13–14](#wf-sy-04-requirements) |
-| BR-SY-11 | A system name or color change updates historical displays that reference that system rather than taking a per-session name/color snapshot. | [Q-SY-04](#wf-sy-04-decisions); [FR-SY-15](#wf-sy-04-requirements) |
-| BR-SY-12 | A session's display color follows its actual system, which may differ from its campaign's default system. Colors may intentionally be shared. | [Q-SY-01](#wf-sy-01-decisions); sessionColor; campaignColor; [FR-SY-15](#wf-sy-04-requirements) |
-
-</details>
-
-<a id="wf-sy-04-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-SY-13 | Edit must load and update the selected system's existing ID without creating another system. | Must | Steps 1–2 |
-| FR-SY-14 | Edited name and color must satisfy FR-SY-01–02, excluding the edited system itself from duplicate-name checks. | Must | Step 2 |
-| FR-SY-15 | Updated values must persist and affected labels, primary colors and derived shades must refresh while campaign and session system IDs remain unchanged. | Must | Step 3; Q-SY-04 |
-| FR-SY-16 | Clear or confirmed rejection must leave the stored system intact; rejected edits must remain available for correction. | Must | FR-SH-04 |
-
-</details>
-
-<a id="wf-sy-04-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-SY-04 | System name and color changes update historical displays while preserving campaign and session system associations. | Agreed |
-
-**Also applies:** [Q-SY-01](#wf-sy-01-decisions).
-
-</details>
-
-<a id="wf-sy-04-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-SY-04](#wf-sy-04-decisions); [Q-SY-01](#wf-sy-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `editSystem`, `saveSystem`, `sessionColor`, `campaignColor`, `deriveCampaignColor`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `update_system`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current source derives displayed names and colors from shared systems. Editing a system does not rewrite stored session-to-system or campaign-to-system IDs.
-
-</details>
-
-</details>
-
-<a id="area-history"></a>
-
-## Calendar and session history
-
-<a id="wf-hi-01"></a>
-
-<details>
-<summary><strong>WF-HI-01: Browse the calendar or mobile agenda</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | See recorded sessions by date. |
-| **Scope** | Browse previous and next months or return to the current month, using the calendar grid or mobile agenda. Adding or editing a session is separate. |
-| **Preconditions** | The app and its data are available; the selected month may contain sessions or be empty. |
-| **Successful outcome** | The selected month and its sessions, or its empty state, are displayed without changing stored data. |
-
-<a id="wf-hi-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Calendar. | Display the selected month, month title and session count. |
-| 2 | Choose Previous month, Next month or Today. | Change the displayed month and update its sessions. |
-| 3 | Review dates and sessions on desktop or a narrow screen. | Present a calendar grid or mobile agenda with appropriate empty-state feedback. |
-
-</details>
-
-<a id="wf-hi-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-HI-01 | A session belongs to its recorded calendar date without a time-of-day conversion; the browser-local current month is used by Today. | [BR-CS-03](#wf-cs-01-rules); renderCalendar; [FR-HI-01–02](#wf-hi-01-requirements) |
-| BR-HI-02 | The monthly count and agenda include only the selected month. Adjacent-month grid cells do not add to that month's count. | renderCalendar; [FR-HI-02–04](#wf-hi-01-requirements) |
-| BR-HI-03 | Calendar and agenda are views of the same records. Navigation or a responsive layout change creates no session and changes no recorded date. | [FR-SH-01](#shared-requirements); [FR-HI-03–04](#wf-hi-01-requirements) |
-
-</details>
-
-<a id="wf-hi-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-HI-01 | Calendar must support previous/next month navigation and Today must return to the browser-local current month. | Must | Steps 1–2 |
-| FR-HI-02 | Calendar sessions must appear on their recorded dates; the agenda must list only the selected month's sessions in chronological order. | Must | Step 3 |
-| FR-HI-03 | Narrow-screen users must be able to browse the selected month's sessions through the mobile agenda and open a listed session. | Must | Step 3; WF-HI-02 |
-| FR-HI-04 | The month title, session count and empty-state message must agree with the selected month without changing stored data. | Must | Steps 1–3; FR-SH-01 |
-
-</details>
-
-<a id="wf-hi-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
-
-</details>
-
-<a id="wf-hi-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderCalendar`, `moveCalendar`, `initialCalendarMonth`, `groupSessionsByDate`. |
-| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
-
-**Source review:** Current source computes the grid and agenda from recorded dates. Browsing and responsive presentation are not evidence that every date boundary has been tested.
-
-</details>
-
-</details>
-
-<a id="wf-hi-02"></a>
-
-<details>
-<summary><strong>WF-HI-02: Open a session to view its details</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Inspect the recorded details of a session. |
-| **Scope** | Open a session from the calendar, agenda or session history in the existing session form. Saving changes and deleting are separate workflows. |
-| **Preconditions** | The app is available and the session exists and is visible in the current view. |
-| **Successful outcome** | The selected session's recorded values are visible; closing the form without saving leaves stored data unchanged. |
-
-<a id="wf-hi-02-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Select a session chip or agenda entry, or choose Edit in history. | Open the selected record in the session form. |
-| 2 | Inspect its recorded details. | Show type, campaign or one-shot name, date, GM, system, link and notes. |
-| 3 | Close the form without saving. | Return to the previous view without a write. |
-
-</details>
-
-<a id="wf-hi-02-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-HI-04 | Session details belong to the selected record ID, regardless of its position in a sorted or filtered view. | openSessionDialog; [FR-HI-05](#wf-hi-02-requirements); [FR-HI-08](#wf-hi-02-requirements) |
-| BR-HI-05 | Inspection shows recorded session values, not replacements from current campaign defaults. | openSessionDialog; [BR-CS-04](#wf-cs-01-rules); [FR-HI-06](#wf-hi-02-requirements) |
-| BR-HI-06 | Opening and closing details without a save is read-only; deletion and editing require their own explicit actions. | [FR-SH-01](#shared-requirements); [WF-SE-01](#wf-se-01), [WF-SE-02](#wf-se-02); [FR-HI-07](#wf-hi-02-requirements) |
-
-</details>
-
-<a id="wf-hi-02-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-HI-05 | Calendar, agenda and history entry points must open the session identified by the selected record ID. | Must | Step 1 |
-| FR-HI-06 | The form must display recorded session values rather than replacing them with the campaign's current defaults. | Must | Step 2 |
-| FR-HI-07 | Closing an unsaved details form through Close or Escape must send no create, update or delete request. | Must | Step 3 |
-| FR-HI-08 | A session that is no longer available must produce a clear unavailable-record message rather than open another session or fabricate details. | Must | Alternative outcome; FR-SH-01 |
-
-</details>
-
-<a id="wf-hi-02-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
-
-</details>
-
-<a id="wf-hi-02-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `handleDocumentClick`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs); [Stability checks](../../.hallmark/stability-qa.mjs). |
-
-**Source review:** Details currently open in the editable session form. The missing-record recovery requirement is a draft; source inspection does not establish a graceful missing-record path.
-
-</details>
-
-</details>
-
-<a id="wf-hi-03"></a>
-
-<details>
-<summary><strong>WF-HI-03: Search and filter session history</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Find sessions matching the owner's interests. |
-| **Scope** | Search session history and combine or clear campaign, one-shot, GM and system filters. Sorting results is a separate workflow. |
-| **Preconditions** | The app's data is loaded and Session history is expanded. |
-| **Successful outcome** | History displays only matching sessions, or a no-results message; clearing the search and filters restores the full list without changing stored records. |
-
-<a id="wf-hi-03-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Expand Session history. | Show the history table and search/filter controls. |
-| 2 | Enter search text or select campaign, one-shots, GM or system filters. | Combine active conditions and display matching sessions. |
-| 3 | Review the results. | Retain matching rows or show No sessions found. |
-| 4 | Clear the search and return filters to All. | Restore the complete history in the current sort order. |
-
-</details>
-
-<a id="wf-hi-03-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-HI-07 | Text search covers campaign/one-shot name, GM, system and recorded date; notes and links are excluded. | [Q-HI-01](#wf-hi-03-decisions); [FR-HI-09–10](#wf-hi-03-requirements) |
-| BR-HI-08 | A result must satisfy the search text and every active filter. Selecting One-shots means sessions with no campaign association. | filteredSessions; [FR-HI-09](#wf-hi-03-requirements); [FR-HI-11](#wf-hi-03-requirements) |
-| BR-HI-09 | History is independent of the calendar month and only its own search and filters constrain the results; clearing them restores complete history. | [Q-HI-02](#wf-hi-03-decisions); [FR-HI-11–12](#wf-hi-03-requirements) |
-
-</details>
-
-<a id="wf-hi-03-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-HI-09 | History must offer text search plus campaign, one-shot, GM and system filtering, including All choices to clear filters. | Must | Steps 1–2 |
-| FR-HI-10 | Search must match campaign/one-shot name, GM, system and recorded `yyyy-mm-dd` date without case sensitivity; notes and links are excluded under the proposed scope. | Must | Q-HI-01 |
-| FR-HI-11 | A session must satisfy the text search and every active filter to be displayed; history must remain independent of calendar-month selection. | Must | Step 2; Q-HI-02 |
-| FR-HI-12 | No matches must show a clear empty state; clearing all conditions must restore complete history without changing records or current sorting. | Must | Steps 3–4 |
-
-</details>
-
-<a id="wf-hi-03-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-HI-01 | Search campaign/one-shot names, GMs, systems and recorded dates. Exclude notes and links for now. | Agreed |
-| Q-HI-02 | Keep session history independent of the selected calendar month; constrain it only with its own search and filters. | Agreed |
-
-</details>
-
-<a id="wf-hi-03-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-HI-01](#wf-hi-03-decisions); [Q-HI-02](#wf-hi-03-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderFilters`, `filteredSessions`, `renderSessions`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
-
-**Source review:** Current source searches the stored yyyy-mm-dd date and combines the conditions with AND. It does not search Notes or Link.
-
-</details>
-
-</details>
-
-<a id="wf-hi-04"></a>
-
-<details>
-<summary><strong>WF-HI-04: Sort session history</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Review session history in a useful order. |
-| **Scope** | Sort the visible history by Date, Campaign / One-shot, GM or System and change the sort direction while retaining active filters. |
-| **Preconditions** | Session history is expanded and matching sessions are available to display. |
-| **Successful outcome** | Matching rows appear in the selected order without changing stored session values or the current filters. |
-
-<a id="wf-hi-04-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Session history and optionally apply filters. | Display the matching rows in the current order. |
-| 2 | Select the Date, Campaign / One-shot, GM or System column heading. | Sort matching rows by that value. |
-| 3 | Select the same heading again. | Reverse the direction and retain search and filters. |
-
-</details>
-
-<a id="wf-hi-04-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-HI-10 | Date order is chronological; text comparison ignores case and handles numeric text consistently. | compareSessions; [FR-HI-13–14](#wf-hi-04-requirements) |
-| BR-HI-11 | Equal primary sort values use session ID as a stable secondary order. | [Q-HI-03](#wf-hi-04-decisions); [FR-HI-17](#wf-hi-04-requirements) |
-| BR-HI-12 | Sorting changes only result order, retaining the same active search, filters and stored records. | [FR-SH-01](#shared-requirements); setSort; [FR-HI-15–16](#wf-hi-04-requirements) |
-
-</details>
-
-<a id="wf-hi-04-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-HI-13 | History must allow sorting by Date, Campaign / One-shot, GM and System. | Must | Step 2 |
-| FR-HI-14 | Date sorting must be chronological; text sorting must compare names without case sensitivity and handle numeric text consistently. | Must | Step 2; current comparator |
-| FR-HI-15 | Selecting the current sort column again must reverse direction without changing search, filters or stored values. | Must | Step 3 |
-| FR-HI-16 | The current sort column and direction should be visible to the owner. | Should | Step 3 |
-| FR-HI-17 | When primary sort values are equal, the app must use session ID as a stable secondary ordering so tied rows do not move unpredictably after refresh. | Must | Q-HI-03 |
-
-</details>
-
-<a id="wf-hi-04-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-HI-03 | Use session ID as a stable secondary sort order when the selected sort values are equal. | Agreed |
-
-</details>
-
-<a id="wf-hi-04-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-HI-03](#wf-hi-04-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `setSort`, `compareSessions`, `renderSessions`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
-
-**Source review:** The current comparator returns zero for equal primary values and has no explicit session-ID fallback. The agreed secondary ordering still needs implementation.
-
-</details>
-
-</details>
-
-<a id="area-statistics"></a>
-
-## Statistics
-
-<a id="wf-st-01"></a>
-
-<details>
-<summary><strong>WF-ST-01: View statistics for a selected month</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Understand session activity within a month. |
-| **Scope** | Select a month in Monthly Stats and review its session total, campaign and system breakdowns, most-played group and favorite system. |
-| **Preconditions** | The app and its session data are available; the selected month may contain sessions or be empty. |
-| **Successful outcome** | Statistics reflect sessions dated in the selected month, or an empty state is shown, without changing stored data. |
-
-<a id="wf-st-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Stats → Monthly. | Display the selected month and its statistics. |
-| 2 | Choose a month in the month picker. | Recalculate totals and breakdowns using sessions dated in that month. |
-| 3 | Review totals, most-played group, favorite system and charts. | Display the matching figures or explain that the month has no sessions. |
-
-</details>
-
-<a id="wf-st-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-ST-01 | Every session counts once in its recorded month, including future dates, without a separate played/planned classification. History filters do not constrain monthly statistics. | [Q-CS-03](#wf-cs-01-decisions); renderMonthlyStats; [FR-ST-01–02](#wf-st-01-requirements) |
-| BR-ST-02 | Campaign totals group standalone sessions as One-shots; system totals use each session's actual system, not its campaign default. | renderMonthlyStats; groupedCountRows; [FR-ST-03](#wf-st-01-requirements) |
-| BR-ST-03 | Equal highest counts are ties and must not imply a sole favorite system or most-played group. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-04](#wf-st-01-requirements) |
-
-</details>
-
-<a id="wf-st-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-ST-01 | Monthly Stats must support selecting a month and year and clearly identify the selected period. | Must | Steps 1–2 |
-| FR-ST-02 | Each session dated in the selected month must count once, including future-dated sessions; calendar/history filters must not constrain these totals. | Must | Step 2; agreed Q-CS-03 |
-| FR-ST-03 | Monthly totals must agree with campaign and system breakdowns; standalone sessions must be grouped as One-shots in the campaign breakdown. | Must | Step 3 |
-| FR-ST-04 | A month with no sessions must show a clear empty state; tied most-played groups or favorite systems must be identified as ties rather than presented as a sole winner. | Must | Step 3; Q-ST-01 |
-
-</details>
-
-<a id="wf-st-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-ST-01 | Identify ties in favorite systems, most-played groups and busiest months rather than implying a sole winner. | Agreed |
-
-**Also applies:** [Q-CS-03](#wf-cs-01-decisions).
-
-</details>
-
-<a id="wf-st-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-ST-01](#wf-st-01-decisions); [Q-CS-03](#wf-cs-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderMonthlyStats`, `groupedCountRows`, `setStatsMonth`. |
-| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
-
-**Source review:** Current source counts monthly records and groups one-shots, but highlight tiles take the first sorted group and do not explain a tie.
-
-</details>
-
-</details>
-
-<a id="wf-st-02"></a>
-
-<details>
-<summary><strong>WF-ST-02: View the Year Review for a selected year</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Understand annual play activity and highlights. |
-| **Scope** | Select an available year and review totals, monthly activity, campaign, system and GM breakdowns, busiest month and longest break. Configuring My GM name is covered separately. |
-| **Preconditions** | The app and its session data are available, and Year Review is open. |
-| **Successful outcome** | The selected year's recorded sessions determine its statistics and highlights, or an empty state is shown, without changing data. |
-
-<a id="wf-st-02-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Stats → Year Review. | Display the selected year and available year choices. |
-| 2 | Choose a year. | Select sessions dated in that year and recalculate the review. |
-| 3 | Review annual totals, twelve monthly totals, breakdowns and highlights. | Show consistent figures, or an empty state when the year has no sessions. |
-
-</details>
-
-<a id="wf-st-02-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-ST-04 | The annual total includes each session dated in that year once, including future dates, and equals the sum of its twelve monthly counts. | [Q-CS-03](#wf-cs-01-decisions); monthlyCountRows; [FR-ST-05–06](#wf-st-02-requirements) |
-| BR-ST-05 | Longest Break is elapsed calendar days between consecutive recorded dates within the selected year, excluding boundary gaps; fewer than two sessions gives zero. | [Q-ST-02](#wf-st-02-decisions); [FR-ST-07](#wf-st-02-requirements) |
-| BR-ST-06 | Busiest-month and most-played highlights identify all tied leaders rather than implying a sole winner. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-07–08](#wf-st-02-requirements) |
-
-</details>
-
-<a id="wf-st-02-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-ST-05 | Year Review must offer the current year and years containing sessions, including future years with recorded sessions. | Must | Steps 1–2 |
-| FR-ST-06 | Annual totals must count each session dated in that year once and equal the sum of the twelve displayed monthly counts. | Must | Steps 2–3; Q-CS-03 |
-| FR-ST-07 | The review must provide campaign, system and GM breakdowns plus busiest-month, most-played and longest-break highlights; identify highlight ties and calculate Longest Break using Q-ST-01–02. | Must | Step 3; Q-ST-01–02 |
-| FR-ST-08 | An empty year must show an empty state and allow changing year or configuring My GM name without creating or changing session records. | Must | Step 3; WF-ST-03 |
-
-</details>
-
-<a id="wf-st-02-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-ST-02 | Longest Break is elapsed calendar days between consecutive recorded session dates within the selected year, excluding gaps to year boundaries. Fewer than two sessions gives zero. | Agreed |
-
-**Also applies:** [Q-ST-01](#wf-st-01-decisions); [Q-CS-03](#wf-cs-01-decisions).
-
-</details>
-
-<a id="wf-st-02-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-ST-01](#wf-st-01-decisions); [Q-ST-02](#wf-st-02-decisions); [Q-CS-03](#wf-cs-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderYearReview`, `reviewYearOptions`, `monthlyCountRows`, `longestGapLabel`. |
-| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
-
-**Source review:** Current source computes annual/monthly counts and the agreed within-year gap. Highlight selection still chooses one leader without reporting ties.
-
-</details>
-
-</details>
-
-<a id="wf-st-03"></a>
-
-<details>
-<summary><strong>WF-ST-03: Set or change My GM name and compare games run versus played</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Compare sessions the owner ran as GM with sessions joined as a player. |
-| **Scope** | Select, change or clear My GM name in Year Review and view the resulting comparison for the selected year. Renaming recorded GMs is separate. |
-| **Preconditions** | Year Review is open and tracker settings are available. A GM name is available to select, or a previous selection can be cleared. |
-| **Successful outcome** | The choice persists and the annual comparison updates using it; clearing the choice returns the panel to its unconfigured state. Recorded session GM values remain unchanged. |
-
-<a id="wf-st-03-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Year Review and find My GM name. | Offer names already used by sessions or campaign defaults, plus any saved choice. |
-| 2 | Select a name, choose another name or clear the selection. | Validate and save the setting while preventing overlapping changes. |
-| 3 | Review Games I Ran vs. Played. | Use the confirmed choice to update the selected year's comparison, or prompt for a name when cleared. |
-
-</details>
-
-<a id="wf-st-03-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-ST-07 | My GM name is one shared dataset setting, not a separate user account. A choice comes from existing session GMs, campaign defaults or the previously saved choice; it may be cleared. | TrackerSettings; update_tracker_settings; [FR-ST-09](#wf-st-03-requirements); [FR-ST-11](#wf-st-03-requirements) |
-| BR-ST-08 | Within the selected year, normalized names matching the choice count as Ran; other sessions count as Played. This assumes the owner attended every recorded game. | [Q-ST-03](#wf-st-03-decisions); [FR-ST-10](#wf-st-03-requirements) |
-| BR-ST-09 | Changing or clearing the choice never rewrites recorded GMs. Clearing leaves the comparison unconfigured rather than asserting that every session was played. | update_tracker_settings; ranPlayedPanel; [FR-ST-11–12](#wf-st-03-requirements) |
-
-</details>
-
-<a id="wf-st-03-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-ST-09 | My GM name must accept a listed existing name or an empty selection, and reject an unrelated arbitrary name. | Must | Steps 1–2; current settings validation |
-| FR-ST-10 | Matching must normalize character forms, trim surrounding spaces and ignore case; matching selected-year sessions count as Ran and the remainder as Played under Q-ST-03. | Must | Step 3; Q-ST-03 |
-| FR-ST-11 | The confirmed choice must persist after reload without rewriting session GM values; clearing it must hide the comparison and ask for a choice. | Must | Steps 2–3 |
-| FR-ST-12 | On a rejected setting change, the previous confirmed selection must remain authoritative and the panel must explain the error and allow retry. | Must | FR-SH-03–05 |
-
-</details>
-
-<a id="wf-st-03-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-ST-03 | For the owner's attended-game dataset, sessions whose GM matches My GM name count as Ran; all others count as Played. Multiple aliases or unattended games require a separate model. | Agreed |
-
-</details>
-
-<a id="wf-st-03-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-ST-03](#wf-st-03-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `saveOwnerGm`, `renderYearReview`, `ranPlayedPanel`, `gmNameKey`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `TrackerSettings`, `update_tracker_settings`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-| Existing checks · not executed for this review | [Settings checks](../../ttrpg_tracker/app/tests/test_tracker_settings.py); [Owner-GM browser checks](../../.hallmark/owner-gm-qa.mjs). |
-
-**Source review:** Current source saves a single shared choice and preserves recorded GMs. Existing automated checks are references, not new execution evidence.
-
-</details>
-
-</details>
-
-<a id="area-transfer"></a>
-
-## Import and export
-
-<a id="wf-da-01"></a>
-
-<details>
-<summary><strong>WF-DA-01: Export tracker data to CSV</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Save a portable copy of the tracker data. |
-| **Scope** | Use Export CSV in Manage to download sessions, campaigns and systems, including links, notes and campaign defaults. Tracker settings and a full database backup are outside this export's scope. |
-| **Preconditions** | The app and its data are available, and the browser can save the downloaded file. |
-| **Successful outcome** | A tracker CSV export is saved locally with the exported records; stored tracker data is unchanged. |
-
-<a id="wf-da-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Manage and choose Export CSV. | Read the current systems, campaigns and sessions. |
-| 2 | Save the offered file. | Provide a tracker CSV containing those records and their relationships. |
-| 3 | Keep the file for transfer or later import. | Leave the tracker data unchanged. |
-
-</details>
-
-<a id="wf-da-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-DA-01 | Record export includes all systems, campaigns and sessions, including archived campaigns and dates outside any current view or filter. | export_payload; export_csv; [FR-DA-01–02](#wf-da-01-requirements) |
-| BR-DA-02 | CSV preserves record relationships and supported field values, but excludes My GM name for now. It is not a full database backup. | [Q-DA-01](#wf-da-01-decisions); [FR-DA-02–04](#wf-da-01-requirements) |
-| BR-DA-03 | Export is read-only; a CSV transfer must not change source records or treat browser filters as the export scope. | [FR-SH-01](#shared-requirements); [FR-DA-01](#wf-da-01-requirements); [FR-DA-04](#wf-da-01-requirements) |
-
-</details>
-
-<a id="wf-da-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-DA-01 | Export CSV must provide all recorded systems, campaigns and sessions, including archived campaigns and sessions outside the current calendar, filters or statistics period. | Must | Step 1 |
-| FR-DA-02 | The CSV must retain names, dates, relationships, colors, defaults, archive status, links and notes, including non-Latin text, quotes, commas and line breaks. | Must | Step 2; current export fields |
-| FR-DA-03 | The CSV format must be accepted by the tracker import workflow, including valid exports from an empty tracker. | Must | Step 3; WF-DA-02 |
-| FR-DA-04 | Export must not change stored data, must report a failed download request and must not imply that My GM name or the full database is included. | Must | FR-SH-01; Q-DA-01 |
-
-</details>
-
-<a id="wf-da-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-DA-01 | Exclude My GM name from CSV and JSON record exports for now. Full database backups retain it; adding export portability can be considered later. | Agreed |
-
-</details>
-
-<a id="wf-da-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `downloadExport`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_payload`, `export_csv`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py); [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py). |
-
-**Source review:** Current CSV code excludes tracker settings. The data guide's word “settings” is ambiguous: the export contains campaign defaults, not My GM name. The agreed exclusion takes precedence.
-
-</details>
-
-</details>
-
-<a id="wf-da-02"></a>
-
-<details>
-<summary><strong>WF-DA-02: Preview and import new records from a tracker CSV export</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Add saved tracker records while keeping existing records and settings. |
-| **Scope** | Select a tracker CSV export, preview additions, duplicates and issues, then confirm importing new records. Replacing the complete database is separate. |
-| **Preconditions** | The app is available and a tracker CSV export can be selected. Applying an import requires a valid preview that still matches the current data and a writable location for the automatic backup. |
-| **Successful outcome** | A backup is saved before additions, new records are imported, duplicates are skipped, and existing records and settings are retained. The imported records remain available after reload. |
-
-<a id="wf-da-02-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Open Import CSV in Manage and select a tracker export. | Enable preview for the selected file. |
-| 2 | Choose Preview file. | Validate rows and display proposed additions, existing records, duplicates, warnings and errors without writing. |
-| 3 | Review the preview and choose Import new records when allowed. | Recheck preview freshness and validation, then save a pre-import backup before adding records. |
-| 4 | Continue after confirmation. | Commit the additions, refresh views and show imported counts while keeping existing records and settings. |
-
-</details>
-
-<a id="wf-da-02-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-DA-04 | Import adds records without overwriting existing values or tracker settings. External numeric IDs identify rows in the file, not destination database identities. | [Q-DA-02](#wf-da-02-decisions); plan_csv_import; [FR-DA-08–09](#wf-da-02-requirements) |
-| BR-DA-05 | Session duplicate handling compares date, normalized campaign/one-shot identity, GM and system plus occurrence counts, preserving deliberate multiplicity and existing notes/links. | [Q-DA-03](#wf-da-02-decisions); [FR-DA-09](#wf-da-02-requirements) |
-| BR-DA-06 | Preview is read-only and applies only while its file and underlying record data remain unchanged. Any invalid row prevents application. | import_preview; import_revision; apply_csv_import; [FR-DA-05–07](#wf-da-02-requirements) |
-| BR-DA-07 | All additions commit together, and a successful automatic record backup precedes additions. Backup failure prevents writes; that JSON record backup is not a complete database backup. | save_import_backup; apply_csv_import; [Q-DA-01](#wf-da-01-decisions); [FR-DA-08](#wf-da-02-requirements) |
-
-</details>
-
-<a id="wf-da-02-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-DA-05 | Preview must accept the tracker CSV format, enforce the current 5,000,000-byte file limit in the browser and show row-specific problems without writing data. | Must | Steps 1–2 |
-| FR-DA-06 | Preview must distinguish additions, existing records and duplicates and permit import only when no validation errors exist and at least one new record is present. | Must | Step 2 |
-| FR-DA-07 | If the file or underlying record data changes after preview, applying the stale preview must be blocked and a new preview required. | Must | Step 3 |
-| FR-DA-08 | Before additions, the app must save the automatic record backup; backup failure must prevent import. Import additions must commit together and preserve existing records and tracker settings. | Must | Steps 3–4; Q-DA-02 |
-| FR-DA-09 | Matching and duplicate handling must follow the agreed identity/multiplicity policy; success must show added counts and persist the records, while a failed apply must require another preview before retry. | Must | Step 4; Q-DA-03 |
-
-The automatic JSON record backup is not a full database backup and does not
-include My GM name. It has no in-app restore action.
-
-</details>
-
-<a id="wf-da-02-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-DA-02 | Keep import add-only: explain conflicts and retain existing values. Use a database restore for exact-state recovery. | Agreed |
-| Q-DA-03 | Compare occurrence counts by date, campaign/one-shot identity, GM and system so reimport preserves deliberate identical sessions without repeatedly adding them. Retain existing notes and links. | Agreed |
-
-**Also applies:** [Q-DA-01](#wf-da-01-decisions).
-
-</details>
-
-<a id="wf-da-02-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-DA-02](#wf-da-02-decisions); [Q-DA-03](#wf-da-02-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `previewCsvImport`, `applyCsvImport`, `renderCsvImportPreview`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `plan_csv_import`, `import_revision`, `save_import_backup`, `apply_csv_import`. |
-| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
-| Existing checks · not executed for this review | [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py); [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current backend validates and commits imports together. It also limits a file to 10,000 records and 5,000,000 encoded bytes; these implementation limits are not new product decisions.
-
-</details>
-
-</details>
-
-<a id="wf-da-03"></a>
-
-<details>
-<summary><strong>WF-DA-03: Export tracker data to JSON through the API</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Obtain tracker records in a machine-readable format. |
-| **Scope** | Request JSON from `/api/export` and optionally save the response. Settings export and full database recovery are outside this endpoint's scope. |
-| **Preconditions** | The running app's API and its data are accessible through a browser or API client. |
-| **Successful outcome** | A JSON response contains the recorded systems, campaigns and sessions, and stored tracker data is unchanged. |
-
-<a id="wf-da-03-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Request `/api/export` from the running app. | Read current system, campaign and session records. |
-| 2 | Inspect or save the JSON response. | Return the record collections with their recorded values and relationships. |
-| 3 | Keep the response for external use. | Leave the stored dataset unchanged. |
-
-</details>
-
-<a id="wf-da-03-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-DA-08 | JSON record export contains all systems, campaigns and sessions with their relationships, without calendar, history or statistics filtering. | export_payload; export_json; [FR-DA-10–11](#wf-da-03-requirements) |
-| BR-DA-09 | My GM name is excluded for now. Record JSON is not a full database copy and has no supported in-app JSON restore workflow. | [Q-DA-01](#wf-da-01-decisions); [FR-DA-13](#wf-da-03-requirements) |
-| BR-DA-10 | Reading the export is not a write and does not change records or settings, including when collections are empty. | [FR-SH-01](#shared-requirements); [FR-DA-12](#wf-da-03-requirements) |
-
-</details>
-
-<a id="wf-da-03-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-DA-10 | `/api/export` must return JSON collections named systems, campaigns and sessions, including archived campaigns and all recorded dates. | Must | Steps 1–2 |
-| FR-DA-11 | Records must retain identifiers, relationships and exported values without losing names, non-Latin characters, links or notes; empty collections must remain valid JSON lists. | Must | Step 2 |
-| FR-DA-12 | JSON export must be read-only and return an error response if the request cannot be completed. | Must | Steps 1–3; FR-SH-01 |
-| FR-DA-13 | Documentation must state that this endpoint excludes tracker settings and is not a full database backup or a supported in-app JSON restore workflow. | Must | Q-DA-01; current endpoint scope |
-
-</details>
-
-<a id="wf-da-03-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-**Also applies:** [Q-DA-01](#wf-da-01-decisions).
-
-</details>
-
-<a id="wf-da-03-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_json`, `export_payload`. |
-| Supporting documents | [Data and backup guide](../data-and-backups.md). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current /api/export returns the three record collections and excludes tracker settings; this endpoint is separate from the CSV download button.
-
-</details>
-
-</details>
-
-<a id="area-maintenance"></a>
-
-## Setup and maintenance outside the app UI
-
-<a id="wf-ma-01"></a>
-
-<details>
-<summary><strong>WF-MA-01: Start the app for the first time with demo sessions</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Explore the tracker using fictional example data. |
-| **Scope** | Launch a new installation with the supplied demo source enabled, following Getting started. Switching an existing dataset to demo data is separate. |
-| **Preconditions** | The project is downloaded, its Python or Docker environment is ready, and the database has not previously been initialized. |
-| **Successful outcome** | The app opens in a browser with the fictional demo sessions available in their recorded months and retained after reload. |
-
-<a id="wf-ma-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Prepare a new installation using Getting started and keep the demo source enabled. | Make the application files and fictional source data available. |
-| 2 | Start the app with the documented Python or Docker method. | Initialize storage and load the supplied demo into an empty dataset. |
-| 3 | Open the app and browse a demo month. | Display fictional campaigns, systems and sessions. |
-| 4 | Reload or restart after exploring. | Retain the initialized records without adding another copy. |
-
-</details>
-
-<a id="wf-ma-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-MA-01 | Demo seeding applies only when no system, campaign or session records exist and the configured demo source is available. | startup; [FR-MA-01–02](#wf-ma-01-requirements) |
-| BR-MA-02 | Starting with an already populated dataset must not append demo copies or overwrite personal records. | startup; [FR-MA-03](#wf-ma-01-requirements) |
-| BR-MA-03 | The supplied examples are fictional records with their own historical dates; an empty current month does not mean the demo failed to load. | project README; supplied demo source; [FR-MA-02](#wf-ma-01-requirements); [FR-MA-04](#wf-ma-01-requirements) |
-
-</details>
-
-<a id="wf-ma-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-MA-01 | Getting started must identify the supported Python and Docker launch paths and how to open the app. | Must | Steps 1–3; project README |
-| FR-MA-02 | With an empty dataset and enabled supplied demo source, initialization must load its fictional sessions with their campaign/system relationships and recorded dates. | Must | Steps 2–3; startup source |
-| FR-MA-03 | Restarting with an already populated dataset must not append another demo copy or overwrite recorded changes. | Must | Step 4; startup source |
-| FR-MA-04 | The setup guide should identify the demo's date range so an initially empty current calendar does not imply that loading failed. | Should | Step 3; project README |
-
-</details>
-
-<a id="wf-ma-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
-
-</details>
-
-<a id="wf-ma-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`, `import_seed_data`. |
-| Supporting documents | [Getting started](../../README.md#getting-started); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml); [Fictional demo source](../../ttrpg_tracker/app/import_source/demo_sessions.csv); [Data and backup guide](../data-and-backups.md). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
-
-**Source review:** Current startup checks whether record tables contain data; it does not use a permanent “first launch completed” marker. Keep demo seeding disabled when an empty dataset must stay empty.
-
-</details>
-
-</details>
-
-<a id="wf-ma-02"></a>
-
-<details>
-<summary><strong>WF-MA-02: Start the app for the first time without demo sessions</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Begin recording personal games in an empty tracker. |
-| **Scope** | Disable the demo source before the first launch, then start a new installation using the data guide. Clearing an existing dataset is separate. |
-| **Preconditions** | The project and its Python or Docker environment are ready, the database has not been initialized, and the demo source is disabled. |
-| **Successful outcome** | The app opens with no demo games loaded and is ready for the owner's systems, campaigns and sessions; demo data stays disabled on restart. |
-
-<a id="wf-ma-02-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | App response |
-| --- | --- | --- |
-| 1 | Before first launch, follow the data guide to rename the demo source. | The default demo file is no longer available for automatic loading. |
-| 2 | Start a new installation using Python or Docker. | Initialize storage without demo records. |
-| 3 | Open the tracker. | Show empty views with access to system, campaign and session creation. |
-| 4 | Keep the demo source disabled on later restarts. | Retain the owner's dataset without loading the demo. |
-
-</details>
-
-<a id="wf-ma-02-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-MA-04 | Disabling the demo source prevents later automatic seeding; it does not remove records already imported. | data guide; startup; [FR-MA-05](#wf-ma-02-requirements); [FR-MA-08](#wf-ma-02-requirements) |
-| BR-MA-05 | A new empty tracker has no demo systems, campaigns or sessions; required systems and campaigns are created through their own workflows. | startup; [WF-SY-01](#wf-sy-01); [WF-CP-01](#wf-cp-01); [FR-MA-06–07](#wf-ma-02-requirements) |
-| BR-MA-06 | The demo source must remain disabled while the owner expects an empty dataset to stay empty across restarts. | startup; data guide; [FR-MA-08](#wf-ma-02-requirements) |
-
-</details>
-
-<a id="wf-ma-02-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-MA-05 | The data guide must identify the supplied demo source and explain how to disable it before first launch. | Must | Step 1 |
-| FR-MA-06 | Starting with no records and no enabled demo source must create usable storage without adding demo systems, campaigns or sessions. | Must | Step 2 |
-| FR-MA-07 | Empty views must support beginning with system or campaign setup and must not present the absence of sessions as a load failure. | Must | Step 3 |
-| FR-MA-08 | The guide must explain that disabling the source does not remove existing imported records and that it must stay disabled to prevent later seeding into an empty dataset. | Must | Step 4; data guide |
-
-</details>
-
-<a id="wf-ma-02-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
-
-</details>
-
-<a id="wf-ma-02-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
-| Supporting documents | [Getting started](../../README.md#getting-started); [Data and backup guide](../data-and-backups.md); [Fictional demo source](../../ttrpg_tracker/app/import_source/demo_sessions.csv). |
-
-**Source review:** The current guide describes renaming the source before launch. Source inspection confirms that absence of the enabled source prevents seeding into an empty dataset.
-
-</details>
-
-</details>
-
-<a id="wf-ma-03"></a>
-
-<details>
-<summary><strong>WF-MA-03: Make a full database backup</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Preserve a complete saved version of the tracker for later recovery. |
-| **Scope** | Stop the app, copy its database to a separate backup location using the Python or Docker instructions, then restart the app. |
-| **Preconditions** | The database exists, the owner can stop the app and access its storage, and a backup location is available. |
-| **Successful outcome** | A separate copy of the stopped database is saved, and the app resumes with its current records and settings unchanged. |
-
-<a id="wf-ma-03-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | Procedure / app response |
-| --- | --- | --- |
-| 1 | Identify the database used by the active Python or Docker installation and choose a backup destination. | The data guide distinguishes the local file from Docker's stored database. |
-| 2 | Stop the app before copying. | Database writes stop. |
-| 3 | Copy the complete database to the chosen destination under a distinct filename. | A separate saved version is available without modifying the source. |
-| 4 | Check that the copy exists and restart the app. | The current dataset remains available. |
-
-</details>
-
-<a id="wf-ma-03-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-MA-07 | A complete backup is a copy of the active database, including tracker settings. Python and Docker storage, and custom configured paths, may differ. | database configuration; data guide; [Q-DA-01](#wf-da-01-decisions); [FR-MA-09](#wf-ma-03-requirements); [FR-MA-11](#wf-ma-03-requirements) |
-| BR-MA-08 | The documented manual-copy procedure stops the app before copying and preserves the active original. | data guide; [FR-MA-10](#wf-ma-03-requirements) |
-| BR-MA-09 | Backup versions use dated names outside the project or active Docker storage. A record export or pre-import JSON file is not a substitute for a full database backup. | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions); [FR-MA-11–12](#wf-ma-03-requirements) |
-
-</details>
-
-<a id="wf-ma-03-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-MA-09 | The backup procedure must identify the active database location for both Python and Docker, including how custom storage configuration changes that location. | Must | Step 1; data guide and configured database path |
-| FR-MA-10 | The procedure must require the app to be stopped before copying the full database and must retain the original database. | Must | Steps 2–3 |
-| FR-MA-11 | The guide must distinguish a full database copy, which includes tracker settings, from CSV and JSON record exports that exclude My GM name. | Must | Step 3; Q-DA-01 |
-| FR-MA-12 | The procedure must use a dated backup filename outside the project or active Docker storage and require checking that the separate copy exists before restart; proving that it can be restored belongs to the restore workflow. | Must | Step 4; Q-MA-01 |
-
-</details>
-
-<a id="wf-ma-03-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-MA-01 | Keep dated manual backup files outside the project or active Docker storage. Automatic scheduling and retention remain separate work. | Agreed |
-
-**Also applies:** [Q-DA-01](#wf-da-01-decisions).
-
-</details>
-
-<a id="wf-ma-03-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml); [Getting started](../../README.md#getting-started). |
-
-**Source review:** This is a manual operational policy, not an in-app backup feature. The current guide assumes default storage and advises distinct filenames; custom-path details and a dated naming example still need refinement.
-
-</details>
-
-</details>
-
-<a id="wf-ma-04"></a>
-
-<details>
-<summary><strong>WF-MA-04: Restore a full database backup</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Return the tracker to a previously saved database state. |
-| **Scope** | Stop the app, replace its database with a saved database copy using the data guide, then restart. This replaces the current records and settings. |
-| **Preconditions** | A usable full database backup exists, the owner has chosen to replace the current dataset and preserved a copy of it, and the app can be stopped and its storage accessed. |
-| **Successful outcome** | The app runs using the restored database, and the games and settings from that saved version are available. |
-
-<a id="wf-ma-04-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | Procedure / app response |
-| --- | --- | --- |
-| 1 | Select a full database backup and review that restoring replaces the active dataset. | The guide identifies the correct target storage and supported procedure. |
-| 2 | Stop the app and save a separate copy of the current database. | The current version is preserved for recovery. |
-| 3 | Replace the active database with the selected backup. | The saved version becomes the database used on restart. |
-| 4 | Restart and inspect games, totals and My GM name. | The app loads the restored data or reports a startup failure for investigation. |
-
-</details>
-
-<a id="wf-ma-04-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-MA-10 | Restore replaces the entire active database rather than merging records; preserve a separate copy of the current database before replacement. | data guide; [FR-MA-13–14](#wf-ma-04-requirements) |
-| BR-MA-11 | The documented and tested baseline is restore with the same app version. Cross-version migration requires a separately verified procedure. | [Q-MA-02](#wf-ma-04-decisions); [FR-MA-16](#wf-ma-04-requirements) |
-| BR-MA-12 | Restored settings and records come from the selected backup. For an empty restored dataset, the demo source must be disabled to avoid unintended seeding. | startup; [Q-DA-01](#wf-da-01-decisions); data guide; [FR-MA-15–16](#wf-ma-04-requirements) |
-
-</details>
-
-<a id="wf-ma-04-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-MA-13 | Restore instructions must state that replacement affects all current records and settings and require preserving the current database first. | Must | Steps 1–2 |
-| FR-MA-14 | The procedure must identify the active target for Python or Docker and require the app to be stopped during replacement. | Must | Steps 2–3 |
-| FR-MA-15 | A successful restore must load the selected backup's records and settings without mixing in the replaced dataset; the guide must account for demo seeding when a restored dataset is empty. | Must | Steps 3–4; WF-MA-02 |
-| FR-MA-16 | The procedure must include post-restart checks and recovery using the preserved pre-restore copy if validation fails. Document and test same-version restore first; cross-version migration requires a separately verified procedure. | Must | Step 4; Q-MA-02 |
-
-</details>
-
-<a id="wf-ma-04-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-MA-02 | Document and test database restore with the same app version first. Cross-version migration needs its own verified procedure. | Agreed |
-
-**Also applies:** [Q-DA-01](#wf-da-01-decisions).
-
-</details>
-
-<a id="wf-ma-04-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-MA-02](#wf-ma-04-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
-| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml). |
-
-**Source review:** This is a manual restore procedure. No restore was executed during this documentation review; compatibility testing, custom-path instructions and recovery checks remain work to do.
-
-</details>
-
-</details>
-
-<a id="wf-ma-05"></a>
-
-<details>
-<summary><strong>WF-MA-05: Start over with an empty tracker after trying the demo</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Replace a trial dataset with an empty tracker for personal use. |
-| **Scope** | Follow the data guide's reset procedure for Python or Docker after backing up the current database and disabling the demo source. All current games, including personally added records, are removed from the active dataset. |
-| **Preconditions** | The owner has chosen to clear the dataset, a full backup has been saved, and the owner can stop the app and manage its storage. |
-| **Successful outcome** | The app starts with an empty dataset and does not reload demo games; the previous dataset remains available in the saved backup. |
-
-<a id="wf-ma-05-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | Procedure / app response |
-| --- | --- | --- |
-| 1 | Choose to clear the trial dataset and make a full database backup. | The guide explains that personal additions are included in the reset. |
-| 2 | Disable the demo source and stop the app. | Prevent writes and later automatic reloading of examples. |
-| 3 | Follow the documented Python or Docker reset for the active storage. | Remove the active dataset from use, retaining the external backup. |
-| 4 | Start the app and inspect the empty views. | Initialize an empty tracker ready for new records. |
-
-</details>
-
-<a id="wf-ma-05-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-MA-13 | Reset removes all games from the active dataset, including personal additions; it is not selective removal of demo records. | [Q-MA-03](#wf-ma-05-decisions); [FR-MA-17](#wf-ma-05-requirements); [FR-MA-20](#wf-ma-05-requirements) |
-| BR-MA-14 | A separate full backup is retained outside the storage being reset, and the demo source is disabled before restart. | [Q-MA-01](#wf-ma-03-decisions); data guide; [FR-MA-17–18](#wf-ma-05-requirements) |
-| BR-MA-15 | Python and Docker reset their own active storage. The documented Docker reset also removes cached dependencies; neither method is an in-app reset button. | data guide; [Q-MA-03](#wf-ma-05-decisions); [FR-MA-19–20](#wf-ma-05-requirements) |
-
-</details>
-
-<a id="wf-ma-05-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-MA-17 | Reset instructions must state that all active games, including personal additions, will be removed and must require a separate full backup first. | Must | Step 1 |
-| FR-MA-18 | The procedure must disable the demo source and stop the app before changing active storage. | Must | Step 2 |
-| FR-MA-19 | Instructions must distinguish moving aside the Python database from resetting Docker storage and must disclose that the documented Docker reset also removes cached dependencies. | Must | Step 3; data guide |
-| FR-MA-20 | Restart after reset must produce empty systems, campaigns and sessions while the previous dataset remains in the backup; later restarts must not seed the demo while its source stays disabled. | Must | Step 4 |
-
-</details>
-
-<a id="wf-ma-05-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-MA-03 | Keep reset as a documented manual procedure for now. An in-app reset or selective demo removal needs a separate design, including reliable identification of demo records. | Agreed |
-
-**Also applies:** [Q-MA-01](#wf-ma-03-decisions).
-
-</details>
-
-<a id="wf-ma-05-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-MA-03](#wf-ma-05-decisions); [Q-MA-01](#wf-ma-03-decisions) — owner agreement on 28 October 2026. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
-| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml). |
-
-**Source review:** The guide documents manual reset for default paths. No reset or deletion was performed during this review.
-
-</details>
-
-</details>
-
-<a id="area-planned"></a>
-
-## Planned workflows and improvements
-
-<a id="wf-qa-01"></a>
-
-<details>
-<summary><strong>WF-QA-01: Record a campaign session through Quick Add (planned)</strong></summary>
-
-| Field | Workflow summary |
-| --- | --- |
-| **Goal** | Record a campaign session with fewer repeated selections. |
-| **Scope** | Planned shortcut for active campaigns that supplies campaign defaults and requires explicit date confirmation. The owner can review session details; any separate Log today action must clearly name its date behavior. |
-| **Preconditions** | A campaign and its default system exist. The Quick Add entry point must be implemented before this workflow can be used in the current app. |
-| **Successful outcome** | Intended result: one session is saved for the chosen campaign using its defaults and any reviewed changes, without changing the campaign defaults. Detailed interaction design and implementation remain planned. |
-
-<a id="wf-qa-01-flow"></a>
-
-<details>
-<summary><strong>Main workflow</strong></summary>
-
-| Step | Owner action | Planned app response |
-| --- | --- | --- |
-| 1 | Choose an active campaign's Add shortcut. | Identify its campaign and fill the session defaults. |
-| 2 | Explicitly confirm the date and review session overrides. | Show the chosen values without editing the campaign defaults. |
-| 3 | Choose Save. | Validate and save one session linked to that campaign. |
-| 4 | Continue after confirmation. | Refresh affected views and show session completion. |
-
-</details>
-
-<a id="wf-qa-01-rules"></a>
-
-<details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
-
-| ID | Business rule | Basis and linked requirements |
-| --- | --- | --- |
-| BR-QA-01 | Quick Add shortcuts contain active campaigns only; archived campaigns remain available in the ordinary session form. | [Q-QA-02](#wf-qa-01-decisions); [Q-CS-02](#wf-cs-01-decisions); [FR-QA-01](#wf-qa-01-requirements); [FR-QA-03](#wf-qa-01-requirements) |
-| BR-QA-02 | Add supplies campaign defaults but requires explicit confirmation of a valid date. Any separate Log today shortcut must clearly identify that behavior. | [Q-QA-01](#wf-qa-01-decisions); [FR-QA-02](#wf-qa-01-requirements) |
-| BR-QA-03 | Quick Add records a session using reviewed values without changing campaign defaults; it follows the same duplicate-request and uncertain-outcome policy as other new writes. | [Q-SH-01](#shared-decisions); [BR-CS-04](#wf-cs-01-rules); [FR-QA-03–04](#wf-qa-01-requirements) |
-
-</details>
-
-<a id="wf-qa-01-requirements"></a>
-
-<details>
-<summary><strong>Functional requirements · draft</strong></summary>
-
-| ID | Draft requirement | Priority | Source |
-| --- | --- | --- | --- |
-| FR-QA-01 | Quick Add should provide an identifiable campaign shortcut that supplies the campaign's GM, system and optional link. | Should | Step 1; planned feature |
-| FR-QA-02 | When implemented, Add must require explicit confirmation of a valid date before saving; every shortcut must make its campaign and date behavior clear, including any separate Log today action. | Must | Steps 1–3; Q-QA-01 |
-| FR-QA-03 | The owner must be able to review and override session values without changing campaign defaults. Quick Add shortcuts must include only active campaigns, while the ordinary session form retains archived campaign selection. | Must | Step 2; Q-QA-02; Q-CS-02 |
-| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views; uncertain outcomes require reconciliation before retry. | Must | Steps 3–4; FR-SH-02–05 |
-
-</details>
-
-<a id="wf-qa-01-decisions"></a>
-
-<details>
-<summary><strong>Agreed product decisions</strong></summary>
-
-| ID | Decision | Status |
-| --- | --- | --- |
-| Q-QA-01 | Provide an Add shortcut that prefills campaign defaults and requires explicit date confirmation. Any separate Log today action must clearly state its date behavior. | Agreed |
-| Q-QA-02 | Show only active campaigns among Quick Add shortcuts. Archived campaigns remain selectable in the ordinary session form under Q-CS-02. | Agreed |
-
-**Also applies:** [Q-CS-02](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions).
-
-</details>
-
-<a id="wf-qa-01-sources"></a>
-
-<details>
-<summary><strong>Sources and current behavior</strong></summary>
-
-| Source type | Source and what to inspect |
-| --- | --- |
-| Agreed policy | [Q-QA-01](#wf-qa-01-decisions); [Q-QA-02](#wf-qa-01-decisions); [Q-CS-02](#wf-cs-01-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `applyCampaignDefaults`, `saveSession`. |
-| Supporting documents | [Build plan](../../ttrpg-plan.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
-
-**Source review:** Quick Add is not present in the current interface. The named frontend functions are reusable baseline behavior, not proof that a shortcut or explicit date-confirmation flow exists. Older completed build-plan notes are historical, not evidence of current availability.
-
-</details>
-
-</details>
-
 <a id="wf-cp-06-improve-blocked-campaign-deletion"></a>
 
 <a id="wf-cp-06"></a>
@@ -2870,8 +1337,9 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | **Successful outcome** | A linked campaign and its sessions are retained; the owner can explicitly archive an active campaign or leave it unchanged. Known business restrictions and uncertain connection outcomes receive distinct, actionable messages. An empty campaign can still be deleted after confirmation. |
 
 **Status:** Product decisions Q-CP-04–06 agreed on 28 October 2026 as the response
-to [DEF-002](test-records.md#def-002-campaign-delete-feedback). Detailed requirements
-remain drafts; implementation, reproduction and retest are still planned.
+to [DEF-002](test-records.md#def-002-campaign-delete-feedback). Business rules and
+functional requirements are also approved; implementation, reproduction and
+retest are still planned.
 
 <a id="wf-cp-06-flow"></a>
 
@@ -2890,9 +1358,7 @@ remain drafts; implementation, reproduction and retest are still planned.
 <a id="wf-cp-06-rules"></a>
 
 <details>
-<summary><strong>Business rules · draft</strong></summary>
-
-**Status:** Draft wording derived from the agreed policy and cited sources.
+<summary><strong>Business rules</strong></summary>
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
@@ -2905,9 +1371,9 @@ remain drafts; implementation, reproduction and retest are still planned.
 <a id="wf-cp-06-requirements"></a>
 
 <details>
-<summary><strong>Functional requirements · draft</strong></summary>
+<summary><strong>Functional requirements</strong></summary>
 
-| ID | Draft requirement | Priority | Source |
+| ID | Requirement | Priority | Source |
 | --- | --- | --- | --- |
 | FR-CP-22 | The interface should prevent a known linked campaign from entering a usable Delete confirmation and display why deletion is unavailable, with Archive available for active campaigns. | Should | Step 1; Q-CP-05 |
 | FR-CP-23 | The server must retain its linked-session guard; a readable HTTP 409 rejection must display the business reason and retain usable action context instead of closing into a generic connection-error message. | Must | Steps 2–3; DEF-002 |
@@ -2997,6 +1463,1837 @@ treat the report as evidence of data loss without checking the actual dataset.
 </details>
 
 </details>
+
+<a id="area-systems"></a>
+
+## Game systems
+
+<a id="wf-sy-01"></a>
+
+<details>
+<summary><strong>WF-SY-01: Add a game system in Manage</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Make a game system available for campaigns and sessions. |
+| **Scope** | Create a system in Manage with a name and primary color. Creating a campaign or session is outside this workflow. |
+| **Preconditions** | The app is available and the proposed system name is not already in use. |
+| **Successful outcome** | One system is saved with its name and color, remains available after reload, and appears among system choices. |
+
+<a id="wf-sy-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Manage → Systems with a new-system form. | Show a blank name and a suggested primary color. |
+| 2 | Enter the name and review or change the color. | Retain both values for review. |
+| 3 | Choose Save System. | Validate and save one system. |
+| 4 | Continue after confirmation. | Refresh system choices, clear the form and show System saved. |
+
+</details>
+
+<a id="wf-sy-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-SY-01 | A game system has a nonblank, normalized unique name and a primary color expressed as six hexadecimal digits. | SystemCreate; ensure_unique_name; hex_color; [FR-SY-01–02](#wf-sy-01-requirements) |
+| BR-SY-02 | Different systems may intentionally share a primary color; uniqueness applies to names, not colors. | [Q-SY-01](#wf-sy-01-decisions); [FR-SY-01–02](#wf-sy-01-requirements) |
+| BR-SY-03 | Creating a reusable system does not create a campaign or session. Campaign and session shades derive from their associated systems. | create_system; sessionColor; campaignColor; [FR-SY-03](#wf-sy-01-requirements) |
+
+</details>
+
+<a id="wf-sy-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-SY-01 | Manage must allow creating a system with a nonblank name and valid six-digit hexadecimal primary color. | Must | Steps 1–3; backend validation |
+| FR-SY-02 | System names must be unique after trimming, character normalization and case-insensitive comparison across all creation entry points. | Must | Step 3; backend validation |
+| FR-SY-03 | Successful creation must persist one system and make it selectable for campaigns and sessions without creating either record. | Must | Steps 3–4 |
+| FR-SY-04 | Clear must discard unsaved form values without a write, and a rejected save must retain entered values for correction. | Must | Step 4; FR-SH-04 |
+
+</details>
+
+<a id="wf-sy-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-SY-01 | Suggest distinct system colors where possible, but allow intentionally shared colors. System names remain unique. | Agreed |
+
+</details>
+
+<a id="wf-sy-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-SY-01](#wf-sy-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `saveSystem`, `suggestSystemColor`, `renderSystems`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `SystemCreate`, `create_system`, `ensure_unique_name`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current source validates names and color syntax and suggests colors. The business policy permits an explicitly chosen shared color.
+
+</details>
+
+</details>
+
+<a id="wf-sy-02"></a>
+
+<details>
+<summary><strong>WF-SY-02: Add a game system from the session form</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Record a session using a system that is not yet in the tracker. |
+| **Scope** | Enter a new system name and primary color within the session form and use that system when saving the session. Session creation or editing is covered by its parent workflow. |
+| **Preconditions** | A session form is open, the other required session details are available, and the proposed system name is not already in use. |
+| **Successful outcome** | The new system is saved, the successfully saved session references it, and the system is available for later campaigns and sessions. |
+
+<a id="wf-sy-02-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Choose the new-system option while completing a session. | Show a system name and suggested primary color within the form. |
+| 2 | Enter the new system and complete the session. | Validate the system and parent session inputs. |
+| 3 | Save the session. | Save the system and its parent session; if the parent cannot be saved, roll back only the newly created system and clearly explain the failure. |
+| 4 | Continue after confirmation. | Show the saved session and make the system available for reuse. |
+
+</details>
+
+<a id="wf-sy-02-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-SY-04 | A proposed system whose normalized name already exists must be explicitly offered for reuse without creating a duplicate or changing its color. | [Q-SY-03](#wf-sy-02-decisions); [FR-SY-06–07](#wf-sy-02-requirements) |
+| BR-SY-05 | A failed parent-session save must not leave a system created only for that attempt behind; existing systems and previously stored parent values are protected. | [Q-SY-02](#wf-sy-02-decisions); [FR-SY-08](#wf-sy-02-requirements) |
+| BR-SY-06 | The successfully saved session references one reusable system by ID. Unknown outcomes are reconciled before retry or a claim that rollback succeeded. | [Q-SY-02](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions); [FR-SY-07–08](#wf-sy-02-requirements) |
+
+</details>
+
+<a id="wf-sy-02-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-SY-05 | The session form must expose new-system name and color fields only when the new-system option is selected. | Must | Step 1 |
+| FR-SY-06 | New-system values must satisfy FR-SY-01–02, and other required session values must be validated before creation starts. | Must | Step 2 |
+| FR-SY-07 | Successful completion must save one reusable system and link the saved session to its ID without recoloring or renaming existing systems. | Must | Steps 3–4 |
+| FR-SY-08 | If the parent session cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed parent save and confirmed rollback. Existing systems must remain unchanged; reconcile unknown outcomes before retry or claiming rollback success. | Must | Q-SY-02–03; Q-SH-01 |
+
+</details>
+
+<a id="wf-sy-02-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-SY-02 | If a parent session or campaign cannot be saved, roll back only the new system created by that attempt and show a clear error message. Keep existing systems and the parent's previously stored values unchanged. | Agreed |
+| Q-SY-03 | When a proposed system name already exists, explicitly offer that existing system without creating a duplicate or changing its color. | Agreed |
+
+**Also applies:** [Q-SH-01](#shared-decisions).
+
+</details>
+
+<a id="wf-sy-02-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `resolveSessionSystemId`, `saveSession`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_session`, `update_session`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Stability checks](../../.hallmark/stability-qa.mjs). |
+
+**Source review:** Current source creates the system before saving the parent and implements no rollback. Duplicate names are rejected by the server rather than offered for explicit reuse in this new-system path.
+
+</details>
+
+</details>
+
+<a id="wf-sy-03"></a>
+
+<details>
+<summary><strong>WF-SY-03: Add a game system from the campaign form</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Set up a campaign using a system that is not yet in the tracker. |
+| **Scope** | Enter a new system name and primary color within the campaign form in Manage and use it when saving the campaign. Campaign creation or editing is covered by its parent workflow. |
+| **Preconditions** | A campaign form is available, the other required campaign details are entered, and the proposed system name is not already in use. |
+| **Successful outcome** | The new system is saved, the successfully saved campaign uses it as its default system, and it is available for later selections. |
+
+<a id="wf-sy-03-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Type a system name while creating or editing a campaign in Manage. | Match an existing system, or show a primary color for a new name. |
+| 2 | Review the system and complete the campaign. | Validate system values and the parent campaign inputs. |
+| 3 | Choose Save Campaign. | Reuse or create the system and save its campaign association; if the campaign cannot be saved, roll back only the newly created system and clearly explain the failure. |
+| 4 | Continue after confirmation. | Refresh the campaign and make any new system available for reuse. |
+
+</details>
+
+<a id="wf-sy-03-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-SY-07 | A matched existing system is reused without changing its saved name or color; a new name must satisfy the same uniqueness and color rules as standalone creation. | [Q-SY-03](#wf-sy-02-decisions); [FR-SY-01–02](#wf-sy-01-requirements); [FR-SY-09–10](#wf-sy-03-requirements) |
+| BR-SY-08 | If the parent campaign cannot be saved, only the system created by that attempt is rolled back; existing systems and the campaign's previously stored values remain unchanged. | [Q-SY-02](#wf-sy-02-decisions); [FR-SY-12](#wf-sy-03-requirements) |
+| BR-SY-09 | A saved campaign references the selected system as its default; this does not replace the actual systems recorded in existing sessions. | [Q-CP-02](#wf-cp-02-decisions); update_campaign; [FR-SY-11–12](#wf-sy-03-requirements) |
+
+</details>
+
+<a id="wf-sy-03-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-SY-09 | The campaign form must accept an existing system name or allow entering a new name and primary color without leaving Manage → Campaigns. | Must | Step 1 |
+| FR-SY-10 | Matching an existing system must reuse its ID without changing its name or color; creating a new system must satisfy FR-SY-01–02. | Must | Steps 1–3; Q-SY-03 |
+| FR-SY-11 | Successful completion must associate the saved campaign with the selected system and retain the new system after reload. | Must | Steps 3–4 |
+| FR-SY-12 | If the parent campaign cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed campaign save and confirmed rollback. Previously stored campaign values and existing systems must remain unchanged; unknown outcomes require reconciliation. | Must | Q-SY-02; Q-SH-01 |
+
+</details>
+
+<a id="wf-sy-03-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+**Also applies:** [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-CP-02](#wf-cp-02-decisions).
+
+</details>
+
+<a id="wf-sy-03-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-CP-02](#wf-cp-02-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `systemByName`, `resolveCampaignSystemId`, `saveCampaign`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_campaign`, `update_campaign`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current source reuses a typed existing name automatically and creates a new system before saving the campaign. Explicit reuse confirmation and rollback need implementation work under the agreed policy.
+
+</details>
+
+</details>
+
+<a id="wf-sy-04"></a>
+
+<details>
+<summary><strong>WF-SY-04: Edit a game system's name or primary color</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Update how a game system is named or displayed. |
+| **Scope** | Edit an existing system's name or primary color in Manage. Campaign and session colors are derived from their systems rather than set separately. |
+| **Preconditions** | The app is available and the system exists. Any replacement name is not already used by another system. |
+| **Successful outcome** | The updated name and color persist, linked records keep their system association, and affected names and colors refresh in the views. |
+
+<a id="wf-sy-04-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Choose Edit for a system in Manage. | Load the saved name and primary color. |
+| 2 | Change the name or color and choose Save System. | Validate the final values and update the same system. |
+| 3 | Continue after confirmation. | Refresh system labels, color previews and affected session and campaign displays. |
+
+</details>
+
+<a id="wf-sy-04-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-SY-10 | Editing a system retains its ID and all campaign/session associations; the normalized name remains unique among other systems. | [Q-SY-04](#wf-sy-04-decisions); ensure_unique_name; [FR-SY-13–14](#wf-sy-04-requirements) |
+| BR-SY-11 | A system name or color change updates historical displays that reference that system rather than taking a per-session name/color snapshot. | [Q-SY-04](#wf-sy-04-decisions); [FR-SY-15](#wf-sy-04-requirements) |
+| BR-SY-12 | A session's display color follows its actual system, which may differ from its campaign's default system. Colors may intentionally be shared. | [Q-SY-01](#wf-sy-01-decisions); sessionColor; campaignColor; [FR-SY-15](#wf-sy-04-requirements) |
+
+</details>
+
+<a id="wf-sy-04-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-SY-13 | Edit must load and update the selected system's existing ID without creating another system. | Must | Steps 1–2 |
+| FR-SY-14 | Edited name and color must satisfy FR-SY-01–02, excluding the edited system itself from duplicate-name checks. | Must | Step 2 |
+| FR-SY-15 | Updated values must persist and affected labels, primary colors and derived shades must refresh while campaign and session system IDs remain unchanged. | Must | Step 3; Q-SY-04 |
+| FR-SY-16 | Clear or confirmed rejection must leave the stored system intact; rejected edits must remain available for correction. | Must | FR-SH-04 |
+
+</details>
+
+<a id="wf-sy-04-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-SY-04 | System name and color changes update historical displays while preserving campaign and session system associations. | Agreed |
+
+**Also applies:** [Q-SY-01](#wf-sy-01-decisions).
+
+</details>
+
+<a id="wf-sy-04-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-SY-04](#wf-sy-04-decisions); [Q-SY-01](#wf-sy-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `editSystem`, `saveSystem`, `sessionColor`, `campaignColor`, `deriveCampaignColor`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `update_system`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current source derives displayed names and colors from shared systems. Editing a system does not rewrite stored session-to-system or campaign-to-system IDs.
+
+</details>
+
+</details>
+
+<a id="area-history"></a>
+
+## Calendar and session history
+
+<a id="wf-hi-01"></a>
+
+<details>
+<summary><strong>WF-HI-01: Browse the calendar or mobile agenda</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | See recorded sessions by date. |
+| **Scope** | Browse previous and next months or return to the current month, using the calendar grid or mobile agenda. Adding or editing a session is separate. |
+| **Preconditions** | The app and its data are available; the selected month may contain sessions or be empty. |
+| **Successful outcome** | The selected month and its sessions, or its empty state, are displayed without changing stored data. |
+
+<a id="wf-hi-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Calendar. | Display the selected month, month title and session count. |
+| 2 | Choose Previous month, Next month or Today. | Change the displayed month and update its sessions. |
+| 3 | Review dates and sessions on desktop or a narrow screen. | Present a calendar grid or mobile agenda with appropriate empty-state feedback. |
+
+</details>
+
+<a id="wf-hi-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-HI-01 | A session belongs to its recorded calendar date without a time-of-day conversion; the browser-local current month is used by Today. | [BR-CS-03](#wf-cs-01-rules); renderCalendar; [FR-HI-01–02](#wf-hi-01-requirements) |
+| BR-HI-02 | The monthly count and agenda include only the selected month. Adjacent-month grid cells do not add to that month's count. | renderCalendar; [FR-HI-02–04](#wf-hi-01-requirements) |
+| BR-HI-03 | Calendar and agenda are views of the same records. Navigation or a responsive layout change creates no session and changes no recorded date. | [FR-SH-01](#shared-requirements); [FR-HI-03–04](#wf-hi-01-requirements) |
+
+</details>
+
+<a id="wf-hi-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-HI-01 | Calendar must support previous/next month navigation and Today must return to the browser-local current month. | Must | Steps 1–2 |
+| FR-HI-02 | Calendar sessions must appear on their recorded dates; the agenda must list only the selected month's sessions in chronological order. | Must | Step 3 |
+| FR-HI-03 | Narrow-screen users must be able to browse the selected month's sessions through the mobile agenda and open a listed session. | Must | Step 3; WF-HI-02 |
+| FR-HI-04 | The month title, session count and empty-state message must agree with the selected month without changing stored data. | Must | Steps 1–3; FR-SH-01 |
+
+</details>
+
+<a id="wf-hi-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
+
+</details>
+
+<a id="wf-hi-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderCalendar`, `moveCalendar`, `initialCalendarMonth`, `groupSessionsByDate`. |
+| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
+
+**Source review:** Current source computes the grid and agenda from recorded dates. Browsing and responsive presentation are not evidence that every date boundary has been tested.
+
+</details>
+
+</details>
+
+<a id="wf-hi-02"></a>
+
+<details>
+<summary><strong>WF-HI-02: Open a session to view its details</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Inspect the recorded details of a session. |
+| **Scope** | Open a session from the calendar, agenda or session history in the existing session form. Saving changes and deleting are separate workflows. |
+| **Preconditions** | The app is available and the session exists and is visible in the current view. |
+| **Successful outcome** | The selected session's recorded values are visible; closing the form without saving leaves stored data unchanged. |
+
+<a id="wf-hi-02-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Select a session chip or agenda entry, or choose Edit in history. | Open the selected record in the session form. |
+| 2 | Inspect its recorded details. | Show type, campaign or one-shot name, date, GM, system, link and notes. |
+| 3 | Close the form without saving. | Return to the previous view without a write. |
+
+</details>
+
+<a id="wf-hi-02-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-HI-04 | Session details belong to the selected record ID, regardless of its position in a sorted or filtered view. | openSessionDialog; [FR-HI-05](#wf-hi-02-requirements); [FR-HI-08](#wf-hi-02-requirements) |
+| BR-HI-05 | Inspection shows recorded session values, not replacements from current campaign defaults. | openSessionDialog; [BR-CS-04](#wf-cs-01-rules); [FR-HI-06](#wf-hi-02-requirements) |
+| BR-HI-06 | Opening and closing details without a save is read-only; deletion and editing require their own explicit actions. | [FR-SH-01](#shared-requirements); [WF-SE-01](#wf-se-01), [WF-SE-02](#wf-se-02); [FR-HI-07](#wf-hi-02-requirements) |
+
+</details>
+
+<a id="wf-hi-02-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-HI-05 | Calendar, agenda and history entry points must open the session identified by the selected record ID. | Must | Step 1 |
+| FR-HI-06 | The form must display recorded session values rather than replacing them with the campaign's current defaults. | Must | Step 2 |
+| FR-HI-07 | Closing an unsaved details form through Close or Escape must send no create, update or delete request. | Must | Step 3 |
+| FR-HI-08 | A session that is no longer available must produce a clear unavailable-record message rather than open another session or fabricate details. | Must | Alternative outcome; FR-SH-01 |
+
+</details>
+
+<a id="wf-hi-02-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
+
+</details>
+
+<a id="wf-hi-02-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `handleDocumentClick`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs); [Stability checks](../../.hallmark/stability-qa.mjs). |
+
+**Source review:** Details currently open in the editable session form. The missing-record recovery requirement is approved; source inspection does not establish a graceful missing-record path.
+
+</details>
+
+</details>
+
+<a id="wf-hi-03"></a>
+
+<details>
+<summary><strong>WF-HI-03: Search and filter session history</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Find sessions matching the owner's interests. |
+| **Scope** | Search session history and combine or clear campaign, one-shot, GM and system filters. Sorting results is a separate workflow. |
+| **Preconditions** | The app's data is loaded and Session history is expanded. |
+| **Successful outcome** | History displays only matching sessions, or a no-results message; clearing the search and filters restores the full list without changing stored records. |
+
+<a id="wf-hi-03-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Expand Session history. | Show the history table and search/filter controls. |
+| 2 | Enter search text or select campaign, one-shots, GM or system filters. | Combine active conditions and display matching sessions. |
+| 3 | Review the results. | Retain matching rows or show No sessions found. |
+| 4 | Clear the search and return filters to All. | Restore the complete history in the current sort order. |
+
+</details>
+
+<a id="wf-hi-03-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-HI-07 | Text search covers campaign/one-shot name, GM, system and recorded date; notes and links are excluded. | [Q-HI-01](#wf-hi-03-decisions); [FR-HI-09–10](#wf-hi-03-requirements) |
+| BR-HI-08 | A result must satisfy the search text and every active filter. Selecting One-shots means sessions with no campaign association. | filteredSessions; [FR-HI-09](#wf-hi-03-requirements); [FR-HI-11](#wf-hi-03-requirements) |
+| BR-HI-09 | History is independent of the calendar month and only its own search and filters constrain the results; clearing them restores complete history. | [Q-HI-02](#wf-hi-03-decisions); [FR-HI-11–12](#wf-hi-03-requirements) |
+
+</details>
+
+<a id="wf-hi-03-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-HI-09 | History must offer text search plus campaign, one-shot, GM and system filtering, including All choices to clear filters. | Must | Steps 1–2 |
+| FR-HI-10 | Search must match campaign/one-shot name, GM, system and the displayed date in `dd/mm/yyyy` format. Text matching must ignore case; notes and links are excluded from search. | Must | Q-HI-01; displayed history date |
+| FR-HI-11 | A session must satisfy the text search and every active filter to be displayed; history must remain independent of calendar-month selection. | Must | Step 2; Q-HI-02 |
+| FR-HI-12 | No matches must show a clear empty state; clearing all conditions must restore complete history without changing records or current sorting. | Must | Steps 3–4 |
+
+</details>
+
+<a id="wf-hi-03-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-HI-01 | Search campaign/one-shot names, GMs, systems and recorded dates. Exclude notes and links for now. | Agreed |
+| Q-HI-02 | Keep session history independent of the selected calendar month; constrain it only with its own search and filters. | Agreed |
+
+</details>
+
+<a id="wf-hi-03-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-HI-01](#wf-hi-03-decisions); [Q-HI-02](#wf-hi-03-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderFilters`, `filteredSessions`, `renderSessions`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
+
+**Source review:** History displays dates as `dd/mm/yyyy` through `formatDate`, but current search uses the stored `yyyy-mm-dd` value. Searching the displayed date format required by FR-HI-10 remains implementation work under FU-HI-04. Active search/filter conditions are combined with AND; Notes and Link are not searched.
+
+</details>
+
+</details>
+
+<a id="wf-hi-04"></a>
+
+<details>
+<summary><strong>WF-HI-04: Sort session history</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Review session history in a useful order. |
+| **Scope** | Sort the visible history by Date, Campaign / One-shot, GM or System and change the sort direction while retaining active filters. |
+| **Preconditions** | Session history is expanded and matching sessions are available to display. |
+| **Successful outcome** | Matching rows appear in the selected order without changing stored session values or the current filters. |
+
+<a id="wf-hi-04-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Session history and optionally apply filters. | Display the matching rows in the current order. |
+| 2 | Select the Date, Campaign / One-shot, GM or System column heading. | Sort matching rows by that value. |
+| 3 | Select the same heading again. | Reverse the direction and retain search and filters. |
+
+</details>
+
+<a id="wf-hi-04-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-HI-10 | Date order is chronological; text comparison ignores case and handles numeric text consistently. | compareSessions; [FR-HI-13–14](#wf-hi-04-requirements) |
+| BR-HI-11 | Equal primary sort values use session ID as a stable secondary order. | [Q-HI-03](#wf-hi-04-decisions); [FR-HI-17](#wf-hi-04-requirements) |
+| BR-HI-12 | Sorting changes only result order, retaining the same active search, filters and stored records. | [FR-SH-01](#shared-requirements); setSort; [FR-HI-15–16](#wf-hi-04-requirements) |
+
+</details>
+
+<a id="wf-hi-04-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-HI-13 | History must allow sorting by Date, Campaign / One-shot, GM and System. | Must | Step 2 |
+| FR-HI-14 | Date sorting must be chronological; text sorting must compare names without case sensitivity and handle numeric text consistently. | Must | Step 2; current comparator |
+| FR-HI-15 | Selecting the current sort column again must reverse direction without changing search, filters or stored values. | Must | Step 3 |
+| FR-HI-16 | The current sort column and direction should be visible to the owner. | Should | Step 3; planned improvement, FU-HI-05 |
+| FR-HI-17 | When primary sort values are equal, the app must use session ID as a stable secondary ordering so tied rows do not move unpredictably after refresh. | Must | Q-HI-03 |
+
+</details>
+
+<a id="wf-hi-04-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-HI-03 | Use session ID as a stable secondary sort order when the selected sort values are equal. | Agreed |
+
+</details>
+
+<a id="wf-hi-04-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-HI-03](#wf-hi-04-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `setSort`, `compareSessions`, `renderSessions`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
+
+**Source review:** Sorting and direction changes are implemented, but the current column and direction have no visible indicator. FR-HI-16 remains a planned improvement tracked as FU-HI-05. The current comparator also returns zero for equal primary values and has no explicit session-ID fallback; that secondary ordering remains implementation work under FU-HI-01.
+
+</details>
+
+</details>
+
+<a id="area-statistics"></a>
+
+## Statistics
+
+<a id="wf-st-01"></a>
+
+<details>
+<summary><strong>WF-ST-01: View statistics for a selected month</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Understand session activity within a month. |
+| **Scope** | Select a month in Monthly Stats and review its session total, campaign and system breakdowns, most-played group and favorite system. |
+| **Preconditions** | The app and its session data are available; the selected month may contain sessions or be empty. |
+| **Successful outcome** | Statistics reflect sessions dated in the selected month, or an empty state is shown, without changing stored data. |
+
+<a id="wf-st-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Stats → Monthly. | Display the selected month and its statistics. |
+| 2 | Choose a month in the month picker. | Recalculate totals and breakdowns using sessions dated in that month. |
+| 3 | Review totals, most-played group, favorite system and charts. | Display the matching figures or explain that the month has no sessions. |
+
+</details>
+
+<a id="wf-st-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-ST-01 | Every session counts once in its recorded month, including future dates, without a separate played/planned classification. History filters do not constrain monthly statistics. | [Q-CS-03](#wf-cs-01-decisions); renderMonthlyStats; [FR-ST-01–02](#wf-st-01-requirements) |
+| BR-ST-02 | Campaign totals group standalone sessions as One-shots; system totals use each session's actual system, not its campaign default. | renderMonthlyStats; groupedCountRows; [FR-ST-03](#wf-st-01-requirements) |
+| BR-ST-03 | Equal highest counts are ties and must not imply a sole favorite system or most-played group. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-04](#wf-st-01-requirements) |
+
+</details>
+
+<a id="wf-st-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-ST-01 | Monthly Stats must support selecting a month and year and clearly identify the selected period. | Must | Steps 1–2 |
+| FR-ST-02 | Each session dated in the selected month must count once, including future-dated sessions; calendar/history filters must not constrain these totals. | Must | Step 2; agreed Q-CS-03 |
+| FR-ST-03 | Monthly totals must agree with campaign and system breakdowns; standalone sessions must be grouped as One-shots in the campaign breakdown. | Must | Step 3 |
+| FR-ST-04 | A month with no sessions must show a clear empty state; tied most-played groups or favorite systems must be identified as ties rather than presented as a sole winner. | Must | Step 3; Q-ST-01 |
+
+</details>
+
+<a id="wf-st-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-ST-01 | Identify ties in favorite systems, most-played groups and busiest months rather than implying a sole winner. | Agreed |
+
+**Also applies:** [Q-CS-03](#wf-cs-01-decisions).
+
+</details>
+
+<a id="wf-st-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-ST-01](#wf-st-01-decisions); [Q-CS-03](#wf-cs-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderMonthlyStats`, `groupedCountRows`, `setStatsMonth`. |
+| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
+
+**Source review:** Current source counts monthly records and groups one-shots, but highlight tiles take the first sorted group and do not explain a tie.
+
+</details>
+
+</details>
+
+<a id="wf-st-02"></a>
+
+<details>
+<summary><strong>WF-ST-02: View the Year Review for a selected year</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Understand annual play activity and highlights. |
+| **Scope** | Select an available year and review totals, monthly activity, campaign, system and GM breakdowns, busiest month and longest break. Configuring My GM name is covered separately. |
+| **Preconditions** | The app and its session data are available, and Year Review is open. |
+| **Successful outcome** | The selected year's recorded sessions determine its statistics and highlights, or an empty state is shown, without changing data. |
+
+<a id="wf-st-02-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Stats → Year Review. | Display the selected year and available year choices. |
+| 2 | Choose a year. | Select sessions dated in that year and recalculate the review. |
+| 3 | Review annual totals, twelve monthly totals, breakdowns and highlights. | Show consistent figures, or an empty state when the year has no sessions. |
+
+</details>
+
+<a id="wf-st-02-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-ST-04 | The annual total includes each session dated in that year once, including future dates, and equals the sum of its twelve monthly counts. | [Q-CS-03](#wf-cs-01-decisions); monthlyCountRows; [FR-ST-05–06](#wf-st-02-requirements) |
+| BR-ST-05 | Longest Break is elapsed calendar days between consecutive recorded dates within the selected year, excluding boundary gaps; fewer than two sessions gives zero. | [Q-ST-02](#wf-st-02-decisions); [FR-ST-07](#wf-st-02-requirements) |
+| BR-ST-06 | Busiest-month and most-played highlights identify all tied leaders rather than implying a sole winner. | [Q-ST-01](#wf-st-01-decisions); [FR-ST-07–08](#wf-st-02-requirements) |
+
+</details>
+
+<a id="wf-st-02-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-ST-05 | Year Review must offer the current year and years containing sessions, including future years with recorded sessions. | Must | Steps 1–2 |
+| FR-ST-06 | Annual totals must count each session dated in that year once and equal the sum of the twelve displayed monthly counts. | Must | Steps 2–3; Q-CS-03 |
+| FR-ST-07 | The review must provide campaign, system and GM breakdowns plus busiest-month, most-played and longest-break highlights; identify highlight ties and calculate Longest Break using Q-ST-01–02. | Must | Step 3; Q-ST-01–02 |
+| FR-ST-08 | An empty year must show an empty state and allow changing year or configuring My GM name without creating or changing session records. | Must | Step 3; WF-ST-03 |
+
+</details>
+
+<a id="wf-st-02-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-ST-02 | Longest Break is elapsed calendar days between consecutive recorded session dates within the selected year, excluding gaps to year boundaries. Fewer than two sessions gives zero. | Agreed |
+
+**Also applies:** [Q-ST-01](#wf-st-01-decisions); [Q-CS-03](#wf-cs-01-decisions).
+
+</details>
+
+<a id="wf-st-02-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-ST-01](#wf-st-01-decisions); [Q-ST-02](#wf-st-02-decisions); [Q-CS-03](#wf-cs-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `renderYearReview`, `reviewYearOptions`, `monthlyCountRows`, `longestGapLabel`. |
+| Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Browser checks](../../.hallmark/qa.mjs). |
+
+**Source review:** Current source computes annual/monthly counts and the agreed within-year gap. Highlight selection still chooses one leader without reporting ties.
+
+</details>
+
+</details>
+
+<a id="wf-st-03"></a>
+
+<details>
+<summary><strong>WF-ST-03: Set or change My GM name and compare games run versus played</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Compare sessions the owner ran as GM with sessions joined as a player. |
+| **Scope** | Select, change or clear My GM name in Year Review and view the resulting comparison for the selected year. Renaming recorded GMs is separate. |
+| **Preconditions** | Year Review is open and tracker settings are available. A GM name is available to select, or a previous selection can be cleared. |
+| **Successful outcome** | The choice persists and the annual comparison updates using it; clearing the choice returns the panel to its unconfigured state. Recorded session GM values remain unchanged. |
+
+<a id="wf-st-03-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Year Review and find My GM name. | Offer names already used by sessions or campaign defaults, plus any saved choice. |
+| 2 | Select a name, choose another name or clear the selection. | Validate and save the setting while preventing overlapping changes. |
+| 3 | Review Games I Ran vs. Played. | Use the confirmed choice to update the selected year's comparison, or prompt for a name when cleared. |
+
+</details>
+
+<a id="wf-st-03-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-ST-07 | My GM name is one shared dataset setting, not a separate user account. A choice comes from existing session GMs, campaign defaults or the previously saved choice; it may be cleared. | TrackerSettings; update_tracker_settings; [FR-ST-09](#wf-st-03-requirements); [FR-ST-11](#wf-st-03-requirements) |
+| BR-ST-08 | Within the selected year, normalized names matching the choice count as Ran; other sessions count as Played. This assumes the owner attended every recorded game. | [Q-ST-03](#wf-st-03-decisions); [FR-ST-10](#wf-st-03-requirements) |
+| BR-ST-09 | Changing or clearing the choice never rewrites recorded GMs. Clearing leaves the comparison unconfigured rather than asserting that every session was played. | update_tracker_settings; ranPlayedPanel; [FR-ST-11–12](#wf-st-03-requirements) |
+
+</details>
+
+<a id="wf-st-03-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-ST-09 | My GM name must accept a listed existing name or an empty selection, and reject an unrelated arbitrary name. | Must | Steps 1–2; current settings validation |
+| FR-ST-10 | Matching must normalize character forms, trim surrounding spaces and ignore case; matching selected-year sessions count as Ran and the remainder as Played under Q-ST-03. | Must | Step 3; Q-ST-03 |
+| FR-ST-11 | The confirmed choice must persist after reload without rewriting session GM values; clearing it must hide the comparison and ask for a choice. | Must | Steps 2–3 |
+| FR-ST-12 | On a rejected setting change, the previous confirmed selection must remain authoritative and the panel must explain the error and allow retry. | Must | FR-SH-03–05 |
+
+</details>
+
+<a id="wf-st-03-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-ST-03 | For the owner's attended-game dataset, sessions whose GM matches My GM name count as Ran; all others count as Played. Multiple aliases or unattended games require a separate model. | Agreed |
+
+</details>
+
+<a id="wf-st-03-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-ST-03](#wf-st-03-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `saveOwnerGm`, `renderYearReview`, `ranPlayedPanel`, `gmNameKey`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `TrackerSettings`, `update_tracker_settings`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
+| Existing checks · not executed for this review | [Settings checks](../../ttrpg_tracker/app/tests/test_tracker_settings.py); [Owner-GM browser checks](../../.hallmark/owner-gm-qa.mjs). |
+
+**Source review:** Current source saves a single shared choice and preserves recorded GMs. Existing automated checks are references, not new execution evidence.
+
+</details>
+
+</details>
+
+<a id="area-transfer"></a>
+
+## Import and export
+
+<a id="wf-da-01"></a>
+
+<details>
+<summary><strong>WF-DA-01: Export tracker data to CSV</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Save a portable copy of the tracker data. |
+| **Scope** | Use Export CSV in Manage to download sessions, campaigns and systems, including links, notes and campaign defaults. Tracker settings and a full database backup are outside this export's scope. |
+| **Preconditions** | The app and its data are available, and the browser can save the downloaded file. |
+| **Successful outcome** | A tracker CSV export is saved locally with the exported records; stored tracker data is unchanged. |
+
+<a id="wf-da-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Manage and choose Export CSV. | Read the current systems, campaigns and sessions. |
+| 2 | Save the offered file. | Provide a tracker CSV containing those records and their relationships. |
+| 3 | Keep the file for transfer or later import. | Leave the tracker data unchanged. |
+
+</details>
+
+<a id="wf-da-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-DA-01 | Record export includes all systems, campaigns and sessions, including archived campaigns and dates outside any current view or filter. | export_payload; export_csv; [FR-DA-01–02](#wf-da-01-requirements) |
+| BR-DA-02 | CSV preserves record relationships and supported field values, but excludes My GM name for now. It is not a full database backup. | [Q-DA-01](#wf-da-01-decisions); [FR-DA-02–04](#wf-da-01-requirements) |
+| BR-DA-03 | Export is read-only; a CSV transfer must not change source records or treat browser filters as the export scope. | [FR-SH-01](#shared-requirements); [FR-DA-01](#wf-da-01-requirements); [FR-DA-04](#wf-da-01-requirements) |
+
+</details>
+
+<a id="wf-da-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-DA-01 | Export CSV must provide all recorded systems, campaigns and sessions, including archived campaigns and sessions outside the current calendar, filters or statistics period. | Must | Step 1 |
+| FR-DA-02 | The CSV must retain names, dates, relationships, colors, defaults, archive status, links and notes, including non-Latin text, quotes, commas and line breaks. | Must | Step 2; current export fields |
+| FR-DA-03 | The CSV format must be accepted by the tracker import workflow, including valid exports from an empty tracker. | Must | Step 3; WF-DA-02 |
+| FR-DA-04 | Export must not change stored data, must report a failed download request and must not imply that My GM name or the full database is included. | Must | FR-SH-01; Q-DA-01 |
+
+</details>
+
+<a id="wf-da-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-DA-01 | Exclude My GM name from CSV and JSON record exports for now. Full database backups retain it; adding export portability can be considered later. | Agreed |
+
+</details>
+
+<a id="wf-da-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `downloadExport`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_payload`, `export_csv`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py); [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py). |
+
+**Source review:** Current CSV code excludes tracker settings. The data guide's word “settings” is ambiguous: the export contains campaign defaults, not My GM name. The agreed exclusion takes precedence.
+
+</details>
+
+</details>
+
+<a id="wf-da-02"></a>
+
+<details>
+<summary><strong>WF-DA-02: Preview and import new records from a tracker CSV export</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Add saved tracker records while keeping existing records and settings. |
+| **Scope** | Select a tracker CSV export, preview additions, duplicates and issues, then confirm importing new records. Replacing the complete database is separate. |
+| **Preconditions** | The app is available and a tracker CSV export can be selected. Applying an import requires a valid preview that still matches the current data and a writable location for the automatic backup. |
+| **Successful outcome** | A backup is saved before additions, new records are imported, duplicates are skipped, and existing records and settings are retained. The imported records remain available after reload. |
+
+<a id="wf-da-02-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Open Import CSV in Manage and select a tracker export. | Enable preview for the selected file. |
+| 2 | Choose Preview file. | Validate rows and display proposed additions, existing records, duplicates, warnings and errors without writing. |
+| 3 | Review the preview and choose Import new records when allowed. | Recheck preview freshness and validation, then save a pre-import backup before adding records. |
+| 4 | Continue after confirmation. | Commit the additions, refresh views and show imported counts while keeping existing records and settings. |
+
+</details>
+
+<a id="wf-da-02-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-DA-04 | Import adds records without overwriting existing values or tracker settings. External numeric IDs identify rows in the file, not destination database identities. | [Q-DA-02](#wf-da-02-decisions); plan_csv_import; [FR-DA-08–09](#wf-da-02-requirements) |
+| BR-DA-05 | Session duplicate handling compares date, normalized campaign/one-shot identity, GM and system plus occurrence counts, preserving deliberate multiplicity and existing notes/links. | [Q-DA-03](#wf-da-02-decisions); [FR-DA-09](#wf-da-02-requirements) |
+| BR-DA-06 | Preview is read-only and applies only while its file and underlying record data remain unchanged. Any invalid row prevents application. | import_preview; import_revision; apply_csv_import; [FR-DA-05–07](#wf-da-02-requirements) |
+| BR-DA-07 | All additions commit together, and a successful automatic record backup precedes additions. Backup failure prevents writes; that JSON record backup is not a complete database backup. | save_import_backup; apply_csv_import; [Q-DA-01](#wf-da-01-decisions); [FR-DA-08](#wf-da-02-requirements) |
+
+</details>
+
+<a id="wf-da-02-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-DA-05 | Preview must accept the tracker CSV format, enforce the current 5,000,000-byte file limit in the browser and show row-specific problems without writing data. | Must | Steps 1–2 |
+| FR-DA-06 | Preview must distinguish additions, existing records and duplicates and permit import only when no validation errors exist and at least one new record is present. | Must | Step 2 |
+| FR-DA-07 | If the file or underlying record data changes after preview, applying the stale preview must be blocked and a new preview required. | Must | Step 3 |
+| FR-DA-08 | Before additions, the app must save the automatic record backup; backup failure must prevent import. Import additions must commit together and preserve existing records and tracker settings. | Must | Steps 3–4; Q-DA-02 |
+| FR-DA-09 | Matching and duplicate handling must follow the agreed identity/multiplicity policy; success must show added counts and persist the records, while a failed apply must require another preview before retry. | Must | Step 4; Q-DA-03 |
+
+The automatic JSON record backup is not a full database backup and does not
+include My GM name. It has no in-app restore action.
+
+</details>
+
+<a id="wf-da-02-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-DA-02 | Keep import add-only: explain conflicts and retain existing values. Use a database restore for exact-state recovery. | Agreed |
+| Q-DA-03 | Compare occurrence counts by date, campaign/one-shot identity, GM and system so reimport preserves deliberate identical sessions without repeatedly adding them. Retain existing notes and links. | Agreed |
+
+**Also applies:** [Q-DA-01](#wf-da-01-decisions).
+
+</details>
+
+<a id="wf-da-02-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-DA-02](#wf-da-02-decisions); [Q-DA-03](#wf-da-02-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `previewCsvImport`, `applyCsvImport`, `renderCsvImportPreview`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `plan_csv_import`, `import_revision`, `save_import_backup`, `apply_csv_import`. |
+| Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
+| Existing checks · not executed for this review | [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py); [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current backend validates and commits imports together. It also limits a file to 10,000 records and 5,000,000 encoded bytes; these implementation limits are not new product decisions.
+
+</details>
+
+</details>
+
+<a id="wf-da-03"></a>
+
+<details>
+<summary><strong>WF-DA-03: Export tracker data to JSON through the API</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Obtain tracker records in a machine-readable format. |
+| **Scope** | Request JSON from `/api/export` and optionally save the response. Settings export and full database recovery are outside this endpoint's scope. |
+| **Preconditions** | The running app's API and its data are accessible through a browser or API client. |
+| **Successful outcome** | A JSON response contains the recorded systems, campaigns and sessions, and stored tracker data is unchanged. |
+
+<a id="wf-da-03-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Request `/api/export` from the running app. | Read current system, campaign and session records. |
+| 2 | Inspect or save the JSON response. | Return the record collections with their recorded values and relationships. |
+| 3 | Keep the response for external use. | Leave the stored dataset unchanged. |
+
+</details>
+
+<a id="wf-da-03-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-DA-08 | JSON record export contains all systems, campaigns and sessions with their relationships, without calendar, history or statistics filtering. | export_payload; export_json; [FR-DA-10–11](#wf-da-03-requirements) |
+| BR-DA-09 | My GM name is excluded for now. Record JSON is not a full database copy and has no supported in-app JSON restore workflow. | [Q-DA-01](#wf-da-01-decisions); [FR-DA-13](#wf-da-03-requirements) |
+| BR-DA-10 | Reading the export is not a write and does not change records or settings, including when collections are empty. | [FR-SH-01](#shared-requirements); [FR-DA-12](#wf-da-03-requirements) |
+
+</details>
+
+<a id="wf-da-03-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-DA-10 | `/api/export` must return JSON collections named systems, campaigns and sessions, including archived campaigns and all recorded dates. | Must | Steps 1–2 |
+| FR-DA-11 | Records must retain identifiers, relationships and exported values without losing names, non-Latin characters, links or notes; empty collections must remain valid JSON lists. | Must | Step 2 |
+| FR-DA-12 | JSON export must be read-only and return an error response if the request cannot be completed. | Must | Steps 1–3; FR-SH-01 |
+| FR-DA-13 | Documentation must state that this endpoint excludes tracker settings and is not a full database backup or a supported in-app JSON restore workflow. | Must | Q-DA-01; current endpoint scope |
+
+</details>
+
+<a id="wf-da-03-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+**Also applies:** [Q-DA-01](#wf-da-01-decisions).
+
+</details>
+
+<a id="wf-da-03-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_json`, `export_payload`. |
+| Supporting documents | [Data and backup guide](../data-and-backups.md). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current /api/export returns the three record collections and excludes tracker settings; this endpoint is separate from the CSV download button.
+
+</details>
+
+</details>
+
+<a id="area-maintenance"></a>
+
+## Setup and maintenance outside the app UI
+
+<a id="wf-ma-01"></a>
+
+<details>
+<summary><strong>WF-MA-01: Start the app for the first time with demo sessions</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Explore the tracker using fictional example data. |
+| **Scope** | Launch a new installation with the supplied demo source enabled, following Getting started. Switching an existing dataset to demo data is separate. |
+| **Preconditions** | The project is downloaded, its Python or Docker environment is ready, and the database has not previously been initialized. |
+| **Successful outcome** | The app opens in a browser with the fictional demo sessions available in their recorded months and retained after reload. |
+
+<a id="wf-ma-01-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Prepare a new installation using Getting started and keep the demo source enabled. | Make the application files and fictional source data available. |
+| 2 | Start the app with the documented Python or Docker method. | Initialize storage and load the supplied demo into an empty dataset. |
+| 3 | Open the app and browse a demo month. | Display fictional campaigns, systems and sessions. |
+| 4 | Reload or restart after exploring. | Retain the initialized records without adding another copy. |
+
+</details>
+
+<a id="wf-ma-01-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-MA-01 | Demo seeding applies only when no system, campaign or session records exist and the configured demo source is available. | startup; [FR-MA-01–02](#wf-ma-01-requirements) |
+| BR-MA-02 | Starting with an already populated dataset must not append demo copies or overwrite personal records. | startup; [FR-MA-03](#wf-ma-01-requirements) |
+| BR-MA-03 | The supplied examples are fictional records with their own historical dates; an empty current month does not mean the demo failed to load. | project README; supplied demo source; [FR-MA-02](#wf-ma-01-requirements); [FR-MA-04](#wf-ma-01-requirements) |
+
+</details>
+
+<a id="wf-ma-01-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-MA-01 | Getting started must identify the supported Python and Docker launch paths and how to open the app. | Must | Steps 1–3; project README |
+| FR-MA-02 | With an empty dataset and enabled supplied demo source, initialization must load its fictional sessions with their campaign/system relationships and recorded dates. | Must | Steps 2–3; startup source |
+| FR-MA-03 | Restarting with an already populated dataset must not append another demo copy or overwrite recorded changes. | Must | Step 4; startup source |
+| FR-MA-04 | The setup guide should identify the demo's date range so an initially empty current calendar does not imply that loading failed. | Should | Step 3; project README |
+
+</details>
+
+<a id="wf-ma-01-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
+
+</details>
+
+<a id="wf-ma-01-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`, `import_seed_data`. |
+| Supporting documents | [Getting started](../../README.md#getting-started); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml); [Fictional demo source](../../ttrpg_tracker/app/import_source/demo_sessions.csv); [Data and backup guide](../data-and-backups.md). |
+| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+
+**Source review:** Current startup checks whether record tables contain data; it does not use a permanent “first launch completed” marker. Keep demo seeding disabled when an empty dataset must stay empty.
+
+</details>
+
+</details>
+
+<a id="wf-ma-02"></a>
+
+<details>
+<summary><strong>WF-MA-02: Start the app for the first time without demo sessions</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Begin recording personal games in an empty tracker. |
+| **Scope** | Disable the demo source before the first launch, then start a new installation using the data guide. Clearing an existing dataset is separate. |
+| **Preconditions** | The project and its Python or Docker environment are ready, the database has not been initialized, and the demo source is disabled. |
+| **Successful outcome** | The app opens with no demo games loaded and is ready for the owner's systems, campaigns and sessions; demo data stays disabled on restart. |
+
+<a id="wf-ma-02-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | App response |
+| --- | --- | --- |
+| 1 | Before first launch, follow the data guide to rename the demo source. | The default demo file is no longer available for automatic loading. |
+| 2 | Start a new installation using Python or Docker. | Initialize storage without demo records. |
+| 3 | Open the tracker. | Show empty views with access to system, campaign and session creation. |
+| 4 | Keep the demo source disabled on later restarts. | Retain the owner's dataset without loading the demo. |
+
+</details>
+
+<a id="wf-ma-02-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-MA-04 | Disabling the demo source prevents later automatic seeding; it does not remove records already imported. | data guide; startup; [FR-MA-05](#wf-ma-02-requirements); [FR-MA-08](#wf-ma-02-requirements) |
+| BR-MA-05 | A new empty tracker has no demo systems, campaigns or sessions; required systems and campaigns are created through their own workflows. | startup; [WF-SY-01](#wf-sy-01); [WF-CP-01](#wf-cp-01); [FR-MA-06–07](#wf-ma-02-requirements) |
+| BR-MA-06 | The demo source must remain disabled while the owner expects an empty dataset to stay empty across restarts. | startup; data guide; [FR-MA-08](#wf-ma-02-requirements) |
+
+</details>
+
+<a id="wf-ma-02-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-MA-05 | The data guide must identify the supplied demo source and explain how to disable it before first launch. | Must | Step 1 |
+| FR-MA-06 | Starting with no records and no enabled demo source must create usable storage without adding demo systems, campaigns or sessions. | Must | Step 2 |
+| FR-MA-07 | Empty views must support beginning with system or campaign setup and must not present the absence of sessions as a load failure. | Must | Step 3 |
+| FR-MA-08 | The guide must explain that disabling the source does not remove existing imported records and that it must stay disabled to prevent later seeding into an empty dataset. | Must | Step 4; data guide |
+
+</details>
+
+<a id="wf-ma-02-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+No additional workflow-specific decision. The shared read-only requirement [FR-SH-01](#shared-requirements) applies.
+
+</details>
+
+<a id="wf-ma-02-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
+| Supporting documents | [Getting started](../../README.md#getting-started); [Data and backup guide](../data-and-backups.md); [Fictional demo source](../../ttrpg_tracker/app/import_source/demo_sessions.csv). |
+
+**Source review:** The current guide describes renaming the source before launch. Source inspection confirms that absence of the enabled source prevents seeding into an empty dataset.
+
+</details>
+
+</details>
+
+<a id="wf-ma-03"></a>
+
+<details>
+<summary><strong>WF-MA-03: Make a full database backup</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Preserve a complete saved version of the tracker for later recovery. |
+| **Scope** | Stop the app, copy its database to a separate backup location using the Python or Docker instructions, then restart the app. |
+| **Preconditions** | The database exists, the owner can stop the app and access its storage, and a backup location is available. |
+| **Successful outcome** | A separate copy of the stopped database is saved, and the app resumes with its current records and settings unchanged. |
+
+<a id="wf-ma-03-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | Procedure / app response |
+| --- | --- | --- |
+| 1 | Identify the database used by the active Python or Docker installation and choose a backup destination. | The data guide distinguishes the local file from Docker's stored database. |
+| 2 | Stop the app before copying. | Database writes stop. |
+| 3 | Copy the complete database to the chosen destination under a distinct filename. | A separate saved version is available without modifying the source. |
+| 4 | Check that the copy exists and restart the app. | The current dataset remains available. |
+
+</details>
+
+<a id="wf-ma-03-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-MA-07 | A complete backup is a copy of the active database, including tracker settings. Python and Docker storage, and custom configured paths, may differ. | database configuration; data guide; [Q-DA-01](#wf-da-01-decisions); [FR-MA-09](#wf-ma-03-requirements); [FR-MA-11](#wf-ma-03-requirements) |
+| BR-MA-08 | The documented manual-copy procedure stops the app before copying and preserves the active original. | data guide; [FR-MA-10](#wf-ma-03-requirements) |
+| BR-MA-09 | Backup versions use dated names outside the project or active Docker storage. A record export or pre-import JSON file is not a substitute for a full database backup. | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions); [FR-MA-11–12](#wf-ma-03-requirements) |
+
+</details>
+
+<a id="wf-ma-03-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-MA-09 | The backup procedure must identify the active database location for both Python and Docker, including how custom storage configuration changes that location. | Must | Step 1; data guide and configured database path |
+| FR-MA-10 | The procedure must require the app to be stopped before copying the full database and must retain the original database. | Must | Steps 2–3 |
+| FR-MA-11 | The guide must distinguish a full database copy, which includes tracker settings, from CSV and JSON record exports that exclude My GM name. | Must | Step 3; Q-DA-01 |
+| FR-MA-12 | The procedure must use a dated backup filename outside the project or active Docker storage and require checking that the separate copy exists before restart; proving that it can be restored belongs to the restore workflow. | Must | Step 4; Q-MA-01 |
+
+</details>
+
+<a id="wf-ma-03-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-MA-01 | Keep dated manual backup files outside the project or active Docker storage. Automatic scheduling and retention remain separate work. | Agreed |
+
+**Also applies:** [Q-DA-01](#wf-da-01-decisions).
+
+</details>
+
+<a id="wf-ma-03-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml); [Getting started](../../README.md#getting-started). |
+
+**Source review:** This is a manual operational policy, not an in-app backup feature. The current guide assumes default storage and advises distinct filenames; custom-path details and a dated naming example still need refinement.
+
+</details>
+
+</details>
+
+<a id="wf-ma-04"></a>
+
+<details>
+<summary><strong>WF-MA-04: Restore a full database backup</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Return the tracker to a previously saved database state. |
+| **Scope** | Stop the app, replace its database with a saved database copy using the data guide, then restart. This replaces the current records and settings. |
+| **Preconditions** | A usable full database backup exists, the owner has chosen to replace the current dataset and preserved a copy of it, and the app can be stopped and its storage accessed. |
+| **Successful outcome** | The app runs using the restored database, and the games and settings from that saved version are available. |
+
+<a id="wf-ma-04-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | Procedure / app response |
+| --- | --- | --- |
+| 1 | Select a full database backup and review that restoring replaces the active dataset. | The guide identifies the correct target storage and supported procedure. |
+| 2 | Stop the app and save a separate copy of the current database. | The current version is preserved for recovery. |
+| 3 | Replace the active database with the selected backup. | The saved version becomes the database used on restart. |
+| 4 | Restart and inspect games, totals and My GM name. | The app loads the restored data or reports a startup failure for investigation. |
+
+</details>
+
+<a id="wf-ma-04-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-MA-10 | Restore replaces the entire active database rather than merging records; preserve a separate copy of the current database before replacement. | data guide; [FR-MA-13–14](#wf-ma-04-requirements) |
+| BR-MA-11 | The documented and tested baseline is restore with the same app version. Cross-version migration requires a separately verified procedure. | [Q-MA-02](#wf-ma-04-decisions); [FR-MA-16](#wf-ma-04-requirements) |
+| BR-MA-12 | Restored settings and records come from the selected backup. For an empty restored dataset, the demo source must be disabled to avoid unintended seeding. | startup; [Q-DA-01](#wf-da-01-decisions); data guide; [FR-MA-15–16](#wf-ma-04-requirements) |
+
+</details>
+
+<a id="wf-ma-04-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-MA-13 | Restore instructions must state that replacement affects all current records and settings and require preserving the current database first. | Must | Steps 1–2 |
+| FR-MA-14 | The procedure must identify the active target for Python or Docker and require the app to be stopped during replacement. | Must | Steps 2–3 |
+| FR-MA-15 | A successful restore must load the selected backup's records and settings without mixing in the replaced dataset; the guide must account for demo seeding when a restored dataset is empty. | Must | Steps 3–4; WF-MA-02 |
+| FR-MA-16 | The procedure must include post-restart checks and recovery using the preserved pre-restore copy if validation fails. Document and test same-version restore first; cross-version migration requires a separately verified procedure. | Must | Step 4; Q-MA-02 |
+
+</details>
+
+<a id="wf-ma-04-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-MA-02 | Document and test database restore with the same app version first. Cross-version migration needs its own verified procedure. | Agreed |
+
+**Also applies:** [Q-DA-01](#wf-da-01-decisions).
+
+</details>
+
+<a id="wf-ma-04-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-MA-02](#wf-ma-04-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
+| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml). |
+
+**Source review:** This is a manual restore procedure. No restore was executed during this documentation review; compatibility testing, custom-path instructions and recovery checks remain work to do.
+
+</details>
+
+</details>
+
+<a id="wf-ma-05"></a>
+
+<details>
+<summary><strong>WF-MA-05: Start over with an empty tracker after trying the demo</strong></summary>
+
+| Field | Workflow summary |
+| --- | --- |
+| **Goal** | Replace a trial dataset with an empty tracker for personal use. |
+| **Scope** | Follow the data guide's reset procedure for Python or Docker after backing up the current database and disabling the demo source. All current games, including personally added records, are removed from the active dataset. |
+| **Preconditions** | The owner has chosen to clear the dataset, a full backup has been saved, and the owner can stop the app and manage its storage. |
+| **Successful outcome** | The app starts with an empty dataset and does not reload demo games; the previous dataset remains available in the saved backup. |
+
+<a id="wf-ma-05-flow"></a>
+
+<details>
+<summary><strong>Main workflow</strong></summary>
+
+| Step | Owner action | Procedure / app response |
+| --- | --- | --- |
+| 1 | Choose to clear the trial dataset and make a full database backup. | The guide explains that personal additions are included in the reset. |
+| 2 | Disable the demo source and stop the app. | Prevent writes and later automatic reloading of examples. |
+| 3 | Follow the documented Python or Docker reset for the active storage. | Remove the active dataset from use, retaining the external backup. |
+| 4 | Start the app and inspect the empty views. | Initialize an empty tracker ready for new records. |
+
+</details>
+
+<a id="wf-ma-05-rules"></a>
+
+<details>
+<summary><strong>Business rules</strong></summary>
+
+| ID | Business rule | Basis and linked requirements |
+| --- | --- | --- |
+| BR-MA-13 | Reset removes all games from the active dataset, including personal additions; it is not selective removal of demo records. | [Q-MA-03](#wf-ma-05-decisions); [FR-MA-17](#wf-ma-05-requirements); [FR-MA-20](#wf-ma-05-requirements) |
+| BR-MA-14 | A separate full backup is retained outside the storage being reset, and the demo source is disabled before restart. | [Q-MA-01](#wf-ma-03-decisions); data guide; [FR-MA-17–18](#wf-ma-05-requirements) |
+| BR-MA-15 | Python and Docker reset their own active storage. The documented Docker reset also removes cached dependencies; neither method is an in-app reset button. | data guide; [Q-MA-03](#wf-ma-05-decisions); [FR-MA-19–20](#wf-ma-05-requirements) |
+
+</details>
+
+<a id="wf-ma-05-requirements"></a>
+
+<details>
+<summary><strong>Functional requirements</strong></summary>
+
+| ID | Requirement | Priority | Source |
+| --- | --- | --- | --- |
+| FR-MA-17 | Reset instructions must state that all active games, including personal additions, will be removed and must require a separate full backup first. | Must | Step 1 |
+| FR-MA-18 | The procedure must disable the demo source and stop the app before changing active storage. | Must | Step 2 |
+| FR-MA-19 | Instructions must distinguish moving aside the Python database from resetting Docker storage and must disclose that the documented Docker reset also removes cached dependencies. | Must | Step 3; data guide |
+| FR-MA-20 | Restart after reset must produce empty systems, campaigns and sessions while the previous dataset remains in the backup; later restarts must not seed the demo while its source stays disabled. | Must | Step 4 |
+
+</details>
+
+<a id="wf-ma-05-decisions"></a>
+
+<details>
+<summary><strong>Agreed product decisions</strong></summary>
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| Q-MA-03 | Keep reset as a documented manual procedure for now. An in-app reset or selective demo removal needs a separate design, including reliable identification of demo records. | Agreed |
+
+**Also applies:** [Q-MA-01](#wf-ma-03-decisions).
+
+</details>
+
+<a id="wf-ma-05-sources"></a>
+
+<details>
+<summary><strong>Sources and current behavior</strong></summary>
+
+| Source type | Source and what to inspect |
+| --- | --- |
+| Agreed policy | [Q-MA-03](#wf-ma-05-decisions); [Q-MA-01](#wf-ma-03-decisions) — owner agreement on 28 October 2026. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `startup`. |
+| Supporting documents | [Data and backup guide](../data-and-backups.md); [Docker storage configuration](../../ttrpg_tracker/docker-compose.yml). |
+
+**Source review:** The guide documents manual reset for default paths. No reset or deletion was performed during this review.
+
+</details>
+
+</details>
+
+<a id="area-planned"></a>
+<a id="planned-workflows-and-improvements"></a>
+<a id="review-findings"></a>
+<a id="campaign-session-follow-up"></a>
+<a id="workflow-follow-up"></a>
+<a id="workflow-follow-up-and-planned-improvements"></a>
+
+## Workflow follow-up and planned improvements
+
+Remaining work is grouped by area. Each `FU-area-number` item tracks a review,
+decision, design, implementation or verification task. Full workflow definitions
+are kept in their product areas: [WF-CP-06](#wf-cp-06) under Campaigns and
+[WF-QA-01](#wf-qa-01) under Sessions.
+
+A follow-up identifies work still to do; it does not mean the entire linked
+workflow is unavailable. Use each workflow's **Sources and current behavior**
+section to distinguish existing behavior from planned changes.
+
+Check an item only when its decision, implementation or evidence has been
+recorded in the linked document. Preserve its ID and the existing requirement
+priorities and product decisions. Source reviews and planned outcomes are not
+new execution results.
+
+Related acceptance-criteria actions retain their A-01–A-11 IDs in
+[Actions needed](acceptance-criteria.md#actions-needed). Broader feature ideas
+remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additions).
+
+<details>
+<summary><strong>Shared review and recovery · SH</strong></summary>
+
+- [ ] **FU-SH-01 — Review acceptance criteria:** All 31 Main workflow tables,
+  business rules, functional requirements and their recorded priorities are
+  approved. Review [acceptance criteria](acceptance-criteria.md) one workflow at
+  a time and record their separate review outcomes. See A-01.
+- [ ] **FU-SH-02 — Finish recovery design:** Apply [Q-SH-01](#shared-decisions) to
+  [GAP-CS-01](#open-decision) and relevant write workflows. Define creation-request
+  identification even when deliberate records look identical, messages, form
+  state, refresh after confirmed success, safe reconciliation before retry and
+  failed rollback handling. Update requirements and acceptance criteria after
+  agreement, then verify the behavior. A missing response does not establish
+  whether a write succeeded. See A-02.
+
+</details>
+
+<details>
+<summary><strong>Campaign sessions · CS</strong></summary>
+
+- [x] **FU-CS-01 — Draft the activity diagram:** Add the draft
+  [WF-CS-01 UML activity diagram](models.md#wf-cs-01-activity-diagram).
+- [x] **FU-CS-02 — Decide repeated campaign-session entries:** Recorded
+  [Q-CS-06](#wf-cs-01-decisions): allow deliberate entries for the same campaign
+  and date. BR-CS-13, FR-CS-25 and draft AC-CS-31 record the result; accidental
+  retries remain separate. The decision is complete; verification remains under
+  FU-SH-04–05. See A-03.
+- [x] **FU-CS-03 — Clarify Escape and closing during save:** Recorded
+  [Q-CS-07](#wf-cs-01-decisions): Escape closes an open picker first; block form
+  closing while saving. FR-CS-16/18 and draft updates to AC-CS-20/22 record the
+  result. Implementation verification remains under FU-SH-04–05. See A-04.
+- [x] **FU-CS-04 — Decide API defaults:** Recorded
+  [Q-CS-08](#wf-cs-01-decisions): retain campaign GM/System defaults for omitted
+  API inputs while requiring both in the browser. FR-CS-11 and draft
+  AC-CS-11/32 record the result. Verification remains under FU-SH-04–05. See A-05.
+- [ ] **FU-CS-05 — Implement campaign-plus-session rollback:**
+  [WF-CS-02](#wf-cs-02) currently creates the campaign and session in separate
+  requests. Implement Q-CS-04–05: retain entered values, explain failure and
+  remove only the campaign created by a failed attempt. Include combined new
+  campaign/system attempts and uncertain cleanup under FU-SH-02. Existing retry
+  checks cover earlier behavior and do not establish that rollback works. See A-06.
+
+</details>
+
+<details>
+<summary><strong>Session editing and deletion · SE</strong></summary>
+
+- [ ] **FU-SE-01 — Offer a choice before applying campaign defaults:**
+  [WF-SE-01](#wf-se-01) currently replaces values immediately when selecting
+  another campaign. Implement and verify the explicit choice required by
+  [Q-SE-02](#wf-se-01-decisions), preserving the session's identity and values
+  according to that choice.
+- [ ] **FU-SE-02 — Verify deletion context and recovery:**
+  [WF-SE-02](#wf-se-02) currently closes confirmation before the request result.
+  Verify its required pending-context and uncertain-outcome behavior, make
+  necessary changes and check cancellation, confirmed results and
+  reconciliation before retry under FU-SH-02.
+
+</details>
+
+<details>
+<summary><strong>Campaign management · CP</strong></summary>
+
+- [ ] **FU-CP-01 — Verify archive and reactivation requests:** Verify pending
+  requests, rejected writes and interrupted responses for
+  [WF-CP-03](#wf-cp-03) and [WF-CP-04](#wf-cp-04), including protection against
+  repeated actions. Source review alone does not establish these branches.
+- [ ] **FU-CP-02 — Reproduce DEF-002:** Capture the running version, deletion
+  request/response, browser console and server logs for
+  [DEF-002](test-records.md#def-002-campaign-delete-feedback). Distinguish a
+  readable HTTP 409 from a connection/body-read failure or a different running
+  version; the reported cause has not been reproduced. See A-07.
+- [ ] **FU-CP-03 — Improve and retest blocked deletion:** Implement the agreed
+  [WF-CP-06](#wf-cp-06) interaction while preserving the server deletion guard:
+  explain unavailable Delete, offer explicit Archive for active campaigns,
+  retain pending/error context and reconcile unknown outcomes. Retest active,
+  archived, empty, stale-data and interrupted-deletion scenarios; do not infer
+  data loss from the report. See A-07 and
+  [planned verification](#wf-cp-06-review).
+
+</details>
+
+<details>
+<summary><strong>Game systems · SY</strong></summary>
+
+- [ ] **FU-SY-01 — Implement new-system rollback:**
+  [WF-SY-02](#wf-sy-02) and [WF-SY-03](#wf-sy-03) currently create the system
+  before saving the parent without rollback. Implement and verify Q-SY-02 for
+  session and campaign creation/editing failures: remove only the system created
+  by the attempt, retain entered and previously stored values, explain confirmed
+  cleanup and handle uncertain cleanup under FU-SH-02. See A-06.
+- [ ] **FU-SY-02 — Require explicit existing-system reuse:** Implement and
+  verify [Q-SY-03](#wf-sy-02-decisions) in both new-system paths. The session path
+  currently rejects duplicate names; the campaign path reuses a typed existing
+  name automatically. Offer the agreed explicit reuse choice and preserve the
+  existing system's ID, name and color.
+
+</details>
+
+<details>
+<summary><strong>Calendar and history · HI</strong></summary>
+
+- [ ] **FU-HI-01 — Add stable history tie ordering:** Implement and verify the
+  session-ID secondary order agreed in [Q-HI-03](#wf-hi-04-decisions) for
+  [WF-HI-04](#wf-hi-04). The current comparator has no ID fallback.
+- [ ] **FU-HI-02 — Verify calendar date boundaries:** Test
+  [WF-HI-01](#wf-hi-01) date boundaries and browsing/responsive presentation.
+  Source inspection of the grid and agenda is not execution evidence.
+- [ ] **FU-HI-03 — Verify missing-record recovery:** Verify the approved recovery
+  requirement in [WF-HI-02](#wf-hi-02), make any necessary changes and check
+  that opening a missing session leaves a usable view with clear feedback.
+- [ ] **FU-HI-04 — Search dates in the displayed format:** Update
+  `filteredSessions` in [app.js](../../ttrpg_tracker/app/frontend/app.js) to
+  match the displayed `dd/mm/yyyy` date required by FR-HI-10 and AC-HI-10.
+  History already displays this format, but current search uses only the stored
+  `yyyy-mm-dd` date. Verify that searching `28/10/2026` finds a session stored
+  with date `2026-10-28`.
+- [ ] **FU-HI-05 — Show the active sort column and direction:** Implement the
+  planned Should requirement FR-HI-16 and verify AC-HI-17. History currently
+  sorts and reverses direction, but its column headings do not indicate the
+  active column or direction. Add a visible indicator that updates when the
+  owner changes either.
+
+</details>
+
+<details>
+<summary><strong>Statistics · ST</strong></summary>
+
+- [ ] **FU-ST-01 — Display tied statistics highlights:** Implement and verify
+  all tied leaders under [Q-ST-01](#wf-st-01-decisions) in
+  [WF-ST-01](#wf-st-01) and [WF-ST-02](#wf-st-02). Current highlight selection
+  chooses one leader without explaining ties.
+
+</details>
+
+<details>
+<summary><strong>Import and export · DA</strong></summary>
+
+- [ ] **FU-DA-01 — Clarify export and backup scope:** Correct the
+  [data guide](../data-and-backups.md) description of CSV “settings”: campaign
+  defaults are included; My GM name is excluded from CSV and JSON record exports
+  under [Q-DA-01](#wf-da-01-decisions). Explain that full database backups include
+  tracker settings, while record exports and automatic pre-import JSON backups
+  are not full database backups or a supported JSON restore workflow. See A-09.
+- [ ] **FU-DA-02 — Include My GM name in record exports:** Design and implement
+  export of the current GM selection as tracker metadata for CSV and JSON,
+  including an unset selection. Define the representation and versioning,
+  retain compatibility with older files without this metadata, and define how
+  CSV import can restore the choice while preserving an existing selection
+  unless the owner explicitly chooses replacement. Export must leave the
+  setting and session GM values unchanged. Update BR-DA-02, Q-DA-01, related
+  requirements, acceptance criteria and guidance to distinguish the new format
+  from older exports; verify export/import of selected, unset and missing values.
+  This remains planned; a supported JSON import is separate work.
+</details>
+
+<details>
+<summary><strong>Maintenance · MA</strong></summary>
+
+- [ ] **FU-MA-01 — Complete backup instructions:** Refine
+  [WF-MA-03](#wf-ma-03) guidance for Python, Docker and custom active storage.
+  Include a dated filename outside the project/active storage and a check that
+  the separate copy exists before restarting. See FR-MA-09–12 and A-09.
+- [ ] **FU-MA-02 — Complete and verify restore instructions:** Refine
+  [WF-MA-04](#wf-ma-04) guidance for custom paths, same-version compatibility,
+  settings replacement, post-restart checks and recovery using the preserved
+  pre-restore copy. Verify Python and Docker procedures in isolated data;
+  cross-version migration requires its own verified procedure. See FR-MA-13–16,
+  A-09 and A-10.
+- [ ] **FU-MA-03 — Verify setup and reset procedures:** Cover
+  [WF-MA-01](#wf-ma-01), [WF-MA-02](#wf-ma-02) and
+  [WF-MA-05](#wf-ma-05) in the isolated maintenance test scope, including default
+  and custom active storage, disabled demo seeding for an empty dataset and
+  retained separate backups. No reset was executed during this review. See A-10.
+
+</details>
+
+<details>
+<summary><strong>Quick Add · QA</strong></summary>
+
+- [ ] **FU-QA-01 — Design, implement and verify Quick Add:** Specify the
+  explicit date-confirmation interaction and any separate Log today action for
+  [WF-QA-01](#wf-qa-01). Implement active-campaign shortcuts and verify defaults,
+  overrides, save and recovery under Q-QA-01–02 and FU-SH-02. Keep the feature
+  marked planned until implemented and tested; older build-plan completion
+  notes do not establish current availability. See A-08.
+
+</details>
+
+<details>
+<summary><strong>Test evidence and documentation · SH</strong></summary>
+
+- [ ] **FU-SH-03 — Complete the test plan:** Record version, operating system,
+  browser/launch method, isolated dataset, UI/API scope, priorities, entry and
+  completion conditions in the [test plan](test-plan.md). Retain WF-CS-01 as its
+  first scope; include both Python and Docker when maintenance workflows are
+  selected for testing. See A-10.
+- [ ] **FU-SH-04 — Write linked test cases:** Write
+  [test cases](test-records.md#test-cases) for defaults, overrides, campaign
+  switching, validation, cancellation and rejected-save retry; extend coverage
+  to the other reviewed workflows and recovery/rollback branches. Map and reuse
+  existing automated checks where applicable. See A-10.
+- [ ] **FU-SH-05 — Record execution and retests:** Record
+  [execution results](test-records.md#execution-results), evidence, findings,
+  defects and retests against the selected app version. Keep unexecuted cases
+  explicit; source review and linked checks are not new passed-test evidence.
+  See A-10.
+- [ ] **FU-SH-06 — Update the portfolio index:** Update the
+  [documentation checklist](README.md) acceptance-criteria purpose/status for
+  the expanded workflow coverage and approved business rules/requirements. Keep
+  WF-CS-01's existing acceptance criteria tentatively agreed and new or updated
+  criteria draft until their separate reviews are recorded. See A-11.
+
+</details>
+
+
+## Version history
+
+| Version | Date | Changes |
+| --- | --- | --- |
+| 1.0 | 28 October 2026 | First reviewed baseline: all 31 Main workflow tables, business rules, functional requirements, priorities and 37 product decisions approved. Open design, implementation and verification work remains tracked as follow-ups. |
+
+---
 
 **Related documents:**
 

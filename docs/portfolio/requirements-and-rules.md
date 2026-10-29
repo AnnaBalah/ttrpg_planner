@@ -1,6 +1,12 @@
 # Requirements and rules
 
-**Version:** 1.1 — reviewed baseline with agreed session-form and statistics clarifications
+**Version:** 1.2 — approved baseline
+
+**Owner approval — 29 October 2026:** Version 1.2 adds approved requirements
+FR-DA-14–18 for full JSON backup/restore through the API and aligns the affected
+import/export rules. The owner also approved AC-DA-17–21, bringing the acceptance
+baseline to 192 criteria. Full JSON backup/restore and separate CSV transfer of
+My GM name remain future-sprint work; implementation and verification are pending.
 
 ## Legend
 
@@ -44,10 +50,10 @@ session, item 01. Add new abbreviations to this table when first introduced.
 
 | Area | Current status |
 | --- | --- |
-| Product decisions | **All 37 agreed**, including Q-CS-06–08 recorded on 28 October 2026. My GM name remains excluded from current record exports; its planned inclusion is tracked as FU-DA-02. |
-| Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities. |
+| Product decisions | All 37 decisions agreed. Version 1.2 updates Q-DA-01–02 for CSV record transfer and full JSON backup/restore. Full JSON is future work under FU-DA-03; CSV transfer of My GM name remains separate under FU-DA-02. |
+| Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities and version 1.2 requirements FR-DA-14–18, approved on 29 October 2026. |
 | Main workflows | All 31 Main workflow tables reviewed and approved, including the planned WF-CP-06 and WF-QA-01 flows. |
-| Acceptance criteria | All 187 criteria are approved as version 1.1 on 28 October 2026, including all 14 new or amended criteria and the shared recovery-applicability clarification. Version 1.0 approval is preserved; implementation and verification remain separate. |
+| Acceptance criteria | All 192 criteria are approved as version 1.2: the 187 version 1.1 criteria plus AC-DA-17–21 and aligned import/export scope. Earlier approvals are preserved; implementation and verification remain separate. |
 | Open design work | Detailed recovery design remains open under GAP-CS-01 and FU-SH-02. Approval of the requirements does not close implementation or verification tasks. |
 | Implementation and evidence | An agreed decision is not proof of a working feature. Each workflow's source section distinguishes current code from planned behavior. |
 
@@ -162,8 +168,8 @@ and verification remain separate work.
 
 | ID | Agreed result |
 | --- | --- |
-| [Q-DA-01](#wf-da-01-decisions) | Exclude My GM name from CSV/JSON record exports for now; full database backups retain it. |
-| [Q-DA-02](#wf-da-02-decisions) | Keep import add-only and preserve existing values; exact-state recovery uses a database restore. |
+| [Q-DA-01](#wf-da-01-decisions) | Use CSV for record transfer and full JSON through the API for backup/restore. Full JSON includes settings; CSV transfer of My GM name remains separate future work. |
+| [Q-DA-02](#wf-da-02-decisions) | Keep CSV import add-only and preserve existing values; full restore replaces the saved state. JSON restore is future work. |
 | [Q-DA-03](#wf-da-02-decisions) | Compare identical-session occurrence counts to preserve deliberate multiplicity without repeatedly importing it; keep existing notes and links. |
 
 </details>
@@ -2389,6 +2395,12 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 
 ## Import and export
 
+CSV serves record transfer; full JSON through the API serves backup and restore.
+Full JSON backup/restore is approved for a future sprint under FU-DA-03. Current
+JSON exports and automatic pre-import copies still exclude tracker settings;
+a database copy remains the working full-backup method until the feature is
+delivered. CSV transfer of My GM name remains separate future work under FU-DA-02.
+
 <a id="wf-da-01"></a>
 
 <details>
@@ -2448,7 +2460,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-DA-01 | Exclude My GM name from CSV and JSON record exports for now. Full database backups retain it; adding export portability can be considered later. | Agreed |
+| Q-DA-01 | Use CSV for record transfer and full JSON through the API for backup/restore. Full JSON must include all records and settings, including My GM name. CSV transfer of that setting remains separate future work under FU-DA-02. Until FU-DA-03 is delivered, current CSV/JSON exports exclude it and a database copy remains the working full-backup method. | Agreed; amended in version 1.2 on 29 October 2026 |
 
 </details>
 
@@ -2459,7 +2471,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 
 | Source type | Source and what to inspect |
 | --- | --- |
-| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026; version 1.2 amendment approved on 29 October 2026. |
 | Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `downloadExport`. |
 | Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_payload`, `export_csv`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
@@ -2507,7 +2519,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | BR-DA-04 | Import adds records without overwriting existing values or tracker settings. External numeric IDs identify rows in the file, not destination database identities. | [Q-DA-02](#wf-da-02-decisions); plan_csv_import; [FR-DA-08–09](#wf-da-02-requirements) |
 | BR-DA-05 | Session duplicate handling compares date, normalized campaign/one-shot identity, GM and system plus occurrence counts, preserving deliberate multiplicity and existing notes/links. Name comparisons trim surrounding whitespace, normalize equivalent character forms and ignore case; campaign and one-shot identities remain distinct even when their names match. This does not introduce aliases or fuzzy matching. | [Q-DA-03](#wf-da-02-decisions); import_name; [FR-DA-09](#wf-da-02-requirements) |
 | BR-DA-06 | Preview is read-only and applies only while its file and underlying record data remain unchanged. Any invalid row prevents application. | import_preview; import_revision; apply_csv_import; [FR-DA-05–07](#wf-da-02-requirements) |
-| BR-DA-07 | All additions commit together, and a successful automatic record backup precedes additions. Backup failure prevents writes; that JSON record backup is not a complete database backup. | save_import_backup; apply_csv_import; [Q-DA-01](#wf-da-01-decisions); [FR-DA-08](#wf-da-02-requirements) |
+| BR-DA-07 | All additions commit together, and a successful automatic backup precedes additions. Backup failure prevents writes. Under FR-DA-17, pre-import copies will use the full JSON format, including settings; current copies remain partial record exports until FU-DA-03 is delivered. | save_import_backup; apply_csv_import; [Q-DA-01](#wf-da-01-decisions); [FR-DA-08](#wf-da-02-requirements); [FR-DA-17](#wf-da-03-requirements) |
 
 </details>
 
@@ -2524,8 +2536,9 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | FR-DA-08 | Before additions, the app must save the automatic record backup; backup failure must prevent import. Import additions must commit together and preserve existing records and tracker settings. | Must | Steps 3–4; Q-DA-02 |
 | FR-DA-09 | Matching and duplicate handling must follow BR-DA-04–05 and Q-DA-03: resolve file relationships to matched or newly created destination records rather than treating file numeric IDs as destination IDs, and compare normalized session identities with occurrence counts. Success must show added counts and persist the records, while a failed apply must require another preview before retry. | Must | Step 4; Q-DA-03; BR-DA-04–05 |
 
-The automatic JSON record backup is not a full database backup and does not
-include My GM name. It has no in-app restore action.
+Current automatic JSON copies exclude My GM name and have no supported restore
+workflow. The approved full-backup format is defined by FR-DA-17 and remains
+future-sprint work under FU-DA-03.
 
 </details>
 
@@ -2536,7 +2549,7 @@ include My GM name. It has no in-app restore action.
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-DA-02 | Keep import add-only: explain conflicts and retain existing values. Use a database restore for exact-state recovery. | Agreed |
+| Q-DA-02 | Keep CSV import add-only: explain conflicts and retain existing values. Exact-state recovery replaces records and settings through a full restore. JSON restore is planned under FU-DA-03; the existing database-copy restore remains available until then. | Agreed; amended in version 1.2 on 29 October 2026 |
 | Q-DA-03 | Compare occurrence counts by date, campaign/one-shot identity, GM and system so reimport preserves deliberate identical sessions without repeatedly adding them. Retain existing notes and links. | Agreed |
 
 **Also applies:** [Q-DA-01](#wf-da-01-decisions).
@@ -2550,7 +2563,7 @@ include My GM name. It has no in-app restore action.
 
 | Source type | Source and what to inspect |
 | --- | --- |
-| Agreed policy | [Q-DA-02](#wf-da-02-decisions); [Q-DA-03](#wf-da-02-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
+| Agreed policy | [Q-DA-02](#wf-da-02-decisions); [Q-DA-03](#wf-da-02-decisions); [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026; Q-DA-01–02 version 1.2 amendments approved on 29 October 2026. |
 | Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `previewCsvImport`, `applyCsvImport`, `renderCsvImportPreview`. |
 | Current backend | [main.py](../../ttrpg_tracker/app/main.py): `plan_csv_import`, `import_revision`, `save_import_backup`, `apply_csv_import`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Data and backup guide](../data-and-backups.md). |
@@ -2562,17 +2575,22 @@ include My GM name. It has no in-app restore action.
 
 </details>
 
+<a id="planned-json-backup-restore"></a>
 <a id="wf-da-03"></a>
 
 <details>
-<summary><strong>WF-DA-03: Export tracker data to JSON through the API</strong></summary>
+<summary><strong>WF-DA-03: Back up and restore tracker data as JSON through the API</strong></summary>
+
+**Status:** Approved in version 1.2 on 29 October 2026. Full JSON backup/restore
+is planned for a future sprint under FU-DA-03; implementation and verification
+remain pending.
 
 | Field | Workflow summary |
 | --- | --- |
-| **Goal** | Obtain tracker records in a machine-readable format. |
-| **Scope** | Request JSON from `/api/export` and optionally save the response. Settings export and full database recovery are outside this endpoint's scope. |
-| **Preconditions** | The running app's API and its data are accessible through a browser or API client. |
-| **Successful outcome** | A JSON response contains the recorded systems, campaigns and sessions, and stored tracker data is unchanged. |
+| **Goal** | Save and restore a complete snapshot of the tracker's records and settings. |
+| **Scope** | Request a full JSON backup from `/api/export`, or submit a full backup for restore through the API. CSV record transfer is separate. |
+| **Preconditions** | The app's API is available. Restore requires a valid backup from the same app version and a writable destination for the pre-restore safety copy. |
+| **Successful outcome** | Export saves all records and settings without changing them. Restore replaces current data with the saved state, preserving a full copy of the previous state. |
 
 <a id="wf-da-03-flow"></a>
 
@@ -2581,9 +2599,11 @@ include My GM name. It has no in-app restore action.
 
 | Step | Owner action | App response |
 | --- | --- | --- |
-| 1 | Request `/api/export` from the running app. | Read current system, campaign and session records. |
-| 2 | Inspect or save the JSON response. | Return the record collections with their recorded values and relationships. |
-| 3 | Keep the response for external use. | Leave the stored dataset unchanged. |
+| 1 | Request `/api/export` from the running app. | Read one consistent saved state, including records and settings. |
+| 2 | Save the JSON response as a dated backup outside active storage. | Return all stored fields and relationships without changing data. |
+| 3 | For recovery, explicitly submit a full JSON backup to the restore API. | Validate the complete backup before changing data; reject an invalid or incompatible file with a clear reason. |
+| 4 | Continue with a valid restore. | Save the current state as a full JSON safety copy, then replace all records and settings together. A failed safety copy prevents replacement; a failed replacement preserves the current state. |
+| 5 | Inspect the restored records, totals and My GM name. | Retain the restored state after reload. The pre-restore copy remains available for recovery. |
 
 </details>
 
@@ -2594,8 +2614,8 @@ include My GM name. It has no in-app restore action.
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
-| BR-DA-08 | JSON record export contains all systems, campaigns and sessions with their relationships, without calendar, history or statistics filtering. | export_payload; export_json; [FR-DA-10–11](#wf-da-03-requirements) |
-| BR-DA-09 | My GM name is excluded for now. Record JSON is not a full database copy and has no supported in-app JSON restore workflow. | [Q-DA-01](#wf-da-01-decisions); [FR-DA-13](#wf-da-03-requirements) |
+| BR-DA-08 | JSON backup contains all systems, campaigns, sessions and tracker settings, without calendar, history or statistics filtering. | [FR-DA-10–11 and FR-DA-14](#wf-da-03-requirements) |
+| BR-DA-09 | Full JSON includes selected or unset My GM name. Restore replaces all records and settings rather than merging them; existing partial JSON files are not full, restore-ready backups. | [Q-DA-01](#wf-da-01-decisions); [Q-DA-02](#wf-da-02-decisions); [FR-DA-13–16](#wf-da-03-requirements) |
 | BR-DA-10 | Reading the export is not a write and does not change records or settings, including when collections are empty. | [FR-SH-01](#shared-requirements); [FR-DA-12](#wf-da-03-requirements) |
 
 </details>
@@ -2609,8 +2629,13 @@ include My GM name. It has no in-app restore action.
 | --- | --- | --- | --- |
 | FR-DA-10 | `/api/export` must return JSON collections named systems, campaigns and sessions, including archived campaigns and all recorded dates. | Must | Steps 1–2 |
 | FR-DA-11 | Records must retain identifiers, relationships and exported values without losing names, non-Latin characters, links or notes; empty collections must remain valid JSON lists. | Must | Step 2 |
-| FR-DA-12 | JSON export must be read-only and return an error response if the request cannot be completed. | Must | Steps 1–3; FR-SH-01 |
-| FR-DA-13 | Documentation must state that this endpoint excludes tracker settings and is not a full database backup or a supported in-app JSON restore workflow. | Must | Q-DA-01; current endpoint scope |
+| FR-DA-12 | JSON export must be read-only and return an error response if the request cannot be completed. | Must | Steps 1–2; FR-SH-01 |
+| FR-DA-13 | Documentation must distinguish approved full JSON backup/restore from current partial JSON exports and pre-import copies. State that current copies exclude settings and have no supported restore workflow until FU-DA-03 is delivered; do not present them as full backups. | Must | Q-DA-01; current endpoint scope; FR-DA-18 |
+| FR-DA-14 | Extend `/api/export` to produce a full JSON snapshot of all stored system, campaign and session fields and tracker settings, including selected or unset My GM name. Preserve IDs, relationships, creation timestamps, colors, defaults, archive status, dates, text, notes and links. The snapshot must represent one consistent saved state; exporting must not change it. | Must | Owner approval, 29 October 2026; Q-DA-01 |
+| FR-DA-15 | Provide JSON restore through the API. Validate the complete backup and its record relationships before changing stored data. Reject malformed, incomplete or incompatible files with a clear reason and no data changes. Start with backups from the same app version. | Must | Owner approval, 29 October 2026; Q-MA-02 |
+| FR-DA-16 | Before replacing data, successfully save the current records and settings as a full JSON backup. Restore all records and settings together, preserving the backup's IDs and values without merging current records. Failure to create the safety copy must prevent restore; a failed replacement must leave the previous stored state intact. | Must | Owner approval, 29 October 2026; Q-DA-02 |
+| FR-DA-17 | Automatic pre-import copies must use the same full JSON backup format, including tracker settings. A failed backup must continue to prevent CSV import. CSV import remains add-only and leaves the current setting unchanged. | Must | Owner approval, 29 October 2026; BR-DA-07 |
+| FR-DA-18 | Explain CSV transfer and full JSON backup/restore separately, clearly distinguishing current availability from future work. Keep dated backup files outside active storage, short Python and Docker examples and a custom-path note. Include checks of restored records, totals and My GM name, recovery using the saved pre-restore copy, and disabling demo loading before restarting an empty restored tracker. | Must | Owner approval, 29 October 2026; Q-MA-01–02; WF-MA-03–04 |
 
 </details>
 
@@ -2619,7 +2644,8 @@ include My GM name. It has no in-app restore action.
 <details>
 <summary><strong>Agreed product decisions</strong></summary>
 
-**Also applies:** [Q-DA-01](#wf-da-01-decisions).
+**Also applies:** [Q-DA-01](#wf-da-01-decisions), [Q-DA-02](#wf-da-02-decisions)
+and same-version restore under [Q-MA-02](#wf-ma-04-decisions).
 
 </details>
 
@@ -2630,12 +2656,15 @@ include My GM name. It has no in-app restore action.
 
 | Source type | Source and what to inspect |
 | --- | --- |
-| Agreed policy | [Q-DA-01](#wf-da-01-decisions) — owner agreement on 28 October 2026. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_json`, `export_payload`. |
-| Supporting documents | [Data and backup guide](../data-and-backups.md). |
-| Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
+| Agreed policy | [Q-DA-01](#wf-da-01-decisions), [Q-DA-02](#wf-da-02-decisions) and FR-DA-14–18 — owner approval on 29 October 2026. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `export_json`, `export_payload`, `save_import_backup`. |
+| Supporting documents | [Data and backup guide](../data-and-backups.md); [acceptance criteria](acceptance-criteria.md#planned-json-backup-restore). |
+| Existing checks · not executed for this update | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py); [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py). |
 
-**Source review:** Current /api/export returns the three record collections and excludes tracker settings; this endpoint is separate from the CSV download button.
+**Source review:** Current `/api/export` and automatic pre-import JSON files
+contain record collections and exclude settings. No JSON restore API is
+implemented. A database copy under WF-MA-03–04 remains the working full-backup
+method. CSV transfer of My GM name is separate under FU-DA-02.
 
 </details>
 
@@ -2835,9 +2864,9 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 
 | ID | Business rule | Basis and linked requirements |
 | --- | --- | --- |
-| BR-MA-07 | A complete backup is a copy of the active database, including tracker settings. Python and Docker storage, and custom configured paths, may differ. | database configuration; data guide; [Q-DA-01](#wf-da-01-decisions); [FR-MA-09](#wf-ma-03-requirements); [FR-MA-11](#wf-ma-03-requirements) |
+| BR-MA-07 | The current manual full-backup method copies the active database, including tracker settings. Python and Docker storage, and custom configured paths, may differ. Full JSON backup/restore is separately approved for future delivery under FU-DA-03. | database configuration; data guide; [Q-DA-01](#wf-da-01-decisions); [FR-MA-09](#wf-ma-03-requirements); [FR-MA-11](#wf-ma-03-requirements) |
 | BR-MA-08 | The documented manual-copy procedure stops the app before copying and preserves the active original. | data guide; [FR-MA-10](#wf-ma-03-requirements) |
-| BR-MA-09 | Backup versions use dated names outside the project or active Docker storage. A record export or pre-import JSON file is not a substitute for a full database backup. | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions); [FR-MA-11–12](#wf-ma-03-requirements) |
+| BR-MA-09 | Backup versions use dated names outside the project or active Docker storage. CSV and current partial JSON files do not replace a full backup. Approved full JSON backup/restore remains future work under FU-DA-03. | [Q-MA-01](#wf-ma-03-decisions); [Q-DA-01](#wf-da-01-decisions); [FR-MA-11–12](#wf-ma-03-requirements) |
 
 </details>
 
@@ -2850,7 +2879,7 @@ No additional workflow-specific decision. The shared read-only requirement [FR-S
 | --- | --- | --- | --- |
 | FR-MA-09 | The backup procedure must identify the active database location for both Python and Docker, including how custom storage configuration changes that location. | Must | Step 1; data guide and configured database path |
 | FR-MA-10 | The procedure must require the app to be stopped before copying the full database and must retain the original database. | Must | Steps 2–3 |
-| FR-MA-11 | The guide must distinguish a full database copy, which includes tracker settings, from CSV and JSON record exports that exclude My GM name. | Must | Step 3; Q-DA-01 |
+| FR-MA-11 | The guide must distinguish the current full database copy, which includes settings, from CSV and current partial JSON copies that exclude My GM name. Explain that approved full JSON backup/restore will include settings when delivered under FU-DA-03. | Must | Step 3; Q-DA-01; FR-DA-18 |
 | FR-MA-12 | The procedure must use a dated backup filename outside the project or active Docker storage and require checking that the separate copy exists before restart; proving that it can be restored belongs to the restore workflow. | Must | Step 4; Q-MA-01 |
 
 </details>
@@ -3084,8 +3113,9 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   and shared [acceptance criteria](acceptance-criteria.md) on 28 October 2026 as
   version 1.0, including updates reflecting Q-CS-06–08, and subsequently approved
   all 14 new or amended version 1.1 criteria and the recovery-applicability
-  clarification. All 187 criteria are approved; A-01 is complete. Implementation,
-  test-case preparation and execution remain tracked separately.
+  clarification. A-01 records the 187-criterion version 1.1 baseline; A-12 records
+  approval of version 1.2, bringing the total to 192. Implementation, test-case
+  preparation and execution remain tracked separately.
 - [ ] **FU-SH-02 — Finish recovery design:** Apply [Q-SH-01](#shared-decisions) to
   [GAP-CS-01](#open-decision) and relevant write workflows. Define creation-request
   identification even when deliberate records look identical, messages, form
@@ -3251,16 +3281,22 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   under [Q-DA-01](#wf-da-01-decisions). Explain that full database backups include
   tracker settings, while record exports and automatic pre-import JSON backups
   are not full database backups or a supported JSON restore workflow. See A-09.
-- [ ] **FU-DA-02 — Include My GM name in record exports:** Design and implement
-  export of the current GM selection as tracker metadata for CSV and JSON,
-  including an unset selection. Define the representation and versioning,
-  retain compatibility with older files without this metadata, and define how
-  CSV import can restore the choice while preserving an existing selection
-  unless the owner explicitly chooses replacement. Export must leave the
-  setting and session GM values unchanged. Update BR-DA-02, Q-DA-01, related
-  requirements, acceptance criteria and guidance to distinguish the new format
-  from older exports; verify export/import of selected, unset and missing values.
-  This remains planned; a supported JSON import is separate work.
+- [ ] **FU-DA-02 — Future sprint: transfer My GM name through CSV.** The owner
+  confirmed this separate future task on 29 October 2026. Define
+  selected and unset values, retain compatibility with older files lacking the
+  metadata, and preserve an existing choice unless replacement is explicitly
+  selected. Export must leave the setting and session GM values unchanged.
+  Prepare the corresponding BR-DA-02, Q-DA-01, requirements, criteria and guide
+  changes for review; implement and verify selected, unset and missing-value
+  cases later. JSON settings belong to FU-DA-03.
+- [ ] **FU-DA-03 — Future sprint: full JSON backup and restore through the API.**
+  The owner approved version 1.2 requirements and criteria on 29 October 2026;
+  A-12 is complete. Implement the [approved workflow](#wf-da-03) in a future
+  sprint. Include all records and settings, validate before
+  restore, save a full pre-restore copy, replace the saved state together and
+  use the same full JSON format for automatic pre-import copies. Verify with
+  fictional disposable data. Current JSON remains a partial record export;
+  implementation and verification are pending.
 </details>
 
 <details>
@@ -3332,6 +3368,7 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 | --- | --- | --- |
 | 1.0 | 28 October 2026 | First reviewed baseline: all 31 Main workflow tables, business rules, functional requirements, priorities and 37 product decisions approved. Open design, implementation and verification work remains tracked as follow-ups. |
 | 1.1 | 28 October 2026 | Recorded the owner's all-session-form scope for Q-CS-07 as shared Must requirement FR-SH-06. Made existing import identity, actual-system and all-tied-leader rules explicit in linked requirements. Clarified Q-ST-01 with the owner: Favorite System means most played by session count; show every tied system leader and count in the breakdown, without requiring an extra annual highlight. The owner approved all version 1.1 acceptance amendments, completing the 187-criterion baseline. Ten focused test cases remain drafts, Not run; no application verification was performed. |
+| 1.2 | 29 October 2026 | The owner approved FR-DA-14–18 and AC-DA-17–21 for full JSON backup/restore, bringing the acceptance baseline to 192 criteria. Integrated the approved material into WF-DA-03 and aligned Q-DA-01–02, backup rules and documented availability. FU-DA-03 remains future-sprint implementation and verification; CSV transfer of My GM name stays separate under FU-DA-02. |
 
 ---
 

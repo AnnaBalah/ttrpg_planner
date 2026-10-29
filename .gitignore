@@ -1,2 +1,5 @@
 # Keep original Notion exports with personal session history local.
 /notion/
+
+# Keep the local action plan out of Git.
+/LOCAL-ACTIONS.md

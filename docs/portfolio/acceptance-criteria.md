@@ -1,6 +1,29 @@
 # Acceptance criteria
 
-**Version:** 1.1 — approved baseline
+**Version:** 1.2 — approved baseline
+
+**Status — 29 October 2026:** The owner approved AC-DA-17–21 and their linked
+requirements FR-DA-14–18 for full JSON backup/restore. Together with the 187
+version 1.1 criteria, all 192 criteria form the approved version 1.2 baseline.
+Affected import/export wording is aligned below. Full JSON backup/restore and
+separate CSV transfer of My GM name remain future-sprint work; implementation
+and verification are pending.
+
+<details>
+<summary><strong>Version 1.2 amendment scope — approved</strong></summary>
+
+| Area | New or aligned criteria | Reason |
+| --- | --- | --- |
+| Full JSON backup and restore | New AC-DA-17–21 | Cover all saved records and settings, validation, a pre-restore safety copy, complete replacement, full pre-import copies and clear guidance. |
+| Import/export scope and availability | AC-DA-08–09, AC-DA-15–16 and AC-MA-11 | Align the CSV/JSON distinction while explaining current partial JSON exports and future full backup/restore. |
+
+**Owner approval:** 29 October 2026. A-12 records the completed review;
+implementation and runtime verification remain under FU-DA-03.
+
+</details>
+
+<details>
+<summary><strong>Version 1.1 amendment scope — approved</strong></summary>
 
 **Status — 28 October 2026:** The owner approved all 14 new or amended criteria
 listed below and the shared recovery-applicability clarification. Together with
@@ -10,9 +33,6 @@ session form. Main workflows, business rules, functional requirements and record
 Must/Should priorities in [requirements and rules](requirements-and-rules.md)
 remain the source of expected behavior. These criteria are not implementation or
 test results.
-
-<details>
-<summary><strong>Version 1.1 amendment scope — approved</strong></summary>
 
 | Area | New or amended criteria | Reason |
 | --- | --- | --- |
@@ -1781,9 +1801,10 @@ outdated and require another preview. No records from the stale preview are adde
 (FR-DA-08; Q-DA-01)
 
 Given a current valid preview with additions, when import is confirmed, then save
-the pre-import JSON record backup before adding records. If backup creation fails,
-report failure and add nothing. The automatic backup is described as excluding
-My GM name, with no in-app restore action, rather than as a full database backup.
+the pre-import backup before adding records. If backup creation fails, report
+failure and add nothing. AC-DA-20 defines the approved full JSON format; until
+FU-DA-03 is delivered, guidance identifies current pre-import copies as partial
+record exports that exclude My GM name and have no supported restore workflow.
 
 ### AC-DA-09 — Commit additions together and retain existing values
 
@@ -1793,7 +1814,8 @@ Given new records and conflicts with existing values, when apply succeeds, then
 all permitted additions commit together and conflicts are explained without
 overwriting existing names, defaults, colors, links, notes or settings. A confirmed
 failed apply leaves no partial additions. My GM name remains unchanged. Exact-state
-recovery is directed to database restore rather than CSV import.
+recovery is directed to full restore rather than CSV import; JSON restore remains
+future work under FU-DA-03.
 
 If file numeric IDs coincide with unrelated destination system, campaign or
 session IDs, no destination record is overwritten or associated merely because
@@ -1845,10 +1867,17 @@ that nothing was imported or automatically apply the file again.
 
 </details>
 
-<details>
-<summary><strong>WF-DA-03: Export tracker data to JSON through the API</strong></summary>
+<a id="planned-json-backup-restore"></a>
+<a id="wf-da-03"></a>
 
-**Source:** WF-DA-03; FR-DA-10–13; Q-DA-01. Shared read-only criteria apply.
+<details>
+<summary><strong>WF-DA-03: Back up and restore tracker data as JSON through the API</strong></summary>
+
+**Source:** WF-DA-03; FR-DA-10–18; Q-DA-01–02; Q-MA-02.
+**Status:** Approved in version 1.2 on 29 October 2026. Full JSON backup/restore
+remains future-sprint work under FU-DA-03; approval is not implementation or test
+evidence. Current partial JSON exports and pre-import copies are described in
+[Sources and current behavior](requirements-and-rules.md#wf-da-03-sources).
 
 <details>
 <summary><strong>Collections and exported values</strong></summary>
@@ -1869,6 +1898,60 @@ Given identifiers, cross-record references and exported values including non-Lat
 names, links and multiline notes, when JSON export is decoded, then those values
 and relationships remain intact. Empty collections are valid empty JSON lists.
 
+### AC-DA-17 — Export all saved records and settings
+
+(FR-DA-14)
+
+Given recorded systems, campaigns, sessions and a selected or unset My GM name,
+when a full JSON backup is requested through the API, then it contains all stored
+fields and settings from one consistent saved state. IDs, relationships,
+timestamps, colors, defaults, archive status, dates, names, notes and links remain
+intact. Include archived campaigns, dates outside the current view and deliberate
+identical sessions. Empty record collections and an unset setting are valid.
+Export leaves the stored records and settings unchanged.
+
+</details>
+
+<details>
+<summary><strong>Restore validation and replacement</strong></summary>
+
+### AC-DA-18 — Reject an invalid backup before changing data
+
+(FR-DA-15)
+
+Given malformed JSON, missing required backup data, invalid record relationships
+or an incompatible backup, when restore is requested, then reject it with a clear
+reason before changing records or settings. Current partial JSON exports and
+pre-import files must not be accepted as complete backups with invented missing
+settings. Verification initially uses the same app version.
+
+### AC-DA-19 — Preserve the current state and restore the saved state
+
+(FR-DA-16)
+
+Given a valid full JSON backup A and a different current dataset B, when restore
+is requested through the API, then first save all of B's records and settings as
+a full JSON backup. If that copy fails, do not replace B. A successful restore
+replaces B with A's records and settings together, preserving A's IDs, field
+values and relationships without merging in B. A failed replacement leaves B
+intact. After reload, records, totals and My GM name reflect A, including an empty
+dataset when demo loading is disabled. The saved copy of B remains available for
+recovery.
+
+</details>
+
+<details>
+<summary><strong>Automatic pre-import copies</strong></summary>
+
+### AC-DA-20 — Use the full JSON format for pre-import copies
+
+(FR-DA-17)
+
+Given a CSV import will add records, when the automatic pre-import backup is
+created, then it uses the same full JSON format as the API backup and includes
+the current records and settings. Backup failure prevents additions. Successful
+CSV import keeps its add-only behavior and leaves My GM name unchanged.
+
 </details>
 
 <details>
@@ -1878,17 +1961,34 @@ and relationships remain intact. Empty collections are valid empty JSON lists.
 
 (FR-DA-12)
 
-Given the endpoint succeeds or cannot complete its request, when the response
-is returned, then stored records and settings are unchanged. Failure returns an
-error response rather than a successful export containing fabricated or incomplete data.
+Given the JSON export endpoint succeeds or cannot complete its request, when
+the response is returned, then stored records and settings are unchanged.
+Failure returns an error response rather than a successful export containing
+fabricated or incomplete data.
 
-### AC-DA-16 — Document the limits of JSON export
+### AC-DA-16 — Explain JSON backup availability
 
 (FR-DA-13; Q-DA-01)
 
 Given the export endpoint and its documentation, when their scope is inspected,
-then My GM name and other tracker settings are excluded, and documentation says
-this is neither a full database backup nor a supported in-app JSON restore workflow.
+then current partial JSON exports and pre-import copies are identified as
+excluding settings and lacking a supported restore workflow. Full JSON
+backup/restore is described as approved future work until delivered under
+FU-DA-03. Existing partial files are not presented as full, restore-ready backups.
+
+### AC-DA-21 — Explain transfer, backup and restore accurately
+
+(FR-DA-18)
+
+Given the guide and application notes, when reviewed, then they distinguish CSV
+record transfer from full JSON backup/restore, and identify planned behavior as
+unavailable until delivered. Until then, describe the existing database-copy
+procedure as the working full-backup method. Include dated files outside active
+storage, short Python and Docker examples, a custom-path note, same-version
+restore, checks of records, totals and My GM name, and recovery using the saved
+pre-restore copy if validation fails. Explain disabling demo loading before
+restarting an empty restored tracker. CSV transfer of My GM name remains separate
+future work under FU-DA-02, with its format still to be agreed.
 
 </details>
 
@@ -2037,8 +2137,10 @@ the original. Restart resumes with the same records and settings.
 
 Given a dataset with My GM name configured, when backup guidance is inspected,
 then it states that the database copy includes records and tracker settings,
-including My GM name. CSV, JSON export and the automatic pre-import record backup
-are described as excluding that setting.
+including My GM name. CSV and current partial JSON exports/pre-import copies
+are described as excluding that setting. Approved full JSON backup/restore will
+include settings when delivered under FU-DA-03; its expected scope is covered by
+AC-DA-17–21.
 
 ### AC-MA-12 — Save and check a separate dated copy
 
@@ -2338,22 +2440,23 @@ separate criteria above.
 
 ## Actions needed
 
-**Current state:** All version 1.1 criteria are approved, preserving the version
-1.0 baseline approval. Ten focused test cases remain drafts, Not run. A-01 records
-the completed baseline and amendment reviews; A-11 records the index update.
-Recovery design, implementation and verification actions remain open; approval
-does not establish that the app meets the criteria.
+**Current state:** All 192 version 1.2 criteria are approved, preserving earlier
+approvals. A-01 records the version 1.0–1.1 reviews; A-12 records version 1.2
+approval on 29 October 2026. Ten focused test cases remain drafts, Not run.
+Implementation and verification, including future JSON backup/restore under
+FU-DA-03, remain open. Approval does not establish that the app meets the criteria.
 
 <details>
 <summary><strong>Approval, recorded decisions and open design</strong></summary>
 
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
-| A-01 — Review acceptance criteria | Complete — the owner approved the version 1.0 baseline, all 14 version 1.1 new or amended criteria and the recovery-applicability clarification on 28 October 2026. All 187 criteria are approved. Q-ST-01 records Favorite System as most played by session count, with all tied system leaders shown in the breakdown; no extra annual highlight is required. Implementation and verification remain open. | Version 1.1 amendment-scope table; FU-SH-01; Q-ST-01; FR-ST-07; AC-ST-05/08; TC-ST-02 |
+| A-01 — Review acceptance criteria | Complete — the owner approved the version 1.0 baseline, all 14 version 1.1 new or amended criteria and the recovery-applicability clarification on 28 October 2026. All 187 version 1.1 criteria were approved; A-12 records version 1.2. Q-ST-01 records Favorite System as most played by session count, with all tied system leaders shown in the breakdown; no extra annual highlight is required. Implementation and verification remain open. | Version 1.1 amendment-scope table; FU-SH-01; Q-ST-01; FR-ST-07; AC-ST-05/08; TC-ST-02 |
 | A-02 — Finish save-recovery design | Define how a creation attempt is identified even when deliberate records can look identical. Specify messages, form state, safe reconciliation/retry and failed rollback handling. Update WF-CS-01 requirements and criteria only after its gap is resolved; the agreed Q-SH-01 principle does not itself close GAP-CS-01. | GAP-CS-01; Q-SH-01; AC-SH-07–08; AC-CS-29; AC-SY-11, AC-SY-16; AC-QA-05 |
 | A-03 — Decision recorded: repeated campaign-session entries | Q-CS-06 permits deliberate sessions for the same campaign and date. BR-CS-13, FR-CS-25 and approved AC-CS-31 record the result. Execution remains planned. | FU-CS-02; Q-CS-06; AC-CS-31 |
 | A-04 — Decision recorded: Escape and closing during save | The owner confirmed that Q-CS-07 applies to every session form. FR-SH-06 and FR-CS-16/18 record the result; AC-SH-09–10 and workflow references are approved in version 1.1. The date picker's Escape-first behavior still needs implementation; shared keyboard verification remains planned. | FU-CS-03; FU-SH-07; Q-CS-07; AC-SH-09–10; AC-CS-20/22; TC-SH-01–03 |
 | A-05 — Decision recorded: API defaults and browser inputs | Q-CS-08 retains API fallback to campaign GM/System defaults for omitted inputs while keeping both required in the browser. FR-CS-11 and approved AC-CS-11/32 record the result; verification remains planned. | FU-CS-04; Q-CS-08; AC-CS-11/32 |
+| A-12 — Review version 1.2 backup/restore criteria | Complete — the owner approved AC-DA-17–21 and FR-DA-14–18 on 29 October 2026. The approved material is integrated into the JSON workflow and affected scope wording. Implementation and verification remain future work under FU-DA-03; CSV transfer of My GM name remains separate under FU-DA-02. | [JSON backup/restore criteria](#wf-da-03); [Requirements](requirements-and-rules.md#wf-da-03-requirements) |
 
 </details>
 
@@ -2385,6 +2488,7 @@ does not establish that the app meets the criteria.
 | --- | --- | --- |
 | 1.0 | 28 October 2026 | First reviewed baseline: the owner approved all workflow and shared acceptance criteria, including Q-CS-06–08 updates. Recovery design, implementation and verification work remains tracked as follow-ups. |
 | 1.1 approved | 28 October 2026 | The owner approved all 14 new or amended criteria and the shared recovery-applicability clarification. Added AC-SH-09–10 for all-session-form keyboard scope; strengthened import identity, actual-system behavior and all-tied-leader outcomes; clarified retained campaign identity in AC-CP-05. Incorporated the separate review's dispositions into existing criteria and actions. Q-ST-01 defines Favorite System as most played by session count; tied system leaders appear in the breakdown without an extra annual highlight. All 187 criteria are approved; ten linked draft test cases are Not run. |
+| 1.2 approved | 29 October 2026 | The owner approved AC-DA-17–21 and FR-DA-14–18, bringing the acceptance baseline to 192 criteria. Integrated JSON backup/restore into WF-DA-03 and aligned existing import/export and backup-scope criteria. A-12 is complete; implementation and verification remain future work under FU-DA-03. CSV transfer of My GM name remains separate under FU-DA-02. |
 
 ---
 

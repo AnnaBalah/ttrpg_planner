@@ -22,7 +22,7 @@ report findings with file locations; make edits when requested.
   unrelated work, existing links and document structure.
 - Keep agreed behavior, current implementation and test results separate.
   Document approval does not complete implementation, testing or open design work.
-- Record Anna's approvals with their scope and date. Mark work complete only with
+- Record the owner's approvals with their scope and date. Mark work complete only with
   supporting evidence. Ask before resolving a conflict that changes a product
   decision.
 - Check changed text, links and diagrams. For code changes, use the relevant
@@ -32,9 +32,16 @@ report findings with file locations; make edits when requested.
 Use plain language and concise, structured answers. Explain technical terms when
 needed and state the next action when work remains.
 
+Refer to the project owner as **the owner** rather than by personal name in project
+documentation and AI instructions.
+
+Temporary formatting rule: use collapsed sections throughout project documentation
+where they improve navigation and readability, including for datasets, test cases,
+execution runs, findings and other detailed content that forms a logical unit.
+
 ## Project map
 
-Tablelog is Anna's self-hosted TTRPG tracker and QA/BA portfolio project.
+Tablelog is the owner's self-hosted TTRPG tracker and QA/BA portfolio project.
 Read the sources relevant to the task for current decisions and statuses.
 
 | Need | Source |

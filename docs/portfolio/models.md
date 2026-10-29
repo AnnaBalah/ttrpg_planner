@@ -44,7 +44,7 @@ start/end nodes; see the [PlantUML notation examples](https://plantuml.com/activ
 <details>
 <summary><strong>WF-CS-02: Add a session to a new campaign — BPMN process</strong></summary>
 
-**Status:** Version 0.1, prepared 28 October 2026; approved by Anna on
+**Status:** Version 0.1, prepared 28 October 2026; approved by the owner on
 29 October 2026 within its stated scope and recovery boundary.
 **Model type:** Agreed intended behavior. The owner selected the main path plus
 validation, cancellation and save failures, including rollback, using an existing
@@ -117,7 +117,7 @@ For the new BPMN model:
    approval from implementation, rollback completion and test execution.
 4. [x] **Check the artifacts:** Review notation, labels, flow connections,
    native BPMN references, layout and document links.
-5. [x] **Owner review and approval:** Anna approved version 0.1, including both
+5. [x] **Owner review and approval:** The owner approved version 0.1, including both
    BPMN views, within the stated scope on 29 October 2026: “Approve within the
    stated scope.” The documented recovery boundary is retained; implementation
    and test-execution tasks remain open.

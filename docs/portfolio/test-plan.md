@@ -1,88 +1,125 @@
 # Test plan
 
-**Status:** Focused test plan drafted; execution **Not run**. The broader first
-scope remains adding a campaign session. The owner selected documentation and
-draft test cases only for this 28 October 2026 acceptance-review follow-up.
+**Status:** Overall plan documented. The owner approved its outline, planning decisions,
+case presentation and scoped documentation updates on 29 October 2026. Execution
+cycles, new cases and test runs are selected separately. The ten existing focused
+cases remain drafts, **Not run**.
 
-Pending decisions and preparation tasks are tracked in the
+## Purpose and scope
+
+Assess whether selected Tablelog behavior meets agreed requirements, identify
+failures and explain uncertainty. QA/BA reviewers should be able to follow test
+decisions and evidence. Each conclusion applies to its cycle's scope.
+
+The planning scope includes sessions, campaigns, game systems, calendar/history,
+statistics and My GM name, import/export, and setup/backup/restore/reset. Use the
+approved [requirements](requirements-and-rules.md), version 1.1
+[acceptance criteria](acceptance-criteria.md) and relevant [models](models.md) as
+the test basis. Separate intended behavior, source inspection and results.
+The owner makes product decisions and carries out manual testing; Codex assists analysis,
+documentation and automation.
+
+## Risks and approach
+
+Explain priorities using impact and likelihood. Start with data integrity,
+adjusting for known failures and setup dependencies. Preserve agreed Must/Should
+requirement priorities.
+
+| Risk and reason for attention | Planned method |
+| --- | --- |
+| Lost records or wrong relationships: import, deletion and restore can affect existing history. | Compare before/after records, IDs and relationships; check rejected operations, rollback, export and same-version restore using disposable storage. |
+| Wrong saved values: defaults, overrides and campaign switching can silently change session details. | Exercise browser scenarios; verify stored values, unchanged defaults and persistence after reload through read-only API checks. |
+| Duplicate or uncertain writes: repeated actions and lost responses can create extra records. | Control pending, rejected and interrupted responses; count requests and records, distinguish deliberate duplicate entries, and check agreed recovery rules. |
+| Misleading history or statistics: dates, filters, recorded systems and ties affect reported activity. | Compare displays/exports with known records and independently calculated totals, including empty periods, future dates and ties. |
+| Unusable interactions: validation, cancellation and narrow layouts can prevent correct entry or hide failures. | Test keyboard controls, retained values, clear feedback and desktop/narrow layouts; explore combinations beyond scripted cases. |
+| Setup or recovery changes history: seeding and storage paths differ between launch methods. | Follow Python and Docker procedures with fictional datasets; check restart, backup, same-version restore and reset. |
+
+Use valid/invalid input groups, date and file-limit boundaries, and transitions
+between unsaved, pending, rejected and saved states. Combine manual scenarios,
+focused exploration and relevant automation; add automation where repetition
+justifies maintenance.
+
+<a id="existing-checks-to-assess-for-reuse"></a>
+
+Reuse candidates include [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py),
+[CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py) and
+[stability browser checks](../../.hallmark/stability-qa.mjs). Map assertions to
+criteria before claiming coverage. The
+[import entry script](../../.hallmark/import-qa.mjs) invokes that same stability
+suite. Commands remain in the
+[verification notes](../../ttrpg_tracker/app/README.md#verification).
+
+## Environment and data
+
+Use Windows and Edge as the initial baseline, with desktop keyboard use and a
+narrow viewport. Record widths and distinguish emulation from real-device results.
+Additional browsers/devices need recorded runs. Use Python for ordinary UI/API
+cycles; include both Python and Docker when testing maintenance workflows.
+
+Use fictional data in disposable storage and independent starting states per case.
+Copied databases must also have fictional sources. Check database/backup/export
+destinations before writes; prepare snapshots and repeatable response controls
+as needed. Follow the [data guide](../data-and-backups.md).
+
+For each run, record the app commit and local changes, OS/browser/runtime versions,
+launch method, viewport, relevant locale/time zone, fixture and storage location.
+
+## Execution cycles
+
+<a id="broader-test-plan-work-still-to-document"></a>
+
+Select a small scope, linked criteria, risks, cases and methods before execution.
+There is no fixed deadline. WF-CS-01 remains the earlier proposed starting point;
+the first cycle is selected separately. Prepare cases and fixtures per cycle.
+
+Start with agreed expectations, an identified version/environment and prepared
+fixtures/tools. Existing defects do not prevent testing observable behavior.
+Record current failures before fixes where practical; retest fixes and run
+relevant regression checks.
+
+## Results and completion
+
+<a id="execution-preparation-and-evidence"></a>
+
+Keep cases, data and results in [Test records](test-records.md). Each case must be
+understandable on its own: include necessary setup/input values, short steps and
+concrete expected results beside the steps. Link criterion IDs for background;
+the reader should not need to open them to judge the result. Shared setup may be
+linked, but retain the details needed to understand that case.
+
+Record each selected case, context and variation as Pass, Fail, Blocked or Not run,
+with a concise actual result or reason. Fail means behavior differs from the
+expectation; Blocked means a dependency prevents execution. Capture screenshots,
+requests/responses and stored-value comparisons where they substantiate the result;
+retain fuller diagnostics for failures and data risks. Link findings to later retests.
+
+A cycle can close with defects once every selected item has an outcome or
+unexecuted reason, and the conclusion states remaining gaps. Claim that its scope
+meets criteria only when all selected Must criteria pass; record the owner's acceptance
+of any deferred Should gaps. Unrun or blocked items leave gaps in that conclusion.
+Release/use decisions are separate.
+
+## Limits and dependencies
+
+Defer extensive load/stress testing, penetration testing, formal accessibility
+conformance assessment and broad browser/device coverage. Retain basic keyboard
+use, error clarity, narrow-screen usability, input handling, configured limits and
+data protection. Separate user accounts are outside product scope. Cross-version
+restore needs a separately verified procedure.
+
+Test the agreed recovery safety rules while keeping request identification and
+detailed interaction design open under
+[GAP-CS-01](requirements-and-rules.md#open-decision). Record a block only where
+missing design prevents a testable expectation. Quick Add and other planned behavior have no current
+runtime coverage. Track implementation work in the existing
 [workflow follow-up](requirements-and-rules.md#workflow-follow-up).
-The documentation-only retirement audit on 28 October 2026 rechecked source at
-`0a1dcf4`; it added no application tests or runtime results. The finding
-dispositions are retained in the acceptance criteria's version 1.1 amendment table,
-so the separate review document is no longer needed.
 
-## Focused acceptance-review scope
+<a id="focused-acceptance-review-scope"></a>
 
-The approved [version 1.1 acceptance amendments](acceptance-criteria.md) strengthen existing
-rules and document Q-CS-07's agreed scope across every session form. The ten
-[focused cases and fixtures](test-records.md#focused-review-test-cases) are drafts;
-their presence is not evidence that the app meets those outcomes.
-
-| Order | Risk / objective | Planned cases and method |
-| --- | --- | --- |
-| 1 | Wrong relationships, overwritten records or duplicate identities on import | TC-DA-01–04: browser preview/apply plus read-only inspection of exported IDs, relationships, settings and counts. |
-| 2 | Dismissed forms or repeated writes during session saves | TC-SH-01–03: browser keyboard/control checks across the session-form matrix, with controlled pending responses and request counts. |
-| 3 | Statistics or colors following campaign defaults instead of recorded systems | TC-ST-01 and TC-SY-01: compare known monthly/yearly figures and before/after display colors with stored associations. |
-| 4 | Tied leaders omitted or incorrectly presented as a sole winner | TC-ST-02: three-leader fixtures and a sole-leader control in existing monthly/annual highlights and system breakdowns; no extra annual Favorite System highlight. |
-
-Use fictional data and independent isolated storage per case. Prepare fixtures I,
-N, S and T and matrix K from the test records. The import cases use tracker-format
-CSV and distinguish source-file IDs from destination IDs. Normalization examples
-cover surrounding whitespace, case and canonically equivalent Unicode forms;
-they do not introduce alias, accent-removal or fuzzy matching policy.
-
-## Execution preparation and evidence
-
-Before a later execution, record the app commit and local changes, Windows
-version, browser/version, viewport, launch method and isolated database location.
-Test desktop keyboard behavior and an agenda-capable narrow viewport; record the
-actual widths. Select a supported Python or Docker environment for this focused
-UI/API cycle. Testing both maintenance procedures belongs to the broader suite.
-
-| Condition | Required outcome |
-| --- | --- |
-| Entry | Use the owner-approved version 1.1 criteria for the run; prepare independent fixtures, snapshots and a reproducible response-hold method. |
-| Per-case evidence | Record actual steps, UI screenshots where relevant, request/response evidence, stored IDs/values, expected versus actual counts and outcome. |
-| Planned context unavailable | Keep that context Not run with a reason; do not infer a pass. Quick Add remains planned until implemented. |
-| Completion | Every selected case and keyboard-matrix context has a recorded outcome and evidence, or an explicit Not run/Blocked reason; failures link to findings and later retests. |
-
-No automated test implementation or execution is included in this documentation
-pass. Application fixes, broad workflow regression, detailed unknown-save recovery,
-backup/restore/reset execution and DEF-002 reproduction remain separate work.
-
-## Existing checks to assess for reuse
-
-These are source-inspection candidates, not results from this pass:
-
-| Existing source | Relevant coverage and limit |
-| --- | --- |
-| [CSV-import checks](../../ttrpg_tracker/app/tests/test_csv_import.py) | `test_append_maps_names_and_preserves_existing_settings` uses colliding file IDs and checks destination relationships and retained values; other cases cover case/whitespace matching, multiplicity, reimport and campaign/one-shot distinction. Reuse these assertions for TC-DA-01–04; canonical Unicode equivalence and the full browser preview/apply, settings and identity-component scenarios still need comparison with the drafts. These checks were not run for this audit. |
-| [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py) | `test_exports_are_complete_and_csv_reimport_is_a_no_op`, `test_session_create_edit_clear_reload_and_delete` and `test_session_kind_can_change_both_ways` are related checks; their existing assertions do not establish the new collision, normalization, color, tie or full keyboard-matrix outcomes. |
-| [Stability browser checks](../../.hallmark/stability-qa.mjs) | Candidate reuse for double-submit protection, no-picker Escape, import counts, stale previews and reimport. Broader picker/pending-form and all-leader scenarios still need comparison with the drafted cases. |
-| [Import entry script](../../.hallmark/import-qa.mjs) | Imports the stability script; it is not an independent extra suite. |
-
-When automation is separately selected, map each existing assertion to the case
-it actually checks and add only the missing coverage. No listed check was run.
-Source inspection identifies single-leader statistics highlights (FU-ST-01) and
-missing date-picker Escape-first handling (FU-SH-07) as implementation work before
-the affected cases can pass. Actual-system and import logic are present in source;
-that does not mark their focused cases passed. The owner resolved the system-leader
-scope under Q-ST-01 on 28 October 2026: Favorite System means most played by
-recorded session count. TC-ST-02 checks every tied system leader and shared count
-in the monthly and annual breakdowns; no additional annual highlight is required.
-Criterion wording review is complete under A-01. Test cases remain drafts, Not run.
-
-## Broader test-plan work still to document
-
-- Test objectives, included behavior and exclusions.
-- Risks and the order in which they will be tested.
-- App version, operating system, browsers and fictional test data.
-- Manual, API, exploratory and automated checks selected for this scope.
-- Conditions for starting and completing the test cycle.
-- How results, defects and retests will be recorded.
-
-Review the existing automated checks against the
-[acceptance criteria](acceptance-criteria.md).
-Record the tests and evidence in [Test records](test-records.md).
+The ten [focused acceptance-review cases and fixtures](test-records.md#focused-review-test-cases)
+cover import, recorded systems/colors, tied leaders and session-form controls.
+Their 28 October audit, preparation and **Not run** status remain there.
+Existing [findings and retests](test-records.md#findings-and-retests) retain DEF-001's
+evidence and DEF-002's pending reproduction. This update adds no runtime results.
 
 [Back to the documentation checklist](README.md)

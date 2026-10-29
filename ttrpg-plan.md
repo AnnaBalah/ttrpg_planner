@@ -163,7 +163,7 @@ session **or** a named one-shot, never neither.
   - Create one `systems` row per unique system value (blank → an `Unspecified` system); assign each a distinct starter base color (recolorable later)
   - Create one campaign per unique recurring name, linked to its system; infer its default GM from that campaign's most common value
   - Rows that are genuine one-offs (e.g. a `"One-shot" …` label) import as **one-shot sessions** (`campaign_id = NULL`, `name` set), not as campaigns — confirm the one-shot rows during import
-  - Normalize `Anna (me)` → `Anna`; parse `January 30, 2026` → `2026-01-30`
+  - Normalize the owner's legacy GM label by removing its `(me)` suffix; parse `January 30, 2026` → `2026-01-30`
   - **Verify:** all 26 rows imported, dates correct, Cyrillic/quotes intact
 - [x] Basic session list view — sortable table, dark theme, responsive layout (stacks on mobile)
 
@@ -206,7 +206,7 @@ session **or** a named one-shot, never neither.
 - [x] Annual stats page — total sessions, breakdown by campaign / system / GM (one-shots as their own "One-shots" group)
 - [x] Sessions-per-month bar chart — 12-bar overview of the year
 - [x] Highlights — most active month, most played campaign, longest gap between sessions
-- [x] "Games I ran vs. played" — derived from GM = `Anna` (you flagged tracking who GM'd)
+- [x] "Games I ran vs. played" — match session GM against the owner's configurable **My GM name** setting (Q-ST-03)
 - [x] Year picker — browse any past year
 
 ---

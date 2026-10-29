@@ -5,8 +5,6 @@ recorded below. DEF-002 is a new user-reported campaign-deletion issue awaiting
 runtime reproduction. Ten focused test cases below are drafts and **Not run**;
 the broader formal campaign-session suite is still planned.
 
-Use a collapsed section for each new dataset, test case, execution run or finding.
-
 <a id="campaign-session-test-data-and-setup"></a>
 <details>
 <summary><strong>Campaign-session test data and setup</strong></summary>
@@ -444,7 +442,7 @@ recorded. The cases' preparation is documentation work, not an execution run.
 
 | Field | Record |
 | --- | --- |
-| Reported | 27 October 2026, by Anna |
+| Reported | 27 October 2026, by the owner |
 | Area | Add Session and related campaign/system forms |
 | Severity / priority | Low — visual consistency |
 | Version | `ff3ef38`; fixes in the working tree |
@@ -481,7 +479,7 @@ verification steps.
 
 | Field | Record |
 | --- | --- |
-| Reported | 28 October 2026, by Anna |
+| Reported | 28 October 2026, by the owner |
 | Area | Manage → Campaigns → Delete |
 | Severity / priority | Proposed: Medium / Medium — misleading failure feedback and recovery; data loss has not been established |
 | Version / environment | Running app version, browser and request details not yet recorded; source inspected from the current working tree |

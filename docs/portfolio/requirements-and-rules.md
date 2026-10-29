@@ -3133,7 +3133,7 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   remove only the campaign created by a failed attempt. Include combined new
   campaign/system attempts and uncertain cleanup under FU-SH-02. Existing retry
   checks cover earlier behavior and do not establish that rollback works. See A-06.
-- [x] **FU-CS-06 — Review and approve the BPMN process:** Anna approved version
+- [x] **FU-CS-06 — Review and approve the BPMN process:** The owner approved version
   0.1 of the intended [WF-CS-02 overview and saving/rollback detail](models.md#wf-cs-02-bpmn)
   on 29 October 2026 within its stated scope, including the explicit
   GAP-CS-01 / FU-SH-02 recovery boundaries. The
@@ -3299,11 +3299,14 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 <details>
 <summary><strong>Test evidence and documentation · SH</strong></summary>
 
-- [ ] **FU-SH-03 — Complete the test plan:** Record version, operating system,
-  browser/launch method, isolated dataset, UI/API scope, priorities, entry and
-  completion conditions in the [test plan](test-plan.md). Retain WF-CS-01 as its
-  first scope; include both Python and Docker when maintenance workflows are
-  selected for testing. See A-10.
+- [x] **FU-SH-03 — Complete the test plan:** The overall
+  [test plan](test-plan.md) documents scope, risks, methods, environment/data rules,
+  cycle selection, entry/completion conditions and evidence. The owner approved the
+  outline, planning decisions, case presentation and scoped documentation updates
+  on 29 October 2026. Each run records its exact version and environment; maintenance
+  cycles include both Python and Docker. WF-CS-01 remains the earlier proposed
+  starting point; cycle selection, case writing and execution remain separate.
+  This completes plan documentation only. See A-10.
 - [ ] **FU-SH-04 — Write linked test cases:** Write
   [test cases](test-records.md#test-cases) for defaults, overrides, campaign
   switching, validation, cancellation and rejected-save retry; extend coverage

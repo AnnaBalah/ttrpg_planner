@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_Tablelog_NewCampaign" targetNamespace="https://tablelog.local/documentation/bpmn" exporter="Tablelog documentation" exporterVersion="1.0">
   <bpmn:process id="Process_Main" name="WF-CS-02 · Add a session to a new campaign" isExecutable="false">
-    <bpmn:documentation>Model version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. BPMN overview: agreed intended behavior using an existing game system. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
+    <bpmn:documentation>Model version 0.1, approved by the owner on 29 October 2026 within its stated scope and recovery boundary. BPMN overview: agreed intended behavior using an existing game system. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
     <bpmn:laneSet id="LaneSet_Main">
       <bpmn:lane id="Lane_User" name="User">
         <bpmn:flowNodeRef>Start_Main</bpmn:flowNodeRef>
@@ -157,7 +157,7 @@
     <bpmn:participant id="Participant_Main" name="Add first session to a new campaign" processRef="Process_Main" />
   </bpmn:collaboration>
   <bpmn:process id="Process_SavePair" name="WF-CS-02 · Saving and rollback detail" isExecutable="false">
-    <bpmn:documentation>Model version 0.1, approved by Anna on 29 October 2026 within its stated scope and recovery boundary. Called BPMN process with intended saving and rollback outcomes. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
+    <bpmn:documentation>Model version 0.1, approved by the owner on 29 October 2026 within its stated scope and recovery boundary. Called BPMN process with intended saving and rollback outcomes. Q-CS-04–05; FR-CS-20–24; AC-CS-24–30; shared criteria. Open recovery details: GAP-CS-01 / FU-SH-02. Implementation and runtime verification remain separate.</bpmn:documentation>
     <bpmn:startEvent id="Start_Pair" name="Start save attempt">
       <bpmn:outgoing>D01</bpmn:outgoing>
     </bpmn:startEvent>

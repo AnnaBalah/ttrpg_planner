@@ -98,38 +98,6 @@ and FU-CS-05 in the [follow-up register](requirements-and-rules.md#workflow-foll
 
 </details>
 
-<a id="process-model-approval"></a>
-<details>
-<summary><strong>Moving a process model from draft to approved</strong></summary>
-
-Approval means that a named model accurately represents its agreed scope.
-It does not certify the implementation or require a passed runtime test cycle.
-An explicitly bounded model can be approved while recovery-design work remains
-open, if the owner accepts those limits.
-
-For the new BPMN model:
-
-1. [x] **Confirm scope:** Intended behavior, new campaign and its first session,
-   existing game system, including cancellation and failure paths.
-2. [x] **Align the flow:** Link the approved requirements and criteria; distinguish
-   confirmed rejection, unknown outcomes and failed refresh.
-3. [x] **State the limits:** Preserve GAP-CS-01 / FU-SH-02 and separate model
-   approval from implementation, rollback completion and test execution.
-4. [x] **Check the artifacts:** Review notation, labels, flow connections,
-   native BPMN references, layout and document links.
-5. [x] **Owner review and approval:** The owner approved version 0.1, including both
-   BPMN views, within the stated scope on 29 October 2026: “Approve within the
-   stated scope.” The documented recovery boundary is retained; implementation
-   and test-execution tasks remain open.
-
-The current data model and WF-CS-01 activity diagram already have approval
-recorded on 28 October 2026. Their stated recovery and implementation boundaries
-remain in force. The separate approval of BPMN version 0.1 on 29 October 2026
-completes FU-CS-06. GAP-CS-01 / FU-SH-02 recovery details, FU-CS-05 rollback
-implementation and runtime verification remain open.
-
-</details>
-
 <a id="current-data-model"></a>
 <details>
 <summary><strong>Current data model — entities, fields and relationships</strong></summary>

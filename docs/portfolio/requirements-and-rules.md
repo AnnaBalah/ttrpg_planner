@@ -3137,9 +3137,9 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   0.1 of the intended [WF-CS-02 overview and saving/rollback detail](models.md#wf-cs-02-bpmn)
   on 29 October 2026 within its stated scope, including the explicit
   GAP-CS-01 / FU-SH-02 recovery boundaries. The
-  [approval record](models.md#process-model-approval) preserves the version,
-  date and decision. Detailed recovery design, FU-CS-05 implementation and
-  test-execution tasks remain open.
+  [model status](models.md#wf-cs-02-bpmn) records the version, date and approval
+  scope. Detailed recovery design, FU-CS-05 implementation and test-execution
+  tasks remain open.
 
 </details>
 

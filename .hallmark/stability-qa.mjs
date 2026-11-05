@@ -63,10 +63,13 @@ try {
   let sessionDelay = 0, sessionPosts = 0, failSession = 0, failSystem = 0;
   await page.setRequestInterception(true);
   page.on('request', async req => {
-    if (req.method() === 'POST' && req.url() === url + '/api/sessions') {
+    if (req.method() === 'POST' && [url + '/api/sessions', url + '/api/sessions/first'].includes(req.url())) {
       sessionPosts++;
       if (sessionDelay) await pause(sessionDelay);
-      if (failSession-- > 0) { await req.respond({ status: 503, contentType: 'application/json', body: JSON.stringify({ detail: 'Temporary test failure' }) }); return; }
+      if (failSession-- > 0) {
+        await req.respond({ status: 500, headers: { 'X-Tablelog-Save-Outcome': 'rolled-back' }, contentType: 'application/json', body: JSON.stringify({ detail: 'Temporary test failure' }) });
+        return;
+      }
     }
     if (req.method() === 'POST' && req.url() === url + '/api/systems' && failSystem-- > 0) {
       await req.respond({ status: 422, contentType: 'application/json', body: JSON.stringify({ detail: [{ loc: ['body', 'name'], msg: 'Name unavailable' }] }) }); return;
@@ -106,15 +109,21 @@ try {
   await click('#close-session');
   await reload();
 
-  await click('#add-session');
-  await page.select('#session-kind', 'new-campaign');
-  await type('#session-new-campaign-name', 'QA retry campaign');
-  await type('#session-gm', 'QA GM');
-  await page.select('#session-system', String(system.id));
+  const newCampaignForm = async () => {
+    await click('#add-session');
+    await page.select('#session-kind', 'new-campaign');
+    await type('#session-new-campaign-name', 'QA retry campaign');
+    await type('#session-gm', 'QA GM');
+    await page.select('#session-system', String(system.id));
+  };
+  await newCampaignForm();
+  const beforeCampaignRejection = await get('/api/export');
   failSession = 1;
   await click('#session-form button[type="submit"]');
   await idle();
-  check('Failed save keeps the dialog and entered values', await page.$eval('#session-dialog', e => e.open) && await page.$eval('#session-gm', e => e.value === 'QA GM'));
+  check('Confirmed rejection closes and clears the dialog', await page.$eval('#session-dialog', e => !e.open) && await page.$eval('#session-gm', e => e.value === ''));
+  check('Confirmed campaign save rejection leaves records unchanged', JSON.stringify(await get('/api/export')) === JSON.stringify(beforeCampaignRejection));
+  await newCampaignForm();
   await click('#session-form button[type="submit"]');
   await idle();
   const retryCampaigns = (await get('/api/campaigns')).filter(c => c.name === 'QA retry campaign');
@@ -132,12 +141,16 @@ try {
   check('Renaming a campaign immediately refreshes calendar and history labels', await page.$eval('#sessions-body', e => e.textContent.includes('QA renamed campaign') && !e.textContent.includes('QA retry campaign')));
   await page.$eval('#session-history', e => e.open = false);
 
-  await sessionForm('QA retry system session');
-  await page.select('#session-system', '__new');
-  await type('#session-new-system-name', 'QA retry system');
+  const newSystemSessionForm = async () => {
+    await sessionForm('QA retry system session');
+    await page.select('#session-system', '__new');
+    await type('#session-new-system-name', 'QA retry system');
+  };
+  await newSystemSessionForm();
   failSession = 1;
   await click('#session-form button[type="submit"]');
   await idle();
+  await newSystemSessionForm();
   await click('#session-form button[type="submit"]');
   await idle();
   check('Retry after inline system creation succeeds without duplicate systems', (await get('/api/systems')).filter(s => s.name === 'QA retry system').length === 1 && (await get('/api/sessions')).filter(s => s.name === 'QA retry system session').length === 1 && await page.$eval('#session-dialog', e => !e.open));

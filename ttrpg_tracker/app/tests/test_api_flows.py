@@ -1,6 +1,7 @@
 """HTTP regression checks against a disposable SQLite copy; no extra test dependencies."""
 import csv
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 import hashlib
 import io
 import json
@@ -101,6 +102,54 @@ class ApiFlowTests(unittest.TestCase):
         self.assertEqual(next(s for s in self.request("GET", "/api/sessions")[1] if s["id"] == item["id"])["date"], "2024-02-29")
         self.assertEqual(self.request("DELETE", f"/api/sessions/{item['id']}")[0], 204)
         self.assertEqual(self.request("DELETE", f"/api/sessions/{item['id']}")[0], 404)
+
+    def test_inline_system_saves_roll_back_when_the_parent_write_fails(self):
+        campaign = self.request("POST", "/api/campaigns", self.campaign())[1]
+        session = self.request("POST", "/api/sessions", self.session(campaign_id=campaign["id"]))[1]
+        cases = [
+            ("POST", "/api/campaigns", "campaigns", {"name": self.name + " new", "default_gm": "Fictional GM"}),
+            ("PUT", f"/api/campaigns/{campaign['id']}", "campaigns", {"default_gm": "Edited GM"}),
+            ("POST", "/api/sessions", "sessions", {"name": self.name, "date": "2026-10-27", "gm": "Fictional GM"}),
+            ("PUT", f"/api/sessions/{session['id']}", "sessions", {"notes": "Edited notes"}),
+            ("POST", "/api/sessions/first", "sessions", {
+                "campaign_name": self.name + " first session", "date": "2026-10-27", "gm": "Fictional GM",
+            }),
+        ]
+        for index, (method, path, table, payload) in enumerate(cases):
+            with self.subTest(method=method, path=path):
+                name = f"{self.name} system {index}"
+                payload["new_system"] = {"name": name, "color": "#58b6a9"}
+                before = self.request("GET", "/api/export")[1]
+                operation = "INSERT" if method == "POST" else "UPDATE"
+                with closing(sqlite3.connect(self.directory / "test.db")) as db:
+                    db.execute(f"""
+                        CREATE TRIGGER reject_parent BEFORE {operation} ON {table}
+                        BEGIN SELECT RAISE(ABORT, 'controlled test failure'); END
+                    """)
+                try:
+                    status, _, headers = self.request(method, path, payload)
+                    self.assertEqual(status, 500)
+                    self.assertEqual(headers.get("x-tablelog-save-outcome"), "rolled-back")
+                    self.assertEqual(self.request("GET", "/api/export")[1], before)
+                finally:
+                    with closing(sqlite3.connect(self.directory / "test.db")) as db:
+                        db.execute("DROP TRIGGER reject_parent")
+
+                status, saved, _ = self.request(method, path, payload)
+                self.assertEqual(status, 201 if method == "POST" else 200)
+                if method == "PUT":
+                    self.assertEqual(saved["id"], int(path.rsplit("/", 1)[1]))
+                after = self.request("GET", "/api/export")[1]
+                inline = [row for row in after["systems"] if row["name"] == name]
+                self.assertEqual(len(inline), 1)
+                self.assertEqual(saved["system_id"], inline[0]["id"])
+                stored = next(row for row in after[table] if row["id"] == saved["id"])
+                self.assertEqual(stored["system_id"], inline[0]["id"])
+                if path == "/api/sessions/first":
+                    linked = next(row for row in after["campaigns"] if row["id"] == saved["campaign_id"])
+                    self.assertEqual(linked["system_id"], inline[0]["id"])
+                    self.assertEqual(linked["default_gm"], payload["gm"])
+                    self.assertIsNone(linked["default_link"])
 
     def test_campaign_defaults_and_delete_protection(self):
         status, campaign, _ = self.request("POST", "/api/campaigns", self.campaign())

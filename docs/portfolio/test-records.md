@@ -39,7 +39,7 @@ Use the following variations when designing cases against the linked criteria:
 | AC-CS-15 | `http://example.com/game`, `https://example.com/game`. |
 | AC-CS-18 | Matching and excluding calendar months, history filters and statistics periods. |
 | AC-CS-20; AC-SH-09 | Close and Escape separately, with and without a picker open; repeat for each session-form context below. |
-| AC-CS-21 | A confirmed rejection with no record created, then a successful retry. |
+| AC-CS-21 | A confirmed submitted-save rejection creates no record, discards values and closes/resets; reopen a fresh form for a later successful attempt. |
 | AC-CS-22; AC-SH-10 | Hold each save stage pending; repeat Save/Enter, Close and Escape, with and without a picker. |
 | AC-CS-23 | Browser-local date `2026-10-28`; session date `2026-11-05`. November and 2026 totals each increase by one; October is unchanged. |
 
@@ -179,14 +179,16 @@ context; record results per context rather than one blanket pass:
 | --- | --- |
 | New campaign session | Add session and calendar-date entry |
 | New one-shot | Add session and calendar-date entry |
-| New campaign plus first session | Include the campaign-create and session-create save stages |
+| New campaign plus first session | Include the pending request for the campaign/first-session transaction and any other actual browser save stages |
 | Existing campaign session or one-shot | Open each type through calendar, agenda and history; inspect without changes and edit valid values |
 | Inline new system and planned Quick Add | Repeat on session creation/editing with a new system; include a combined new campaign/system attempt. Repeat any Quick Add session form when implemented; record an unavailable planned context as Not run with its reason. |
 
 View-only openings use TC-SH-01–02. TC-SH-03 applies after editing starts or during
 creation. Use the actual app's pickers; if a picker cannot be opened during a
 pending save, record that fact and verify Escape still retains the form. During
-multi-record saves, hold each request stage independently; do not require the
+multi-record saves, hold each actual browser request independently; the intended
+related-record save is one transaction, not a requirement for separate requests.
+Do not require the
 whole dataset to remain unchanged merely because a response is still pending.
 
 </details>
@@ -388,29 +390,27 @@ loads saved values; reopening creation does not restore the discarded changes.
 </details>
 
 <details>
-<summary><strong>TC-SH-03 — Block dismissal and duplicate saves during every save stage</strong></summary>
+<summary><strong>TC-SH-03 — Keep the session form open while saving</strong></summary>
 
 **Status:** Not run. **Priority:** Must. **Links:** AC-SH-03, AC-SH-06,
 AC-SH-10; AC-CS-22; FR-SH-03, FR-SH-06; Q-CS-07.
-**Preconditions/data:** Matrix K creation/edit variants with valid final values.
-Use a controlled response hold in an isolated browser test environment; the
-method and affected request must be recorded before execution.
+**Preconditions/data:** Use valid values and a fresh test database for each
+creation and edit variation in Matrix K. Set up the browser test to pause the
+save reply until you release it. Record which request you paused.
 
-1. Start one valid Save and hold its response. For inline creation, repeat this
-   case from a fresh fixture with each campaign/system/session request stage held.
-2. While pending, use Close and Escape with no picker open; also test Escape
-   with a picker open if the interface permits one. Repeat Save clicks and Enter.
-3. Release the response with confirmed success and let subsequent required saves
-   and refresh finish. Reload and inspect saved records by ID.
+1. Fill in the form and select Save once. Hold the reply. One save starts and
+   the form keeps the entered values.
+2. While waiting, try Close, Escape, Save again and Enter. Try Escape with a
+   picker open if you can open one. The form stays open and no second save
+   starts. Escape can close a picker while the form stays open. Record it if
+   you cannot open a picker while waiting.
+3. Release the successful reply, let the lists refresh, then reload and check
+   the records. The form closes and shows Session saved after refresh. A new
+   session appears once, or the edited session keeps its ID. Each new related
+   record appears once.
 
-**Expected:** While pending, the form remains open and retains entered values.
-Escape may dismiss a picker only. None of those repeated actions starts a second
-save operation or an extra request for the held stage. The one original save may
-continue through its required later stages. After confirmed completion/refresh,
-creation adds exactly one session; editing retains the same ID with no session
-count increase. Inline records are created once per required new record. Lost
-responses, uncertain cleanup and failed refreshes are separate recovery scenarios
-under GAP-CS-01; this case does not settle their detailed form-state design.
+Windshift case TC-SH-05 covers failed refreshes and unconfirmed results under
+Q-SH-01 and AC-SH-07–08.
 
 </details>
 

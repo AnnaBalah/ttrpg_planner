@@ -1176,33 +1176,18 @@ async function saveSession(event) {
   try {
     const id = Number(document.querySelector("#session-id").value);
     const kind = document.querySelector("#session-kind").value;
-    const systemId = await resolveSessionSystemId();
+    const firstSession = kind === "new-campaign";
+    const system = document.querySelector("#session-system").value;
     let campaignId = null;
     let name = null;
-    let gm = document.querySelector("#session-gm").value.trim();
+    const gm = document.querySelector("#session-gm").value.trim();
 
     if (kind === "campaign") {
       campaignId = Number(document.querySelector("#session-campaign").value);
       if (!campaignId) {
         throw new Error("Pick a campaign");
       }
-    } else if (kind === "new-campaign") {
-      const campaign = await api("/api/campaigns", {
-        method: "POST",
-        body: {
-          name: document.querySelector("#session-new-campaign-name").value.trim(),
-          default_gm: document.querySelector("#session-new-campaign-gm").value.trim() || gm,
-          system_id: systemId,
-          default_link: document.querySelector("#session-link").value.trim() || null,
-        },
-      });
-      campaignId = campaign.id;
-      state.campaigns.push(campaign);
-      populateCampaignSelect();
-      document.querySelector("#session-kind").value = "campaign";
-      document.querySelector("#session-campaign").value = String(campaign.id);
-      syncSessionKind();
-    } else {
+    } else if (!firstSession) {
       name = document.querySelector("#session-name").value.trim();
     }
 
@@ -1211,43 +1196,56 @@ async function saveSession(event) {
       name,
       date: document.querySelector("#session-date").value,
       gm,
-      system_id: systemId,
+      ...(system === "__new" ? { new_system: readInlineSessionSystem() } : { system_id: Number(system) }),
       link: valueOrNull("#session-link"),
       notes: valueOrNull("#session-notes"),
     };
-    const saved = await api(id ? `/api/sessions/${id}` : "/api/sessions", {
-      method: id ? "PUT" : "POST",
-      body: payload,
+    if (firstSession) {
+      payload.campaign_name = document.querySelector("#session-new-campaign-name").value.trim();
+      payload.default_gm = valueOrNull("#session-new-campaign-gm");
+    }
+    const sessionPath = id ? `/api/sessions/${id}` : "/api/sessions";
+    const path = firstSession ? `${sessionPath}/first` : sessionPath;
+    await saveFormChanges(path, { method: id ? "PUT" : "POST", body: payload }, {
+      reset: () => {
+        els.sessionDialog.close();
+        els.sessionForm.reset();
+        document.querySelector("#session-id").value = "";
+      },
+      location: "your history",
+      success: "Session saved",
     });
-
-    upsert(state.sessions, saved);
-    els.sessionDialog.close();
-    await refreshLists();
-    showToast("Session saved");
-  } catch (error) {
-    showToast(error.message, true);
   } finally {
     finish();
   }
 }
 
-async function resolveSessionSystemId() {
-  const select = document.querySelector("#session-system");
-  if (select.value !== "__new") {
-    return Number(select.value);
+async function saveFormChanges(path, request, { reset, location, success }) {
+  try {
+    await api(path, request);
+  } catch (error) {
+    reset();
+    const rejected = error.saveRolledBack || [404, 409, 422].includes(error.status);
+    showToast(rejected
+      ? `Couldn't save: ${error.message}. No changes were saved. Please start again.`
+      : `Save could not be confirmed. Check ${location} before starting again.`, true);
+    return;
   }
-  const system = await api("/api/systems", {
-    method: "POST",
-    body: {
-      name: document.querySelector("#session-new-system-name").value.trim(),
-      color: document.querySelector("#session-new-system-color").value,
-    },
-  });
-  state.systems.push(system);
-  populateSystemSelects();
-  select.value = String(system.id);
-  syncNewSystemFields();
-  return system.id;
+
+  reset();
+  try {
+    await refreshLists();
+    showToast(success);
+  } catch {
+    showToast(`${success}. The view is outdated. Refresh the page to see the saved changes.`, true);
+  }
+}
+
+function readInlineSessionSystem() {
+  return {
+    name: document.querySelector("#session-new-system-name").value.trim(),
+    color: document.querySelector("#session-new-system-color").value,
+  };
 }
 
 function requestDeleteSession(id) {
@@ -1315,53 +1313,27 @@ function systemByName(name) {
   });
 }
 
-async function resolveCampaignSystemId() {
-  const name = document.querySelector("#campaign-system-name").value.trim();
-  if (!name) {
-    throw new Error("Pick or type a system");
-  }
-
-  const existingSystem = systemByName(name);
-  if (existingSystem) {
-    return existingSystem.id;
-  }
-
-  const system = await api("/api/systems", {
-    method: "POST",
-    body: {
-      name,
-      color: document.querySelector("#campaign-new-system-color").value,
-    },
-  });
-  state.systems.push(system);
-  populateSystemSelects();
-  return system.id;
-}
-
 async function saveCampaign(event) {
   event.preventDefault();
   const finish = beginFormSave(els.campaignForm);
   if (!finish) return;
   try {
     const id = Number(document.querySelector("#campaign-id").value);
-    const systemId = await resolveCampaignSystemId();
+    const name = document.querySelector("#campaign-system-name").value.trim();
+    const system = systemByName(name);
     const payload = {
       name: document.querySelector("#campaign-name").value.trim(),
       default_gm: document.querySelector("#campaign-gm").value.trim(),
-      system_id: systemId,
+      ...(system ? { system_id: system.id } : {
+        new_system: { name, color: document.querySelector("#campaign-new-system-color").value },
+      }),
       default_link: valueOrNull("#campaign-link"),
       archived: document.querySelector("#campaign-archived").checked ? 1 : 0,
     };
-    const saved = await api(id ? `/api/campaigns/${id}` : "/api/campaigns", {
+    await saveFormChanges(id ? `/api/campaigns/${id}` : "/api/campaigns", {
       method: id ? "PUT" : "POST",
       body: payload,
-    });
-    upsert(state.campaigns, saved);
-    clearCampaignForm();
-    await refreshLists();
-    showToast("Campaign saved");
-  } catch (error) {
-    showToast(error.message, true);
+    }, { reset: clearCampaignForm, location: "the campaign list", success: "Campaign saved" });
   } finally {
     finish();
   }
@@ -1453,16 +1425,10 @@ async function saveSystem(event) {
       name: document.querySelector("#system-name").value.trim(),
       color: document.querySelector("#system-color").value,
     };
-    const saved = await api(id ? `/api/systems/${id}` : "/api/systems", {
+    await saveFormChanges(id ? `/api/systems/${id}` : "/api/systems", {
       method: id ? "PUT" : "POST",
       body: payload,
-    });
-    upsert(state.systems, saved);
-    clearSystemForm();
-    await refreshLists();
-    showToast("System saved");
-  } catch (error) {
-    showToast(error.message, true);
+    }, { reset: clearSystemForm, location: "the system list", success: "System saved" });
   } finally {
     finish();
   }
@@ -1639,6 +1605,7 @@ async function api(url, options = {}) {
   if (!response.ok) {
     const error = new Error(await errorText(response));
     error.status = response.status;
+    error.saveRolledBack = response.headers.get("X-Tablelog-Save-Outcome") === "rolled-back";
     throw error;
   }
   if (response.status === 204) {

@@ -39,8 +39,16 @@ try {
   const newJs = readFileSync(join(app, 'frontend/app.js'), 'utf8');
   const calls = s => [...s.matchAll(/(?:api|downloadExport)\(([^\n]+)/g)].map(m => m[0].trim()).sort();
   const oldManualJs = oldJs.replace(/async function quickSaveCampaign[\s\S]*?(?=async function saveSession)/, '').replace(/^\s*downloadExport\("\/api\/export", "ttrpg-export.json"\);$/m, '');
-  assert.ok(calls(oldManualJs).every(call => calls(newJs).includes(call)));
-  check('Manual API calls and export destinations preserved');
+  // The browser save checks below cover these forms after the transaction refactor.
+  const formSaveCalls = new Set([
+    'api("/api/campaigns", {',
+    'api("/api/systems", {',
+    'api(id ? `/api/campaigns/${id}` : "/api/campaigns", {',
+    'api(id ? `/api/sessions/${id}` : "/api/sessions", {',
+    'api(id ? `/api/systems/${id}` : "/api/systems", {',
+  ]);
+  const unchangedCalls = calls(oldManualJs).filter(call => !formSaveCalls.has(call));
+  check('Other manual API calls and export destinations preserved', unchangedCalls.every(call => calls(newJs).includes(call)));
   const sessions = await get('/api/sessions');
   const campaigns = await get('/api/campaigns');
   const systems = await get('/api/systems');

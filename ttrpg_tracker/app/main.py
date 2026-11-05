@@ -8,6 +8,7 @@ import os
 import re
 import unicodedata
 from collections import Counter, defaultdict
+from contextlib import contextmanager
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Annotated, Optional
@@ -18,6 +19,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import AfterValidator, BaseModel, ConfigDict, field_validator
 from sqlalchemy import CheckConstraint, UniqueConstraint, event, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 
@@ -161,7 +163,8 @@ class SystemRead(SystemCreate):
 class CampaignCreate(BaseModel):
     name: RequiredText
     default_gm: RequiredText
-    system_id: int
+    system_id: Optional[int] = None
+    new_system: Optional[SystemCreate] = None
     default_link: WebLink = None
     archived: int = Field(default=0, ge=0, le=1)
 
@@ -170,6 +173,7 @@ class CampaignUpdate(BaseModel):
     name: Optional[RequiredText] = None
     default_gm: Optional[RequiredText] = None
     system_id: Optional[int] = None
+    new_system: Optional[SystemCreate] = None
     default_link: WebLink = None
     archived: Optional[int] = Field(default=None, ge=0, le=1)
 
@@ -181,10 +185,15 @@ class CampaignUpdate(BaseModel):
         return value
 
 
-class CampaignRead(CampaignCreate):
+class CampaignRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    name: RequiredText
+    default_gm: RequiredText
+    system_id: int
+    default_link: WebLink
+    archived: int
     created_at: str
     system_name: str
     system_color: str
@@ -196,6 +205,7 @@ class SessionCreate(BaseModel):
     date: str
     gm: Optional[RequiredText] = None
     system_id: Optional[int] = None
+    new_system: Optional[SystemCreate] = None
     link: WebLink = None
     notes: Optional[str] = None
 
@@ -205,12 +215,19 @@ class SessionCreate(BaseModel):
         return date.fromisoformat(value).isoformat()
 
 
+class FirstSessionCreate(SessionCreate):
+    campaign_name: RequiredText
+    default_gm: Optional[str] = None
+    gm: RequiredText
+
+
 class SessionUpdate(BaseModel):
     campaign_id: Optional[int] = None
     name: Optional[str] = None
     date: Optional[str] = None
     gm: Optional[RequiredText] = None
     system_id: Optional[int] = None
+    new_system: Optional[SystemCreate] = None
     link: WebLink = None
     notes: Optional[str] = None
 
@@ -304,6 +321,22 @@ def update_tracker_settings(payload: TrackerSettingsUpdate) -> TrackerSettingsRe
         return TrackerSettingsRead(owner_gm_name=owner_name)
 
 
+@contextmanager
+def form_save_transaction():
+    with Session(engine) as db:
+        try:
+            yield db
+        except SQLAlchemyError as error:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="The database rejected the changes",
+                headers={"X-Tablelog-Save-Outcome": "rolled-back"},
+            ) from error
+        # A commit error is treated as uncertain by the browser.
+        db.commit()
+
+
 @app.get("/api/systems", response_model=list[SystemRead])
 def list_systems() -> list[System]:
     with Session(engine) as db:
@@ -311,20 +344,19 @@ def list_systems() -> list[System]:
 
 
 @app.post("/api/systems", response_model=SystemRead, status_code=201)
-def create_system(payload: SystemCreate) -> System:
-    with Session(engine) as db:
+def create_system(payload: SystemCreate) -> SystemRead:
+    with form_save_transaction() as db:
         db.exec(text("BEGIN IMMEDIATE"))
         ensure_unique_name(db, System, payload.name)
         system = System(name=payload.name.strip(), color=payload.color.strip())
         db.add(system)
-        db.commit()
-        db.refresh(system)
-        return system
+        db.flush()
+        return SystemRead.model_validate(system)
 
 
 @app.put("/api/systems/{system_id}", response_model=SystemRead)
-def update_system(system_id: int, payload: SystemUpdate) -> System:
-    with Session(engine) as db:
+def update_system(system_id: int, payload: SystemUpdate) -> SystemRead:
+    with form_save_transaction() as db:
         db.exec(text("BEGIN IMMEDIATE"))
         system = require_system(db, system_id)
         updates = payload.model_dump(exclude_unset=True)
@@ -335,9 +367,8 @@ def update_system(system_id: int, payload: SystemUpdate) -> System:
                 value = value.strip()
             setattr(system, key, value)
         db.add(system)
-        db.commit()
-        db.refresh(system)
-        return system
+        db.flush()
+        return SystemRead.model_validate(system)
 
 
 @app.get("/api/campaigns", response_model=list[CampaignRead])
@@ -355,33 +386,32 @@ def list_campaigns(
 
 @app.post("/api/campaigns", response_model=CampaignRead, status_code=201)
 def create_campaign(payload: CampaignCreate) -> CampaignRead:
-    with Session(engine) as db:
+    with form_save_transaction() as db:
         db.exec(text("BEGIN IMMEDIATE"))
-        require_system(db, payload.system_id)
         ensure_unique_name(db, Campaign, payload.name)
-        campaign = Campaign(**payload.model_dump())
+        system = resolve_save_system(db, payload.system_id, payload.new_system)
+        campaign = Campaign(**payload.model_dump(exclude={"new_system", "system_id"}), system_id=system.id)
         db.add(campaign)
-        db.commit()
-        db.refresh(campaign)
+        db.flush()
         systems = system_map(db)
         return campaign_read(campaign, systems[campaign.system_id])
 
 
 @app.put("/api/campaigns/{campaign_id}", response_model=CampaignRead)
 def update_campaign(campaign_id: int, payload: CampaignUpdate) -> CampaignRead:
-    with Session(engine) as db:
+    with form_save_transaction() as db:
         db.exec(text("BEGIN IMMEDIATE"))
         campaign = require_campaign(db, campaign_id)
         updates = payload.model_dump(exclude_unset=True)
-        if "system_id" in updates:
-            require_system(db, updates["system_id"])
+        updates.pop("new_system", None)
+        if "system_id" in updates or payload.new_system is not None:
+            updates["system_id"] = resolve_save_system(db, payload.system_id, payload.new_system).id
         if "name" in updates:
             ensure_unique_name(db, Campaign, updates["name"], campaign_id)
         for key, value in updates.items():
             setattr(campaign, key, value)
         db.add(campaign)
-        db.commit()
-        db.refresh(campaign)
+        db.flush()
         systems = system_map(db)
         return campaign_read(campaign, systems[campaign.system_id])
 
@@ -413,21 +443,73 @@ def list_sessions() -> list[SessionRead]:
 
 @app.post("/api/sessions", response_model=SessionRead, status_code=201)
 def create_session(payload: SessionCreate) -> SessionRead:
-    with Session(engine) as db:
+    with form_save_transaction() as db:
+        if payload.new_system is not None:
+            db.exec(text("BEGIN IMMEDIATE"))
+            system = resolve_save_system(db, payload.system_id, payload.new_system)
+            payload = payload.model_copy(update={"system_id": system.id})
         item = build_session(db, payload)
         db.add(item)
-        db.commit()
-        db.refresh(item)
+        db.flush()
         return session_read(item, campaign_map(db), system_map(db))
+
+
+@app.post("/api/sessions/first", response_model=SessionRead, status_code=201)
+def create_first_session(payload: FirstSessionCreate) -> SessionRead:
+    return save_first_session(payload)
+
+
+@app.put("/api/sessions/{session_id}/first", response_model=SessionRead)
+def move_session_to_new_campaign(session_id: int, payload: FirstSessionCreate) -> SessionRead:
+    return save_first_session(payload, session_id)
+
+
+def save_first_session(payload: FirstSessionCreate, session_id: int | None = None) -> SessionRead:
+    if payload.campaign_id is not None or (payload.system_id is None) == (payload.new_system is None):
+        raise HTTPException(status_code=422, detail="Provide a new campaign and exactly one system")
+
+    with form_save_transaction() as db:
+        db.exec(text("BEGIN IMMEDIATE"))
+        existing = None
+        if session_id is not None:
+            existing = db.get(GameSession, session_id)
+            if existing is None:
+                raise HTTPException(status_code=404, detail="Session not found")
+        ensure_unique_name(db, Campaign, payload.campaign_name)
+        system = resolve_save_system(db, payload.system_id, payload.new_system)
+
+        campaign = Campaign(
+            name=payload.campaign_name,
+            default_gm=clean_optional(payload.default_gm) or payload.gm,
+            system_id=system.id,
+            default_link=clean_optional(payload.link),
+        )
+        db.add(campaign)
+        db.flush()
+        item = build_session(db, payload.model_copy(update={
+            "campaign_id": campaign.id,
+            "system_id": system.id,
+        }))
+        if existing is not None:
+            for key, value in item.model_dump(exclude={"id", "created_at"}).items():
+                setattr(existing, key, value)
+            item = existing
+        db.add(item)
+        db.flush()
+        return session_read(item, {campaign.id: campaign}, {system.id: system})
 
 
 @app.put("/api/sessions/{session_id}", response_model=SessionRead)
 def update_session(session_id: int, payload: SessionUpdate) -> SessionRead:
-    with Session(engine) as db:
+    with form_save_transaction() as db:
+        if payload.new_system is not None:
+            db.exec(text("BEGIN IMMEDIATE"))
         item = db.get(GameSession, session_id)
         if not item:
             raise HTTPException(status_code=404, detail="Session not found")
-        updates = payload.model_dump(exclude_unset=True)
+        updates = payload.model_dump(exclude_unset=True, exclude={"new_system"})
+        if payload.new_system is not None:
+            updates["system_id"] = resolve_save_system(db, payload.system_id, payload.new_system).id
         merged_data = {
             "campaign_id": item.campaign_id,
             "name": item.name,
@@ -443,8 +525,7 @@ def update_session(session_id: int, payload: SessionUpdate) -> SessionRead:
         for key, value in replacement.model_dump(exclude={"id", "created_at"}).items():
             setattr(item, key, value)
         db.add(item)
-        db.commit()
-        db.refresh(item)
+        db.flush()
         return session_read(item, campaign_map(db), system_map(db))
 
 
@@ -612,6 +693,20 @@ def require_campaign(db: Session, campaign_id: int) -> Campaign:
 def ensure_unique_name(db: Session, model, name: str, current_id: int | None = None) -> None:
     if any(item.id != current_id and import_name(item.name) == import_name(name) for item in db.exec(select(model))):
         raise HTTPException(status_code=409, detail=f"{model.__name__} name already exists")
+
+
+def resolve_save_system(db: Session, system_id: int | None, new_system: SystemCreate | None) -> System:
+    if new_system is None:
+        if system_id is None:
+            raise HTTPException(status_code=422, detail="A system is required")
+        return require_system(db, system_id)
+    if system_id is not None:
+        raise HTTPException(status_code=422, detail="Provide either an existing or a new system")
+    ensure_unique_name(db, System, new_system.name)
+    system = System(**new_system.model_dump())
+    db.add(system)
+    db.flush()
+    return system
 
 
 def require_system(db: Session, system_id: int) -> System:

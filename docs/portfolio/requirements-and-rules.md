@@ -1,12 +1,16 @@
 # Requirements and rules
 
-**Version:** 1.2 — approved baseline
+**Version:** 1.3 — agreed save behavior aligned
 
-**Owner approval — 29 October 2026:** Version 1.2 adds approved requirements
-FR-DA-14–18 for full JSON backup/restore through the API and aligns the affected
-import/export rules. The owner also approved AC-DA-17–21, bringing the acceptance
-baseline to 192 criteria. Full JSON backup/restore and separate CSV transfer of
-My GM name remain future-sprint work; implementation and verification are pending.
+**Current baseline:** Version 1.3 integrates the simple-save decision recorded on
+29 October 2026 and the owner's instruction on 30 October 2026 to align the
+requirements, acceptance criteria and backlog. Q-SH-01 is the single policy
+reference for session, campaign and system form saves. Existing IDs and priorities
+are preserved. Version 1.2 backup/restore scope remains in force.
+
+This documents intended behavior. FU-SH-02, FU-CS-05 and FU-SY-01 record the
+current save implementation and the remaining verification. Full JSON
+backup/restore and CSV transfer of My GM name remain future work.
 
 ## Legend
 
@@ -50,11 +54,11 @@ session, item 01. Add new abbreviations to this table when first introduced.
 
 | Area | Current status |
 | --- | --- |
-| Product decisions | All 37 decisions agreed. Version 1.2 updates Q-DA-01–02 for CSV record transfer and full JSON backup/restore. Full JSON is future work under FU-DA-03; CSV transfer of My GM name remains separate under FU-DA-02. |
-| Business rules and functional requirements | All reviewed and approved, including the recorded Must/Should priorities and version 1.2 requirements FR-DA-14–18, approved on 29 October 2026. |
+| Product decisions | All 37 decisions remain recorded. Version 1.3 aligns Q-SH-01, Q-CS-04 and Q-SY-02 with the latest form-save decision. Version 1.2 import/export scope remains in force. |
+| Business rules and functional requirements | Version 1.3 aligns form-save outcomes and related-record transactions. Existing Must/Should priorities and FR-DA-14–18 are preserved. |
 | Main workflows | All 31 Main workflow tables reviewed and approved, including the planned WF-CP-06 and WF-QA-01 flows. |
-| Acceptance criteria | All 192 criteria are approved as version 1.2: the 187 version 1.1 criteria plus AC-DA-17–21 and aligned import/export scope. Earlier approvals are preserved; implementation and verification remain separate. |
-| Open design work | Detailed recovery design remains open under GAP-CS-01 and FU-SH-02. Approval of the requirements does not close implementation or verification tasks. |
+| Acceptance criteria | All 192 existing criteria are retained. Version 1.3 aligns the affected save criteria with Q-SH-01; earlier unchanged approvals remain in force. Implementation and verification remain separate. |
+| Open design work | Q-SH-01 specifies the form-save interaction and supersedes GAP-CS-01's request identification and reconciliation proposals for these saves. FU-SH-02 tracks the current implementation and verification. |
 | Implementation and evidence | An agreed decision is not proof of a working feature. Each workflow's source section distinguishes current code from planned behavior. |
 
 Use each workflow's summary and main flow to navigate its business rules and
@@ -90,7 +94,7 @@ and verification remain separate work.
 | [Q-CS-01](#wf-cs-01-decisions) | Switching campaigns during creation replaces GM, System and Link without confirmation; retain Date and Notes. |
 | [Q-CS-02](#wf-cs-01-decisions) | Archived campaigns remain selectable in ordinary session entry and are labeled archived. |
 | [Q-CS-03](#wf-cs-01-decisions) | Future sessions count in their recorded period; no played/planned classification. |
-| [Q-CS-04](#wf-cs-02-decisions) | If the first session cannot be saved, roll back its newly created campaign, show a clear error and retain entered values. |
+| [Q-CS-04](#wf-cs-02-decisions) | Save the new campaign and first session together; confirmed failure leaves neither record and closes/resets the form under Q-SH-01. |
 | [Q-CS-05](#wf-cs-02-decisions) | Use an explicit default GM or fall back to session GM; initial session system and link become campaign defaults. |
 
 </details>
@@ -135,7 +139,7 @@ and verification remain separate work.
 | ID | Agreed result |
 | --- | --- |
 | [Q-SY-01](#wf-sy-01-decisions) | Suggest distinct colors but allow intentional shared colors; names remain unique. |
-| [Q-SY-02](#wf-sy-02-decisions) | If the parent save fails, roll back only the newly created system and show a clear error; preserve existing records. |
+| [Q-SY-02](#wf-sy-02-decisions) | Save a new inline system and its parent together; confirmed failure preserves earlier records and closes/resets the form under Q-SH-01. |
 | [Q-SY-03](#wf-sy-02-decisions) | Explicitly offer an existing matching system without duplicating or recoloring it. |
 | [Q-SY-04](#wf-sy-04-decisions) | System name/color changes update linked historical displays while preserving associations. |
 
@@ -200,7 +204,7 @@ and verification remain separate work.
 
 | ID | Agreed result |
 | --- | --- |
-| [Q-SH-01](#shared-decisions) | Refresh a confirmed write without repeating it; reconcile unknown outcomes before retry. Creation-request identification still needs design. |
+| [Q-SH-01](#shared-decisions) | Save related form changes together. Close/reset after confirmed failure or an unknown result; distinguish saved-but-outdated views and never repeat a write automatically. Other workflows keep their own recovery rules. |
 
 </details>
 
@@ -253,10 +257,10 @@ in-app backup, restore or reset buttons exist.
 | ID | Functional requirement | Priority | Applies to |
 | --- | --- | --- | --- |
 | FR-SH-01 | Browsing, opening details, filtering, sorting, statistics and exports must leave stored records unchanged; saving My GM name is a separate write. | Must | Read-only workflows |
-| FR-SH-02 | Before a form write, the app must validate required text, dates, existing references and supplied HTTP/HTTPS links as applicable; validation failures must explain the input and retain entered values. | Must | Session, campaign and system forms |
+| FR-SH-02 | Before a form write, validate required text, dates, references and supplied HTTP/HTTPS links as applicable. Browser validation that prevents submission must explain the input, retain entered values for correction and send no write. A submitted save rejected by the server follows FR-SH-04. | Must | Session, campaign and system forms |
 | FR-SH-03 | While a browser write is pending, repeating its action must not start another request for that operation. | Must | Create, edit, delete, archive, settings and import |
-| FR-SH-04 | A confirmed rejected write must explain the business or input reason and retain a usable form or action context; cancellation before submission must leave stored data unchanged. | Must | Browser write workflows |
-| FR-SH-05 | After a confirmed write, affected views must refresh before normal completion feedback. If refresh alone fails, explain that the write succeeded but the view is outdated. If the write response is lost, explain that its outcome is unknown. Neither case may trigger an automatic repeat write. Follow the agreed recovery principle Q-SH-01; creation-request identification still needs design. | Must | Browser write workflows; Q-SH-01; related gap GAP-CS-01 |
+| FR-SH-04 | For a submitted session, campaign or system form save, confirmed rejection must leave all earlier stored values intact and no partial changes from this attempt. Discard entered values, close/reset the form and show Q-SH-01's confirmed-failure message. Other write workflows retain a usable action context and their own business rules. Cancellation before submission changes no stored data. | Must | Browser write workflows |
+| FR-SH-05 | For session, campaign and system forms, validate all related changes and save them in one server transaction, including inline new campaigns/systems. Confirmed success closes/resets the form, then refreshes affected views before normal completion feedback. A failed refresh reports saved data and an outdated view; refresh without repeating or undoing the save. An unknown save or rollback result closes/resets the form and follows Q-SH-01's uncertainty feedback. Never repeat a write automatically. Other workflows keep their agreed refresh/reconciliation rules. | Must | Browser write workflows; Q-SH-01; related gap GAP-CS-01 |
 | FR-SH-06 | Every session form must follow Q-CS-07. Before saving, Close must discard unsaved form changes without a write; Escape must close an open picker first and retain the form and values, or close the form without a write when no picker is open. While any part of that form's create/update save is pending, Close and Escape must not dismiss the form; Escape may close a picker while retaining the form and entered values. Existing stored records remain unchanged by cancellation. | Must | WF-CS-01–02, WF-OS-01, WF-SE-01, WF-HI-02 and any session form opened by planned WF-QA-01; includes inline new-campaign/system save stages |
 
 </details>
@@ -268,7 +272,23 @@ in-app backup, restore or reset buttons exist.
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-SH-01 | New write workflows share a recovery policy: refresh after a confirmed write without resubmitting it, and reconcile an unknown outcome before retry. Identifying creation requests for reconciliation still needs design. | Agreed |
+| Q-SH-01 | Session, campaign and system form saves use the simple-save outcomes below. Related changes save in one server transaction; earlier records are protected. Other workflows retain their agreed recovery rules. | Agreed |
+
+Validate before saving. Browser validation that prevents submission retains input
+for correction and sends no write. Once submitted, keep the form open and block
+repeated submission or dismissal until the result is known.
+
+| Submitted save outcome | Form and feedback | Stored data and next action |
+| --- | --- | --- |
+| Confirmed success | Close/reset, refresh affected views, then show completion. | All related changes commit together, including inline campaigns/systems. |
+| Confirmed failure with confirmed rollback | Discard input, close/reset and show: "Couldn't save: [reason]. No changes were saved. Please start again." | No partial changes from this attempt remain; earlier records are unchanged. A new deliberate attempt starts from a fresh form. |
+| Confirmed save, failed refresh | The form is closed/reset. Explain that data was saved but the view is outdated. | Refresh only; never repeat or undo the confirmed save. |
+| Unknown save or rollback result | Discard input and close/reset. For an unknown save show: "Save could not be confirmed. Check your history before starting again." Name the campaign/system list for those forms. Explicitly report rollback uncertainty when applicable. | Do not claim success, unchanged data or confirmed cleanup. Never automatically repeat or undo the write. |
+
+Persistent recovery drafts, resume-later features and mandatory creation-attempt
+identification/reconciliation are outside these form saves. Deletion, archive/status
+changes, settings and import retain their own agreed business interactions and
+recovery requirements.
 
 </details>
 
@@ -297,8 +317,9 @@ New abbreviations belong in the legend. Numbers are unique within each area;
 they need not appear in numerical order after later additions.
 Evidence records use `DEF-number` and `RET-number`.
 
-The recovery principle is agreed. Creation-request identification and detailed
-recovery design still need work under [GAP-CS-01](#open-decision).
+Q-SH-01 specifies the form-save interaction. Pre-submit validation retains input;
+confirmed submitted-save failure discards it. These are separate outcomes.
+[GAP-CS-01](#open-decision) records the superseded design boundary.
 
 </details>
 
@@ -399,10 +420,10 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 | FR-CS-11 | Before creating a session, the app must validate that Campaign and the effective System reference existing records, the effective GM contains non-whitespace text, and any supplied Link is a complete HTTP or HTTPS address. The browser form must require GM and System inputs; API creation may omit either or both and use the selected campaign's corresponding defaults. Link and Notes remain optional. | Must | Workflow step 4; BR-CS-02, BR-CS-06, BR-CS-07; Q-CS-08 |
 | FR-CS-12 | A successful save must create one new session linked to the selected campaign using the final entered values, without changing the campaign's defaults or existing sessions. | Must | Workflow step 5 |
 | FR-CS-13 | A saved session must remain available with its recorded values after the owner reloads the app. | Must | Project brief; successful outcome |
-| FR-CS-14 | After a confirmed save and successful refresh, the app must close the form, update the calendar, session history and statistics, and show **Session saved**. Displayed records must respect the selected calendar month and active history filters. | Must | Workflow step 6 |
-| FR-CS-15 | If validation fails, the app must create no session, retain the form and entered values, explain the invalid or missing input, and allow correction and resubmission. | Must | Validation failure |
+| FR-CS-14 | After a confirmed save, close/reset the form, refresh the calendar, history and statistics, then show Session saved. Respect the selected calendar month and active history filters. A failed refresh follows FR-SH-05 without another save. | Must | Workflow step 6 |
+| FR-CS-15 | If browser validation prevents submission, create no session, retain the form and entered values, explain the input and allow correction. A submitted save rejected by server validation follows FR-CS-17. | Must | Validation failure |
 | FR-CS-16 | Before saving starts, Close must close the form and discard the unsaved session without changing stored data. Escape with no picker open must do the same; with a picker open, Escape must close only the picker and retain the form and entered values. | Must | Cancellation; Q-CS-07; FR-SH-06 |
-| FR-CS-17 | If the save is rejected before a session is created, the app must retain the form and entered values, show the error, and allow correction or retry after the pending request ends. | Must | Rejected save |
+| FR-CS-17 | If the submitted save is confirmed rejected, preserve all earlier stored records, discard entered values, close/reset the form and show the confirmed-failure message in Q-SH-01. A later deliberate attempt starts from a newly opened form. | Must | Rejected save |
 | FR-CS-18 | While a session save is pending, repeated form submissions must not start additional session-save requests, and Close or Escape must not close the session form. Escape may close an open picker while retaining the form and entered values. | Must | Workflow step 4; Q-CS-07; FR-SH-06 |
 | FR-CS-19 | A future-dated session must contribute to statistics for its recorded month and year even before its date, without a separate played/planned classification. | Must | Q-CS-03 |
 | FR-CS-25 | The app must allow separate deliberate submissions for the same campaign and date, including otherwise identical final values. A confirmed successful deliberate submission adds one session; pending submissions and uncertain outcomes remain subject to FR-CS-18 and Q-SH-01. | Must | Q-CS-06; BR-CS-13 |
@@ -440,7 +461,10 @@ correct recording. Keep the agreed IDs and priorities when linking tests.
 | Supporting documents | [Project brief](project-brief.md); [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html); [Acceptance criteria](acceptance-criteria.md); [Process models](models.md). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** Current source supplies defaults and validates creation. The save path closes the form before refreshing, so confirmed-save/failed-refresh recovery still needs implementation design under GAP-CS-01. The original 27 October source review is retained below as historical context.
+**Source review:** `saveFormChanges` handles confirmed rejection, unconfirmed
+save results and failed refresh after a confirmed save separately. The earlier
+save/refresh error path is recorded in the historical review below. See FU-SH-02
+for the remaining verification against Q-SH-01.
 
 #### Historical source review
 
@@ -465,18 +489,19 @@ share an error path. These source reviews are separate from test execution.
 
 <a id="open-decision"></a>
 
-**GAP-CS-01 — Recovery design details:** The shared principle Q-SH-01 is agreed:
-refresh after a confirmed save without resubmitting it, and reconcile an unknown
-outcome before retry. Creation-request identification, precise form state and
-workflow-specific messages still need design and verification. A missing
-response does not establish whether a session exists.
+**GAP-CS-01 — Form-save design boundary resolved:** Q-SH-01 now specifies
+form reset, messages, one server transaction and handling of saved-but-outdated
+views or unknown results. The earlier retained-form, recovery-draft/resume and
+mandatory request-identification/reconciliation proposals are superseded for
+session, campaign and system form saves.
 
-FR-CS-17 covers a confirmed rejected save; FR-CS-18 covers repeated submission
-and form closing while a request is pending. Neither resolves this gap. Future-session statistics
-are included only for Q-CS-03; broader statistics coverage is outside this workflow.
+Pre-submit browser validation still retains values for correction. Pending-save
+protection remains FR-CS-18 / FR-SH-06. Other workflows, including deletion,
+archive/status changes, settings and import, retain their own recovery rules.
 
-Track recovery design as FU-SH-02 and the remaining actions in the document-wide
-[Workflow follow-up and planned improvements](#workflow-follow-up).
+This records the interaction decision. See FU-SH-02, FU-CS-05 and FU-SY-01 in the
+[follow-up register](#workflow-follow-up). A missing response is not proof that
+the save failed or that rollback succeeded.
 
 </details>
 
@@ -591,8 +616,8 @@ process; model review is separate from implementation and execution evidence.
 | --- | --- | --- |
 | 1 | Open a new session and choose New campaign. | Show campaign name, default GM and session fields. |
 | 2 | Enter campaign and session details using an existing system. | Keep campaign defaults and session values visible for review. |
-| 3 | Choose Save Session. | Validate and save the campaign and first session; if the session cannot be saved, roll back the campaign created by this attempt and explain the failure. |
-| 4 | Continue after both saves are confirmed. | Refresh campaigns and sessions, close the form and show completion. |
+| 3 | Choose Save Session. | Validate both records and save them in one server transaction. Confirmed failure leaves neither new record and follows Q-SH-01. |
+| 4 | Continue after the transaction is confirmed. | Close/reset the form, refresh campaigns and sessions, then show completion; report a failed refresh separately. |
 
 </details>
 
@@ -605,7 +630,7 @@ process; model review is separate from implementation and execution evidence.
 | --- | --- | --- |
 | BR-CS-10 | A new campaign must have a unique name, an effective nonblank default GM and an existing system. An explicitly entered default GM takes precedence over the initial session GM. | [Q-CS-05](#wf-cs-02-decisions); CampaignCreate; ensure_unique_name; [FR-CS-21](#wf-cs-02-requirements) |
 | BR-CS-11 | The first session belongs to the newly created campaign. Its system and link establish the initial campaign defaults; its final recorded values remain session values. | [Q-CS-05](#wf-cs-02-decisions); [FR-CS-21–22](#wf-cs-02-requirements) |
-| BR-CS-12 | Failure to save the first session must not leave the campaign created by that attempt behind. Rollback affects only newly created records; an unknown outcome must be reconciled before claiming rollback success. | [Q-CS-04](#wf-cs-02-decisions); [Q-SH-01](#shared-decisions); [FR-CS-23–24](#wf-cs-02-requirements) |
+| BR-CS-12 | The new campaign and its first session save in one server transaction. Confirmed failure leaves neither new record; existing records are unchanged. Unknown results or unconfirmed rollback follow Q-SH-01 without a cleanup-success claim. | [Q-CS-04](#wf-cs-02-decisions); [Q-SH-01](#shared-decisions); [FR-CS-23–24](#wf-cs-02-requirements) |
 
 </details>
 
@@ -618,8 +643,8 @@ process; model review is separate from implementation and execution evidence.
 | --- | --- | --- | --- |
 | FR-CS-20 | The session form must offer New campaign without requiring navigation to Manage. | Must | Step 1 |
 | FR-CS-21 | The app must derive the effective default GM under Q-CS-05 and validate that it is nonblank, the campaign name is not already in use, the system exists, any link is valid and the session inputs are valid before starting creation. | Must | Step 2; Q-CS-05 |
-| FR-CS-22 | Successful completion must create one campaign and one session linked to it, preserving their respective final values after reload. | Must | Steps 3–4 |
-| FR-CS-23 | If the first session cannot be saved, the app must roll back the campaign created by that attempt, retain entered values and clearly explain the failed session save and confirmed rollback. Existing campaigns must remain unchanged. An unknown outcome must be reconciled before retry or claiming rollback success. | Must | Step 3; Q-CS-04; Q-SH-01 |
+| FR-CS-22 | Save the new campaign and first session in one server transaction, including any inline new system. Confirmed success creates one linked pair with the final values, retained after reload. | Must | Steps 3–4 |
+| FR-CS-23 | Confirmed transaction failure must leave no campaign, first session or system created by this attempt and preserve earlier records. Discard input, close/reset and show Q-SH-01's confirmed-failure message. If the result or rollback cannot be confirmed, use its uncertainty feedback instead; never repeat the write automatically. | Must | Step 3; Q-CS-04; Q-SH-01 |
 | FR-CS-24 | Completion feedback must identify success only after both records are confirmed and affected views refresh. | Must | Step 4; FR-SH-05 |
 
 </details>
@@ -631,7 +656,7 @@ process; model review is separate from implementation and execution evidence.
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-CS-04 | If the first session cannot be saved, roll back the campaign created by that attempt and show a clear error message. Retain entered values for correction or retry; do not leave an unused new campaign behind. | Agreed |
+| Q-CS-04 | Save the new campaign and first session together in one server transaction. Confirmed failure leaves neither new record, preserves existing records and closes/resets the form with Q-SH-01's failure feedback. An unknown result is reported separately. | Agreed |
 | Q-CS-05 | Retain an explicitly entered default GM; if blank, use session GM. Use the initial session's system and link as campaign defaults. | Agreed |
 
 **Also applies:** [Q-SH-01](#shared-decisions).
@@ -647,11 +672,14 @@ process; model review is separate from implementation and execution evidence.
 | --- | --- |
 | Agreed policy | [Q-CS-04](#wf-cs-02-decisions); [Q-CS-05](#wf-cs-02-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
 | Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `saveSession`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_campaign`, `create_session`, `ensure_unique_name`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_first_session`, `save_first_session`, `form_save_transaction`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [Stability checks](../../.hallmark/stability-qa.mjs). |
 
-**Source review:** Current frontend requests create the campaign and session separately and do not implement the agreed rollback. Existing retry checks exercise the earlier behavior and are not proof that the new rollback policy works.
+**Source review:** `saveSession` submits the campaign and first session together
+to `/api/sessions/first`. `save_first_session` writes both records and any inline
+new system in one transaction and rolls back the attempt on failure. FU-CS-05
+tracks evidence for this workflow.
 
 </details>
 
@@ -706,7 +734,7 @@ process; model review is separate from implementation and execution evidence.
 | FR-QA-01 | Quick Add should provide an identifiable campaign shortcut that supplies the campaign's GM, system and optional link. | Should | Step 1; planned feature |
 | FR-QA-02 | When implemented, Add must require explicit confirmation of a valid date before saving; every shortcut must make its campaign and date behavior clear, including any separate Log today action. | Must | Steps 1–3; Q-QA-01 |
 | FR-QA-03 | The owner must be able to review and override session values without changing campaign defaults. Quick Add shortcuts must include only active campaigns, while the ordinary session form retains archived campaign selection. | Must | Step 2; Q-QA-02; Q-CS-02 |
-| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views; uncertain outcomes require reconciliation before retry. Any opened session form must follow FR-SH-06 for Close, Escape and pending saves. | Must | Steps 3–4; FR-SH-02–06 |
+| FR-QA-04 | Saving must validate and persist one campaign session, prevent repeated pending submissions and refresh applicable views. Its session form follows Q-SH-01 for transactions, failure reset/discard and unknown results, and FR-SH-06 for Close, Escape and pending saves. | Must | Steps 3–4; FR-SH-02–06 |
 
 </details>
 
@@ -816,12 +844,16 @@ process; model review is separate from implementation and execution evidence.
 | Source type | Source and what to inspect |
 | --- | --- |
 | Agreed policy | [Q-SE-01](#wf-se-01-decisions); [Q-SE-02](#wf-se-01-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `handleDocumentChange`, `applyCampaignDefaults`, `saveSession`. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `openSessionDialog`, `changeSessionCampaign`, `applyCampaignDefaults`, `saveSession`. |
 | Current backend | [main.py](../../ttrpg_tracker/app/main.py): `SessionUpdate`, `update_session`, `build_session`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py); [Stability checks](../../.hallmark/stability-qa.mjs). |
 
-**Source review:** The API supports type changes using the same record. Current campaign selection applies defaults immediately; the agreed explicit choice during editing is still an implementation gap.
+**Source review:** During editing, choosing another campaign offers **Keep
+entered values** or **Use campaign defaults** before replacing GM, system and
+link. The update uses the existing session ID. During creation, choosing a
+campaign still applies its defaults automatically. FU-SE-01 tracks the browser
+evidence.
 
 </details>
 
@@ -964,7 +996,7 @@ process; model review is separate from implementation and execution evidence.
 | FR-CP-01 | Manage must allow creation with name, default GM, existing system, optional default link and active/archived status. | Must | Steps 1–2; Q-CP-01 |
 | FR-CP-02 | Name and default GM must contain non-whitespace text; the system must exist, any link must be valid HTTP/HTTPS, and campaign names must be unique after trimming, character normalization and case-insensitive comparison. | Must | Step 3; current backend validation |
 | FR-CP-03 | Saving must create one campaign with its final defaults and status, create no session and retain it after reload. | Must | Steps 3–4 |
-| FR-CP-04 | Reset before saving must discard form entries without writing; successful creation must refresh campaign choices and confirmed rejection must retain entered values. | Must | Step 4; FR-SH-04 |
+| FR-CP-04 | Reset before submission discards input without writing. Confirmed creation closes/resets the form, refreshes choices and reports completion. Submitted rejection closes/resets and follows FR-SH-04; browser validation before submission follows FR-SH-02. | Must | Step 4; FR-SH-04 |
 
 </details>
 
@@ -992,7 +1024,9 @@ process; model review is separate from implementation and execution evidence.
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** The current form and backend support defaults and archive status. Inline creation of a new system is covered by WF-SY-03 and has a separate rollback gap.
+**Source review:** The form and backend support defaults and archive status.
+WF-SY-03 covers saving an inline new system in the same transaction as the
+campaign.
 
 </details>
 
@@ -1047,7 +1081,7 @@ process; model review is separate from implementation and execution evidence.
 | FR-CP-05 | Edit must load the selected campaign's saved values and update the existing campaign while retaining its ID rather than create a new record. | Must | Steps 1, 3; BR-CP-04 |
 | FR-CP-06 | Edited defaults must satisfy FR-CP-02, excluding the campaign itself from duplicate-name checking. | Must | Steps 2–3 |
 | FR-CP-07 | New session entry must use the saved defaults; existing session GM, system, link and notes must remain unchanged. Campaign name display follows Q-CP-02. | Must | Step 4; Q-CP-02 |
-| FR-CP-08 | Reset must leave the stored campaign unchanged, and a rejected save must retain edited values and explain the cause. | Must | FR-SH-04 |
+| FR-CP-08 | Reset leaves the stored campaign unchanged. A confirmed rejected save preserves earlier campaign/session values, discards edits, closes/resets the form and explains the cause under Q-SH-01. Pre-submit validation retains input for correction. | Must | FR-SH-04 |
 
 </details>
 
@@ -1529,7 +1563,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | FR-SY-01 | Manage must allow creating a system with a nonblank name and valid six-digit hexadecimal primary color. | Must | Steps 1–3; backend validation |
 | FR-SY-02 | System names must be unique after trimming, character normalization and case-insensitive comparison across all creation entry points. | Must | Step 3; backend validation |
 | FR-SY-03 | Successful creation must persist one system and make it selectable for campaigns and sessions without creating either record. | Must | Steps 3–4 |
-| FR-SY-04 | Clear must discard unsaved form values without a write, and a rejected save must retain entered values for correction. | Must | Step 4; FR-SH-04 |
+| FR-SY-04 | Clear before submission discards input without writing. Confirmed submitted-save rejection creates no system, discards input, closes/resets the form and follows Q-SH-01. Pre-submit validation retains input for correction. | Must | Step 4; FR-SH-04 |
 
 </details>
 
@@ -1584,7 +1618,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- |
 | 1 | Choose the new-system option while completing a session. | Show a system name and suggested primary color within the form. |
 | 2 | Enter the new system and complete the session. | Validate the system and parent session inputs. |
-| 3 | Save the session. | Save the system and its parent session; if the parent cannot be saved, roll back only the newly created system and clearly explain the failure. |
+| 3 | Save the session. | Save the new system and parent changes in one server transaction, including any new campaign. Confirmed failure preserves earlier records and follows Q-SH-01. |
 | 4 | Continue after confirmation. | Show the saved session and make the system available for reuse. |
 
 </details>
@@ -1598,7 +1632,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- |
 | BR-SY-04 | A proposed system whose normalized name already exists must be explicitly offered for reuse without creating a duplicate or changing its color. | [Q-SY-03](#wf-sy-02-decisions); [FR-SY-06–07](#wf-sy-02-requirements) |
 | BR-SY-05 | A failed parent-session save must not leave a system created only for that attempt behind; existing systems and previously stored parent values are protected. | [Q-SY-02](#wf-sy-02-decisions); [FR-SY-08](#wf-sy-02-requirements) |
-| BR-SY-06 | The successfully saved session references one reusable system by ID. Unknown outcomes are reconciled before retry or a claim that rollback succeeded. | [Q-SY-02](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions); [FR-SY-07–08](#wf-sy-02-requirements) |
+| BR-SY-06 | A saved session references one reusable system by ID. The new system and parent changes save together; unknown results follow Q-SH-01 without automatic retry or an unconfirmed rollback claim. | [Q-SY-02](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions); [FR-SY-07–08](#wf-sy-02-requirements) |
 
 </details>
 
@@ -1611,8 +1645,8 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- | --- |
 | FR-SY-05 | The session form must expose new-system name and color fields only when the new-system option is selected. | Must | Step 1 |
 | FR-SY-06 | New-system values must satisfy FR-SY-01–02, and other required session values must be validated before creation starts. | Must | Step 2 |
-| FR-SY-07 | Successful completion must save one reusable system and link the saved session to its ID without recoloring or renaming existing systems. | Must | Steps 3–4 |
-| FR-SY-08 | If the parent session cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed parent save and confirmed rollback. Existing systems must remain unchanged; reconcile unknown outcomes before retry or claiming rollback success. | Must | Q-SY-02–03; Q-SH-01 |
+| FR-SY-07 | Save the new system and parent session creation/update in one server transaction, including any new campaign. Confirmed success links the saved session to one reusable system without changing existing systems. | Must | Steps 3–4 |
+| FR-SY-08 | Confirmed failure leaves no new system or other partial record from this attempt and preserves existing systems and the parent's earlier values. Discard input, close/reset and use Q-SH-01's failure feedback. Unknown save/rollback results use its uncertainty feedback; never delete a reused system. | Must | Q-SY-02–03; Q-SH-01 |
 
 </details>
 
@@ -1623,7 +1657,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| Q-SY-02 | If a parent session or campaign cannot be saved, roll back only the new system created by that attempt and show a clear error message. Keep existing systems and the parent's previously stored values unchanged. | Agreed |
+| Q-SY-02 | Save a new inline system and its parent session/campaign creation or update in one server transaction. Confirmed failure removes only this attempt's changes and preserves existing systems and earlier parent values. Close/reset and report failure or uncertainty under Q-SH-01. | Agreed |
 | Q-SY-03 | When a proposed system name already exists, explicitly offer that existing system without creating a duplicate or changing its color. | Agreed |
 
 **Also applies:** [Q-SH-01](#shared-decisions).
@@ -1638,12 +1672,14 @@ treat the report as evidence of data loss without checking the actual dataset.
 | Source type | Source and what to inspect |
 | --- | --- |
 | Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-SH-01](#shared-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `resolveSessionSystemId`, `saveSession`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_session`, `update_session`. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `chooseInlineSystem`, `saveSession`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `match_system`, `resolve_save_system`, `create_session`, `update_session`, `save_first_session`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [Stability checks](../../.hallmark/stability-qa.mjs). |
 
-**Source review:** Current source creates the system before saving the parent and implements no rollback. Duplicate names are rejected by the server rather than offered for explicit reuse in this new-system path.
+**Source review:** The form checks the entered system name and offers explicit
+reuse when it finds a match. A new system saves in the same transaction as the
+session and any new campaign. FU-SY-01–02 track verification.
 
 </details>
 
@@ -1670,7 +1706,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- |
 | 1 | Type a system name while creating or editing a campaign in Manage. | Match an existing system, or show a primary color for a new name. |
 | 2 | Review the system and complete the campaign. | Validate system values and the parent campaign inputs. |
-| 3 | Choose Save Campaign. | Reuse or create the system and save its campaign association; if the campaign cannot be saved, roll back only the newly created system and clearly explain the failure. |
+| 3 | Choose Save Campaign. | Explicitly reuse the selected existing system, or save a new system with the campaign changes in one server transaction. Confirmed failure preserves earlier records and follows Q-SH-01. |
 | 4 | Continue after confirmation. | Refresh the campaign and make any new system available for reuse. |
 
 </details>
@@ -1697,8 +1733,8 @@ treat the report as evidence of data loss without checking the actual dataset.
 | --- | --- | --- | --- |
 | FR-SY-09 | The campaign form must accept an existing system name or allow entering a new name and primary color without leaving Manage → Campaigns. | Must | Step 1 |
 | FR-SY-10 | Matching an existing system must reuse its ID without changing its name or color; creating a new system must satisfy FR-SY-01–02. | Must | Steps 1–3; Q-SY-03 |
-| FR-SY-11 | Successful completion must associate the saved campaign with the selected system and retain the new system after reload. | Must | Steps 3–4 |
-| FR-SY-12 | If the parent campaign cannot be saved, the app must roll back only the system created by that attempt, retain entered values and clearly explain the failed campaign save and confirmed rollback. Previously stored campaign values and existing systems must remain unchanged; unknown outcomes require reconciliation. | Must | Q-SY-02; Q-SH-01 |
+| FR-SY-11 | Save a new system and parent campaign creation/update in one server transaction. Confirmed success retains the campaign's system association and reusable system after reload; editing retains the campaign ID. | Must | Steps 3–4 |
+| FR-SY-12 | Confirmed transaction failure leaves no new system/campaign from this attempt and preserves existing systems and earlier campaign values. Discard input, close/reset and report failure under Q-SH-01. Unknown save/rollback results use its uncertainty feedback; never delete a reused system. | Must | Q-SY-02; Q-SH-01 |
 
 </details>
 
@@ -1719,12 +1755,15 @@ treat the report as evidence of data loss without checking the actual dataset.
 | Source type | Source and what to inspect |
 | --- | --- |
 | Agreed policy | [Q-SY-02](#wf-sy-02-decisions); [Q-SY-03](#wf-sy-02-decisions); [Q-CP-02](#wf-cp-02-decisions) — owner agreement on 28 October 2026. |
-| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `systemByName`, `resolveCampaignSystemId`, `saveCampaign`. |
-| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `create_system`, `create_campaign`, `update_campaign`. |
+| Current frontend | [app.js](../../ttrpg_tracker/app/frontend/app.js): `systemByName`, `chooseInlineSystem`, `saveCampaign`. |
+| Current backend | [main.py](../../ttrpg_tracker/app/main.py): `match_system`, `resolve_save_system`, `create_campaign`, `update_campaign`. |
 | Supporting documents | [Interface forms and controls](../../ttrpg_tracker/app/frontend/index.html). |
 | Existing checks · not executed for this review | [API-flow checks](../../ttrpg_tracker/app/tests/test_api_flows.py). |
 
-**Source review:** Current source reuses a typed existing name automatically and creates a new system before saving the campaign. Explicit reuse confirmation and rollback need implementation work under the agreed policy.
+**Source review:** The form offers explicit reuse when the entered system name
+matches a saved system. Saving edits with the current system name keeps the
+existing association. A new system saves in the same transaction as the campaign.
+FU-SY-01–02 track verification.
 
 </details>
 
@@ -1778,7 +1817,7 @@ treat the report as evidence of data loss without checking the actual dataset.
 | FR-SY-13 | Edit must load and update the selected system's existing ID without creating another system. | Must | Steps 1–2 |
 | FR-SY-14 | Edited name and color must satisfy FR-SY-01–02, excluding the edited system itself from duplicate-name checks. | Must | Step 2 |
 | FR-SY-15 | Updated values must persist and affected labels, primary colors and derived shades must refresh while campaign and session system IDs remain unchanged. A session's color must follow its recorded system even when the campaign defaults to another system; changing only that campaign-default system's primary color must not change which system supplies the session's color. | Must | Step 3; Q-SY-04; BR-SY-12 |
-| FR-SY-16 | Clear or confirmed rejection must leave the stored system intact; rejected edits must remain available for correction. | Must | FR-SH-04 |
+| FR-SY-16 | Clear leaves the stored system intact. Confirmed submitted-save rejection also preserves it, discards edits, closes/resets and follows Q-SH-01. Pre-submit validation retains input for correction. | Must | FR-SH-04 |
 
 </details>
 
@@ -3116,24 +3155,19 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   clarification. A-01 records the 187-criterion version 1.1 baseline; A-12 records
   approval of version 1.2, bringing the total to 192. Implementation, test-case
   preparation and execution remain tracked separately.
-- [ ] **FU-SH-02 — Finish recovery design:** Apply [Q-SH-01](#shared-decisions) to
-  [GAP-CS-01](#open-decision) and relevant write workflows. Define creation-request
-  identification even when deliberate records look identical, messages, form
-  state, refresh after confirmed success, safe reconciliation before retry and
-  failed rollback handling. Update requirements and acceptance criteria after
-  agreement, then verify the behavior. A missing response does not establish
-  whether a write succeeded. See A-02.
+- [ ] **FU-SH-02 — Implement and verify simple form saves:** The current forms
+  save related records in one transaction and distinguish rejection, unknown
+  results and failed refresh after a confirmed save under
+  [Q-SH-01](#shared-decisions). Backend and focused browser checks cover selected
+  outcomes. Complete browser verification of rejection, refresh failure and
+  unknown results across the applicable forms. [GAP-CS-01](#open-decision)
+  records the superseded design boundary. See A-02.
 - [ ] **FU-SH-07 — Implement and verify shared session-form keyboard behavior:**
-  Complete FR-SH-06 and Q-CS-07 across all session-form contexts. In current
-  [frontend source](../../ttrpg_tracker/app/frontend/app.js), `beginFormSave`
-  disables Close and the dialog's `cancel` handler blocks Escape while busy;
-  the GM input handles Escape for its suggestions. The date picker has no
-  equivalent Escape-first handling, and the dialog's non-busy `cancel` path
-  does not check for an open picker. Add picker-first cancellation while retaining
-  values and pending-save protection. Verify TC-SH-01–03 per matrix K in the
-  [test records](test-records.md#focused-review-test-cases). Keep unavailable
-  Quick Add contexts Not run. FU-CS-03 records the completed scope decision,
-  not completion of this implementation task. See A-04.
+  The [frontend](../../ttrpg_tracker/app/frontend/app.js) closes the open date
+  or GM picker first on Escape. A pending save keeps the form open and blocks
+  repeated submission. TC-SH-01–03 passed in the available scenarios tested in
+  desktop Edge. The [execution results](test-records.md#execution-results)
+  identify the agenda and Quick Add paths that remain Not run. See A-04.
 
 </details>
 
@@ -3151,25 +3185,25 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   [Q-CS-07](#wf-cs-01-decisions): the owner confirmed applicability to every
   session form on 28 October 2026. FR-SH-06 and FR-CS-16/18 record the rule;
   approved version 1.1 AC-SH-09–10 and workflow references extend the criteria.
-  The decision and criterion review are complete; implementation and verification
-  remain under FU-SH-07. See A-04 and TC-SH-01–03 in the test records.
+  The decision and criterion review are complete. FU-SH-07 tracks the current
+  implementation and verification. See A-04 and TC-SH-01–03 in the test records.
 - [x] **FU-CS-04 — Decide API defaults:** Recorded
   [Q-CS-08](#wf-cs-01-decisions): retain campaign GM/System defaults for omitted
   API inputs while requiring both in the browser. FR-CS-11 and approved
   AC-CS-11/32 record the result. Verification remains under FU-SH-04–05. See A-05.
-- [ ] **FU-CS-05 — Implement campaign-plus-session rollback:**
-  [WF-CS-02](#wf-cs-02) currently creates the campaign and session in separate
-  requests. Implement Q-CS-04–05: retain entered values, explain failure and
-  remove only the campaign created by a failed attempt. Include combined new
-  campaign/system attempts and uncertain cleanup under FU-SH-02. Existing retry
-  checks cover earlier behavior and do not establish that rollback works. See A-06.
+- [ ] **FU-CS-05 — Verify campaign-plus-session rollback:**
+  [WF-CS-02](#wf-cs-02) saves the campaign, first session and any inline new
+  system in one transaction. The backend rollback check covers a failed first
+  session write, and TA-13 covers successful saves while a reply is paused.
+  Complete the browser checks for confirmed failure and uncertain results under
+  FU-SH-02. See A-06.
 - [x] **FU-CS-06 — Review and approve the BPMN process:** The owner approved version
   0.1 of the intended [WF-CS-02 overview and saving/rollback detail](models.md#wf-cs-02-bpmn)
   on 29 October 2026 within its stated scope, including the explicit
   GAP-CS-01 / FU-SH-02 recovery boundaries. The
   [model status](models.md#wf-cs-02-bpmn) records the version, date and approval
-  scope. Detailed recovery design, FU-CS-05 implementation and test-execution
-  tasks remain open.
+  scope. The diagrams are aligned with Q-SH-01's latest save policy. FU-CS-05
+  tracks the remaining verification.
 
 </details>
 
@@ -3177,15 +3211,15 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 <summary><strong>Session editing and deletion · SE</strong></summary>
 
 - [ ] **FU-SE-01 — Offer a choice before applying campaign defaults:**
-  [WF-SE-01](#wf-se-01) currently replaces values immediately when selecting
-  another campaign. Implement and verify the explicit choice required by
-  [Q-SE-02](#wf-se-01-decisions), preserving the session's identity and values
-  according to that choice.
+  [WF-SE-01](#wf-se-01) offers the explicit choice required by
+  [Q-SE-02](#wf-se-01-decisions). TC-SE-01 passed both choices in desktop Edge.
+  Both kept the original session ID and left the campaigns' defaults intact.
+  See TA-10 and the [execution results](test-records.md#execution-results).
 - [ ] **FU-SE-02 — Verify deletion context and recovery:**
   [WF-SE-02](#wf-se-02) currently closes confirmation before the request result.
   Verify its required pending-context and uncertain-outcome behavior, make
   necessary changes and check cancellation, confirmed results and
-  reconciliation before retry under FU-SH-02.
+  reconciliation before retry under this deletion workflow's own rules.
 
 </details>
 
@@ -3214,17 +3248,18 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 <details>
 <summary><strong>Game systems · SY</strong></summary>
 
-- [ ] **FU-SY-01 — Implement new-system rollback:**
-  [WF-SY-02](#wf-sy-02) and [WF-SY-03](#wf-sy-03) currently create the system
-  before saving the parent without rollback. Implement and verify Q-SY-02 for
-  session and campaign creation/editing failures: remove only the system created
-  by the attempt, retain entered and previously stored values, explain confirmed
-  cleanup and handle uncertain cleanup under FU-SH-02. See A-06.
-- [ ] **FU-SY-02 — Require explicit existing-system reuse:** Implement and
-  verify [Q-SY-03](#wf-sy-02-decisions) in both new-system paths. The session path
-  currently rejects duplicate names; the campaign path reuses a typed existing
-  name automatically. Offer the agreed explicit reuse choice and preserve the
-  existing system's ID, name and color.
+- [ ] **FU-SY-01 — Verify new-system rollback:**
+  [WF-SY-02](#wf-sy-02) and [WF-SY-03](#wf-sy-03) save a new system and its
+  parent changes in one transaction under Q-SY-02. The backend rollback check
+  covers session and campaign creation and editing, plus the first-session
+  transaction. Complete browser checks of confirmed failure and unknown results
+  under FU-SH-02. See A-06.
+- [ ] **FU-SY-02 — Require explicit existing-system reuse:** Both inline paths
+  offer explicit reuse under [Q-SY-03](#wf-sy-02-decisions). TA-13 exercised
+  successful session saves with a reused system. Full TC-SY-02 verification
+  remains open. In a controlled campaign-form test with the lookup reply paused,
+  editing fields after Save mixed the original system with the later GM value.
+  The owner deferred the fix.
 
 </details>
 
@@ -3345,19 +3380,20 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
   This completes plan documentation only. See A-10.
 - [ ] **FU-SH-04 — Write linked test cases:** Write
   [test cases](test-records.md#test-cases) for defaults, overrides, campaign
-  switching, validation, cancellation and rejected-save retry; extend coverage
+  switching, pre-submit validation, cancellation and reset after rejected saves; extend coverage
   to the other reviewed workflows and recovery/rollback branches. Map and reuse
   existing automated checks where applicable. Draft TC-DA-01–04, TC-ST-01–02,
-  TC-SY-01 and TC-SH-01–03 now cover the focused acceptance-review amendments;
-  they are Not run and do not complete the broader workflow suite. See A-10.
+  TC-SY-01 and TC-SH-01–03 cover the focused acceptance-review amendments.
+  See the [execution results](test-records.md#execution-results) for the keyboard
+  cases and A-10 for the broader suite.
 - [ ] **FU-SH-05 — Record execution and retests:** Record
   [execution results](test-records.md#execution-results), evidence, findings,
   defects and retests against the selected app version. Keep unexecuted cases
   explicit; source review and linked checks are not new passed-test evidence.
   See A-10.
 - [x] **FU-SH-06 — Update the portfolio index:** The
-  [documentation checklist](README.md) distinguishes approved acceptance criteria
-  version 1.1 from draft focused cases, Not run. See A-11.
+  [documentation checklist](README.md) distinguishes the current criteria
+  baseline from draft cases and scoped execution evidence. See A-11.
 
 </details>
 
@@ -3369,6 +3405,7 @@ remain in the build plan's [Future Additions](../../ttrpg-plan.md#future-additio
 | 1.0 | 28 October 2026 | First reviewed baseline: all 31 Main workflow tables, business rules, functional requirements, priorities and 37 product decisions approved. Open design, implementation and verification work remains tracked as follow-ups. |
 | 1.1 | 28 October 2026 | Recorded the owner's all-session-form scope for Q-CS-07 as shared Must requirement FR-SH-06. Made existing import identity, actual-system and all-tied-leader rules explicit in linked requirements. Clarified Q-ST-01 with the owner: Favorite System means most played by session count; show every tied system leader and count in the breakdown, without requiring an extra annual highlight. The owner approved all version 1.1 acceptance amendments, completing the 187-criterion baseline. Ten focused test cases remain drafts, Not run; no application verification was performed. |
 | 1.2 | 29 October 2026 | The owner approved FR-DA-14–18 and AC-DA-17–21 for full JSON backup/restore, bringing the acceptance baseline to 192 criteria. Integrated the approved material into WF-DA-03 and aligned Q-DA-01–02, backup rules and documented availability. FU-DA-03 remains future-sprint implementation and verification; CSV transfer of My GM name stays separate under FU-DA-02. |
+| 1.3 | 30 October 2026 | Aligned the existing form-save requirements, decisions and follow-ups with Q-SH-01: related changes save in one server transaction; confirmed failures discard input and close/reset; saved-but-outdated views and unknown results have separate feedback. Retained pre-submit validation correction, pending-save protection and other workflows' recovery rules. IDs and priorities are preserved; implementation and runtime verification remain open. |
 
 ---
 

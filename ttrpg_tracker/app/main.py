@@ -343,6 +343,16 @@ def list_systems() -> list[System]:
         return list(db.exec(select(System).order_by(System.name)))
 
 
+@app.get("/api/systems/match", response_model=SystemRead | None)
+def match_system(name: str) -> System | None:
+    key = import_name(name)
+    with Session(engine) as db:
+        return next(
+            (system for system in db.exec(select(System).order_by(System.id)) if import_name(system.name) == key),
+            None,
+        )
+
+
 @app.post("/api/systems", response_model=SystemRead, status_code=201)
 def create_system(payload: SystemCreate) -> SystemRead:
     with form_save_transaction() as db:

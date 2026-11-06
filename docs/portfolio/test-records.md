@@ -2,8 +2,9 @@
 
 **Status:** In progress. The first exploratory defect and its focused retest are
 recorded below. DEF-002 is a new user-reported campaign-deletion issue awaiting
-runtime reproduction. Ten focused test cases below are drafts and **Not run**;
-the broader formal campaign-session suite is still planned.
+runtime reproduction. The ten focused cases remain drafts. The keyboard cases
+have [local execution evidence](#execution-results) for the available paths
+tested. The other focused cases and the broader suite remain planned.
 
 <a id="campaign-session-test-data-and-setup"></a>
 <details>
@@ -61,19 +62,19 @@ executable test cases.
 
 <a id="focused-review-test-cases"></a>
 <details>
-<summary><strong>Focused acceptance-review cases — draft, Not run</strong></summary>
+<summary><strong>Focused acceptance-review cases — drafts and execution status</strong></summary>
 
 **Prepared:** 28 October 2026. **Scope:** documentation and draft test cases only,
-as selected by the owner. All ten cases are **Not run**. The data below describes
-fixtures to prepare later; no live dataset or CSV was imported in this pass.
-All linked version 1.1 criteria were approved by the owner on 28 October 2026;
-these test cases remain drafts and Not run.
-Current source was rechecked at `0a1dcf4` during the documentation-only retirement
-audit on 28 October 2026. Known source gaps stay in FU-ST-01 (tied highlights) and
-FU-SH-07 (session-form picker cancellation); this inspection is not an execution
-result. The owner clarified Q-ST-01 on 28 October 2026: Favorite System means
-most played by session count. TC-ST-02 checks all tied system leaders in the
-monthly and annual breakdowns, without requiring an extra annual highlight.
+as selected by the owner. All ten cases were **Not run** at that point. The data
+below describes the fixtures. See [Execution results](#execution-results) for
+the later local keyboard checks. The linked version 1.1 criteria were approved
+on 28 October 2026.
+The 28 October 2026 documentation audit reviewed source at `0a1dcf4` and
+identified the gaps then tracked under FU-ST-01 (tied highlights) and FU-SH-07
+(session-form picker cancellation). On that date, the owner clarified that
+Favorite System means most played by session count under Q-ST-01. TC-ST-02
+checks all tied system leaders in the monthly and annual breakdowns, without
+requiring an extra annual highlight.
 
 Before executing, record the exact app commit and working-tree changes, Windows
 version, browser version, viewport, Python or Docker launch method and isolated
@@ -353,8 +354,9 @@ before/after; derived shades need not equal a system's raw primary hex value.
 <details>
 <summary><strong>TC-SH-01 — Escape closes only a picker before saving</strong></summary>
 
-**Status:** Not run. **Priority:** Must. **Links:** AC-SH-09; AC-CS-20;
-AC-OS-07; AC-SE-07; AC-HI-07; FR-SH-06; Q-CS-07.
+**Status:** Draft. Passed in the [tested paths](#execution-results).
+**Priority:** Must. **Links:** AC-SH-09; AC-CS-20; AC-OS-07; AC-SE-07;
+AC-HI-07; FR-SH-06; Q-CS-07.
 **Preconditions/data:** Matrix K, each context independently; known stored
 snapshot, entered values and an open picker; no save pending.
 
@@ -372,8 +374,9 @@ an edited record retains its original saved values.
 <details>
 <summary><strong>TC-SH-02 — Close or Escape discards unsaved form changes</strong></summary>
 
-**Status:** Not run. **Priority:** Must. **Links:** AC-SH-09; AC-CS-20;
-AC-OS-07; AC-SE-07; AC-HI-07; FR-SH-06; Q-CS-07.
+**Status:** Draft. Passed in the [tested paths](#execution-results).
+**Priority:** Must. **Links:** AC-SH-09; AC-CS-20; AC-OS-07; AC-SE-07;
+AC-HI-07; FR-SH-06; Q-CS-07.
 **Preconditions/data:** Matrix K, each context independently; known stored
 snapshot and unsaved values; no save pending.
 
@@ -392,8 +395,9 @@ loads saved values; reopening creation does not restore the discarded changes.
 <details>
 <summary><strong>TC-SH-03 — Keep the session form open while saving</strong></summary>
 
-**Status:** Not run. **Priority:** Must. **Links:** AC-SH-03, AC-SH-06,
-AC-SH-10; AC-CS-22; FR-SH-03, FR-SH-06; Q-CS-07.
+**Status:** Draft. Passed in the [tested paths](#execution-results).
+**Priority:** Must. **Links:** AC-SH-03; AC-SH-06; AC-SH-10; AC-CS-22;
+FR-SH-03; FR-SH-06; Q-CS-07.
 **Preconditions/data:** Use valid values and a fresh test database for each
 creation and edit variation in Matrix K. Set up the browser test to pause the
 save reply until you release it. Record which request you paused.
@@ -422,13 +426,20 @@ Q-SH-01 and AC-SH-07–08.
 <details>
 <summary><strong>Execution results</strong></summary>
 
-Record the date, app version, environment, actual result, outcome and evidence
-for each executed case. Identify blocked and unexecuted cases explicitly.
+Record the date, app version, environment, outcome and evidence for each
+executed case. Identify blocked and unexecuted paths explicitly.
+The 6 November 2026 local check used `2592f4c` plus the pending app changes,
+Edge 156 on Windows at 1440 × 1000, and a disposable SQLite database with
+fictional records. TC-SH-01–02 passed in 15 scenarios and TC-SH-03 passed in
+21 checks with a reply paused. The agenda was hidden and Quick Add was
+unavailable, so both remain **Not run**. TC-SE-01 passed both campaign defaults
+choices, and TC-CS-01 confirmed automatic defaults during creation. The detailed
+log is attached to TA-13 in Windshift. The 39 backend tests and 40 existing
+GM picker checks also passed.
 
 **Focused review pass — 28 October 2026:** TC-DA-01–04, TC-ST-01–02, TC-SY-01
-and TC-SH-01–03 are **Not run**. No automated tests were added or executed, no
-fixture was applied, and no runtime evidence or new defect/retest outcome was
-recorded. The cases' preparation is documentation work, not an execution run.
+and TC-SH-01–03 were **Not run** during that pass. It prepared the cases and
+fixtures without executing them.
 
 </details>
 

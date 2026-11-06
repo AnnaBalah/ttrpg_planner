@@ -20,11 +20,17 @@ report findings with file locations; make edits when requested.
 
 - Read current files before editing. Change only what the task needs and preserve
   unrelated work, existing links and document structure.
+- When the owner asks for Windshift work, read and follow the
+  [Windshift guide](WINDSHIFT.md). Approved by the owner for this scope on 2026-10-30.
+  For task and test-case creation or updates, also follow
+  [the authoring guideline](w-guidline.md).
 - Keep agreed behavior, current implementation and test results separate.
   Document approval does not complete implementation, testing or open design work.
-- Record the owner's approvals with their scope and date. Mark work complete only with
-  supporting evidence. Ask before resolving a conflict that changes a product
-  decision.
+- Do not add routine or repeated "Owner approval" notes. Record approval scope
+  and date only where critically needed to clarify a consequential product
+  decision or an explicit permission requirement. Keep any necessary record in
+  one relevant place. Mark work complete only with supporting evidence. Ask
+  before resolving a conflict that changes a product decision.
 - Check changed text, links and diagrams. For code changes, use the relevant
   checks linked below with disposable databases and fictional data. Report what
   ran and what remains unverified.
@@ -38,6 +44,8 @@ documentation and AI instructions.
 Temporary formatting rule: use collapsed sections throughout project documentation
 where they improve navigation and readability, including for datasets, test cases,
 execution runs, findings and other detailed content that forms a logical unit.
+Windshift text fields are an exception: use plain labels and lists under
+[the authoring guideline](w-guidline.md), without Markdown, HTML or collapsed sections.
 
 ## Project map
 

@@ -365,6 +365,28 @@
       </form>
     </dialog>
 
+    <dialog id="campaign-defaults-dialog" aria-labelledby="campaign-defaults-title" aria-describedby="campaign-defaults-message">
+      <form method="dialog" class="modal confirm-modal">
+        <h2 id="campaign-defaults-title">Use the new campaign's defaults?</h2>
+        <p id="campaign-defaults-message"></p>
+        <div class="form-actions confirm-actions">
+          <button value="keep" autofocus>Keep entered values</button>
+          <button class="primary" value="apply">Use campaign defaults</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="reuse-system-dialog" aria-labelledby="reuse-system-title" aria-describedby="reuse-system-message">
+      <form method="dialog" class="modal confirm-modal">
+        <h2 id="reuse-system-title">Reuse existing system?</h2>
+        <p id="reuse-system-message"></p>
+        <div class="form-actions confirm-actions">
+          <button value="edit" autofocus>Keep editing</button>
+          <button class="primary" value="reuse">Reuse system and save</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="import-dialog" aria-labelledby="import-title">
       <form class="modal import-modal" id="import-form">
         <div class="section-heading">
@@ -389,6 +411,6 @@
     <datalist id="system-options"></datalist>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="/static/app.js?v=tablelog-20261028-gm-connection" type="module"></script>
+    <script src="/static/app.js?v=tablelog-20261106-session-form" type="module"></script>
   </body>
 </html>

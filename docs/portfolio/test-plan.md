@@ -2,8 +2,9 @@
 
 **Status:** Overall plan documented. The owner approved its outline, planning decisions,
 case presentation and scoped documentation updates on 29 October 2026. Execution
-cycles, new cases and test runs are selected separately. The ten existing focused
-cases remain drafts, **Not run**.
+cycles, new cases and test runs are selected separately. The ten focused cases
+remain drafts. See [Execution results](test-records.md#execution-results) for
+the local checks and their limits.
 
 ## Purpose and scope
 
@@ -13,7 +14,7 @@ decisions and evidence. Each conclusion applies to its cycle's scope.
 
 The planning scope includes sessions, campaigns, game systems, calendar/history,
 statistics and My GM name, import/export, and setup/backup/restore/reset. Use the
-approved [requirements](requirements-and-rules.md), version 1.1
+current [requirements](requirements-and-rules.md), version 1.3
 [acceptance criteria](acceptance-criteria.md) and relevant [models](models.md) as
 the test basis. Separate intended behavior, source inspection and results.
 The owner makes product decisions and carries out manual testing; Codex assists analysis,
@@ -31,7 +32,7 @@ requirement priorities.
 | Wrong saved values: defaults, overrides and campaign switching can silently change session details. | Exercise browser scenarios; verify stored values, unchanged defaults and persistence after reload through read-only API checks. |
 | Duplicate or uncertain writes: repeated actions and lost responses can create extra records. | Control pending, rejected and interrupted responses; count requests and records, distinguish deliberate duplicate entries, and check agreed recovery rules. |
 | Misleading history or statistics: dates, filters, recorded systems and ties affect reported activity. | Compare displays/exports with known records and independently calculated totals, including empty periods, future dates and ties. |
-| Unusable interactions: validation, cancellation and narrow layouts can prevent correct entry or hide failures. | Test keyboard controls, retained values, clear feedback and desktop/narrow layouts; explore combinations beyond scripted cases. |
+| Unusable interactions: validation, cancellation and narrow layouts can prevent correct entry or hide failures. | Test keyboard controls, retained values during pre-submit validation, reset/discard after rejected saves, clear feedback and desktop/narrow layouts; explore combinations beyond scripted cases. |
 | Setup or recovery changes history: seeding and storage paths differ between launch methods. | Follow Python and Docker procedures with fictional datasets; check restart, backup, same-version restore and reset. |
 
 Use valid/invalid input groups, date and file-limit boundaries, and transitions
@@ -107,19 +108,22 @@ use, error clarity, narrow-screen usability, input handling, configured limits a
 data protection. Separate user accounts are outside product scope. Cross-version
 restore needs a separately verified procedure.
 
-Test the agreed recovery safety rules while keeping request identification and
-detailed interaction design open under
-[GAP-CS-01](requirements-and-rules.md#open-decision). Record a block only where
-missing design prevents a testable expectation. Quick Add and other planned behavior have no current
-runtime coverage. Track implementation work in the existing
+Test [Q-SH-01's form-save outcomes](requirements-and-rules.md#shared-decisions):
+pre-submit validation correction, one transaction for related changes, reset/discard
+after confirmed failure, refresh without resaving, and unknown save/rollback feedback.
+Mandatory request identification and reconciliation are outside these form saves;
+[GAP-CS-01](requirements-and-rules.md#open-decision) records the superseded design
+boundary. Other workflows retain their own recovery checks. Quick Add and other planned
+behavior have no current runtime coverage. Track implementation work in the existing
 [workflow follow-up](requirements-and-rules.md#workflow-follow-up).
 
 <a id="focused-acceptance-review-scope"></a>
 
 The ten [focused acceptance-review cases and fixtures](test-records.md#focused-review-test-cases)
 cover import, recorded systems/colors, tied leaders and session-form controls.
-Their 28 October audit, preparation and **Not run** status remain there.
-Existing [findings and retests](test-records.md#findings-and-retests) retain DEF-001's
-evidence and DEF-002's pending reproduction. This update adds no runtime results.
+The [execution results](test-records.md#execution-results) distinguish the
+28 October preparation from the 6 November local session form checks.
+Existing [findings and retests](test-records.md#findings-and-retests) retain
+DEF-001's evidence and DEF-002's pending reproduction.
 
 [Back to the documentation checklist](README.md)

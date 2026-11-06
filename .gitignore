@@ -3,3 +3,6 @@
 
 # Keep the local action plan out of Git.
 /LOCAL-ACTIONS.md
+
+# Keep machine-specific Windshift settings local.
+/ws.toml

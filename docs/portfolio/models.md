@@ -1,38 +1,36 @@
 # Process and data models
 
-**Status:** Current data model and WF-CS-01 UML activity diagram approved on
-28 October 2026 within their stated scope and boundaries. The current data model
-documents all 22 stored fields across four tables. WF-CS-02 BPMN version 0.1 was
-approved on 29 October 2026 within its stated scope. Detailed recovery design
-remains open under GAP-CS-01 / FU-SH-02.
+**Status:** WF-CS-01 and WF-CS-02 process models are aligned with the current
+[Q-SH-01 save policy](requirements-and-rules.md#shared-decisions). WF-CS-02 is
+version 0.2. The earlier process-model reviews remain historical context. The
+current save implementation is described below. The current data model,
+approved on 28 October 2026, still documents all 22 stored fields across four tables.
 Keep each model in a collapsed section.
 
 <a id="wf-cs-01-activity-diagram"></a>
 <details>
 <summary><strong>WF-CS-01: Add a session to an existing campaign — UML activity diagram</strong></summary>
 
-**Status:** Approved on 28 October 2026 as a model of the agreed intended behavior,
-within the boundary below.
+**Status:** Intended behavior aligned with Q-SH-01. The earlier model review was
+completed on 28 October 2026; this alignment is not implementation or test evidence.
 
-This diagram shows the order of actions, decisions and retry paths for the
+This diagram shows the order of actions and outcomes for the
 [workflow](requirements-and-rules.md#wf-cs-01-add-a-session-to-an-existing-campaign).
 It covers an existing campaign and system, with optional session overrides.
 
-![Approved UML activity diagram of intended campaign-session entry, including validation, cancellation, rejected-save retry, pending-save protection and marked recovery-design boundaries.](../diagrams/campaign-session-activity.svg)
+![UML activity diagram of campaign-session entry with pre-submit validation, cancellation, pending-save protection, failure reset/discard and separate saved-but-outdated or unknown-result feedback.](../diagrams/campaign-session-activity.svg)
 
 [Open the editable SVG at full size](../diagrams/campaign-session-activity.svg).
 
-**Approval boundary:** The diagram models agreed intended browser-form behavior.
-After a confirmed save, a successful refresh precedes closing the form and showing
-normal success feedback. A failed refresh must not repeat the save; an unknown
-save outcome requires reconciliation before retry. Orange notes distinguish
-these agreed principles from the creation-request identification, precise form
-state and workflow-specific messages still open under GAP-CS-01 / FU-SH-02.
-The crossed circles end the modeled branches at that boundary. The rejected-save
-branch assumes no session was created and retains the form and values for retry.
-Escape and pending-save protection reflect Q-CS-07. Same-day entries and API
-defaults are agreed in Q-CS-06/08; implementation and verification remain separate
-[follow-up actions](requirements-and-rules.md#campaign-session-follow-up).
+**Model boundary:** Existing campaign and system only. Browser validation retains
+input for correction. A confirmed submitted-save failure discards input and
+closes/resets; a confirmed save closes/resets before refresh and completion feedback.
+A failed refresh never repeats or undoes the save. An unknown result closes/resets,
+explains uncertainty and directs the owner to history before starting again.
+Q-SH-01 defines the messages; mandatory attempt identification and reconciliation
+are outside these form saves. Escape and pending-save protection retain Q-CS-07.
+Same-day entries and API defaults retain Q-CS-06/08. Implementation and verification
+remain separate [follow-up actions](requirements-and-rules.md#campaign-session-follow-up).
 
 The diagram summarizes the [acceptance criteria](acceptance-criteria.md); it is
 not test evidence. Activity-diagram notation uses actions, guarded decisions and
@@ -44,26 +42,26 @@ start/end nodes; see the [PlantUML notation examples](https://plantuml.com/activ
 <details>
 <summary><strong>WF-CS-02: Add a session to a new campaign — BPMN process</strong></summary>
 
-**Status:** Version 0.1, prepared 28 October 2026; approved by the owner on
-29 October 2026 within its stated scope and recovery boundary.
+**Status:** Version 0.2, aligned with Q-SH-01. Version 0.1 was reviewed on
+29 October 2026; its retained-form/reconciliation boundary is superseded.
 **Model type:** Agreed intended behavior. The owner selected the main path plus
 validation, cancellation and save failures, including rollback, using an existing
 game system. Creating a system is a separate workflow.
 
 **Process:** The user opens Add session, chooses New campaign and enters the
-campaign defaults and first-session values. Tablelog validates both records,
-creates the campaign, then saves its first linked session. Completion follows
-confirmation of both records and successful refresh.
+campaign defaults and first-session values. Tablelog validates both records and
+saves them in one server transaction. Confirmed failure leaves neither new record.
+Confirmed success closes/resets the form, refreshes views and then reports completion.
 
 **Main process — User and Tablelog lanes**
 
-![BPMN overview of entering a new campaign and first session, validation and correction, cancellation, saving the pair, and confirmed success, failure or unresolved recovery.](../diagrams/new-campaign-session-bpmn.svg)
+![BPMN overview of campaign-plus-first-session entry, pre-submit validation, one transaction, failure reset/discard and separate saved-but-outdated or unknown outcomes.](../diagrams/new-campaign-session-bpmn.svg)
 
 [Open the overview SVG](../diagrams/new-campaign-session-bpmn.svg).
 
 **Saving and rollback detail — called process**
 
-![BPMN detail showing campaign creation, first-session creation, rollback only after confirmed first-session failure, and separate paths for unknown save outcomes or unconfirmed cleanup.](../diagrams/new-campaign-session-bpmn-detail.svg)
+![BPMN detail showing one server transaction for the campaign and first session, confirmed commit or rollback, and unknown save or rollback results.](../diagrams/new-campaign-session-bpmn-detail.svg)
 
 [Open the detail SVG](../diagrams/new-campaign-session-bpmn-detail.svg) ·
 [Editable BPMN 2.0 source with both views](../diagrams/new-campaign-session.bpmn).
@@ -78,23 +76,24 @@ They are descriptive and non-executable. Notation reference:
 | --- | --- |
 | Entry and campaign defaults | FR-CS-20–21; Q-CS-05; AC-CS-24–25. Explicit default GM takes precedence; otherwise use session GM. Session system and optional link become initial campaign defaults. |
 | Validation and correction | FR-CS-21; FR-SH-02; AC-CS-26. Invalid inputs create neither record; retain values for correction. |
-| Saving and cancellation | FR-CS-22; FR-SH-03/06; AC-CS-27; AC-SH-03/05/09–10. Cancel before submission writes nothing. Keep the form open and block repeated submission through every pending save stage. Escape may close a picker only. |
-| Failure and rollback | FR-CS-23; Q-CS-04; AC-CS-28–29; AC-SH-08. Roll back only this attempt's campaign after the first session is confirmed unsaved. Unknown outcomes or unconfirmed cleanup require reconciliation before retry or cleanup-success claims. |
-| Completion and refresh | FR-CS-24; FR-SH-05; AC-CS-30; AC-SH-06–07. Confirm success only for the saved pair after refresh. A failed refresh requires view recovery without another write. |
+| Saving and cancellation | FR-CS-22; FR-SH-03/05/06; AC-CS-27; AC-SH-03/05/09–10. The pair saves in one server transaction. Cancel before submission writes nothing. Keep the form open and block repeat submission/dismissal while pending; Escape may close only a picker. |
+| Failure and rollback | FR-CS-23; Q-CS-04; AC-CS-28–29; AC-SH-04/08. One server transaction protects earlier records. Confirmed failure leaves neither new record, discards input and closes/resets. Unknown results are reported without automatic repeat writes or cleanup claims. |
+| Completion and refresh | FR-CS-24; FR-SH-05; AC-CS-30; AC-SH-06–07. Close/reset after a confirmed save, refresh, then report normal completion. Failed refresh reports the saved pair and outdated view without repeating or undoing the save. |
 
-**Modeled outcomes:** Both records saved; confirmed failure with known stored
-state; or unresolved recovery. Failure ends this depicted save attempt with values
-available for another deliberate attempt. An unresolved end is not successful
-completion, proof of unchanged data or permission to retry blindly. Creation
-identification, detailed reconciliation, failed-cleanup interaction and exact
-messages remain GAP-CS-01 / FU-SH-02; these diagrams do not invent their solution.
+**Modeled outcomes:** Both records saved; confirmed transaction failure with no
+partial changes; saved pair with an outdated view; or an unknown save/rollback
+result. Submitted failure and uncertainty close/reset the form and discard input.
+Only pre-submit validation returns to correction with values retained. Q-SH-01
+defines exact feedback and preserves other workflows' recovery rules.
 
-**Implementation boundary:** The current frontend saves the campaign and session
-in separate requests without the agreed rollback. Adding these diagrams does not
-implement rollback or establish a passed test. See
+**Current implementation:** The form submits the campaign and first session in
+one request. The server saves them in one transaction, including an inline new
+system when supplied. The backend rollback check and the browser checks cover
+different parts of this flow. See
 [WF-CS-02](requirements-and-rules.md#wf-cs-02), the campaign-plus-first-session
 criteria AC-CS-24–30 in [Acceptance criteria](acceptance-criteria.md),
-and FU-CS-05 in the [follow-up register](requirements-and-rules.md#workflow-follow-up).
+FU-CS-05 in the [follow-up register](requirements-and-rules.md#workflow-follow-up),
+and the [execution results](test-records.md#execution-results).
 
 </details>
 
@@ -204,8 +203,8 @@ generating a new one.
    are computed; they are not additional stored fields. Record exports currently
    exclude settings; a full database backup includes them.
 
-These notes describe the current schema and handlers. They do not settle the
-open recovery design or establish that planned rollback behavior is implemented.
+These notes describe the current schema and handlers. They do not establish that
+the intended form-save behavior is implemented or verified.
 
 </details>
 

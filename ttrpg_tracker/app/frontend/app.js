@@ -24,6 +24,7 @@ const state = {
   statsMonth: currentMonth(),
   statsPickerYear: Number(currentYear()),
   sessionDatePickerMonth: startOfMonth(new Date()),
+  sessionCampaignId: 0,
   reviewYear: currentYear(),
   sortKey: "date",
   sortDirection: "desc",
@@ -76,6 +77,7 @@ const els = {
   sessionDateTrigger: document.querySelector("#session-date-trigger"),
   sessionDateDisplay: document.querySelector("#session-date-display"),
   sessionDatePicker: document.querySelector("#session-date-picker"),
+  campaignDefaultsDialog: document.querySelector("#campaign-defaults-dialog"),
   confirmDialog: document.querySelector("#confirm-dialog"),
   confirmForm: document.querySelector("#confirm-form"),
   confirmTitle: document.querySelector("#confirm-title"),
@@ -119,7 +121,19 @@ els.systemFilter.addEventListener("change", (event) => {
 setStatsMonth(state.statsMonth, { render: false });
 els.sessionForm.addEventListener("submit", saveSession);
 els.sessionDialog.addEventListener("cancel", event => {
-  if (els.sessionForm.getAttribute("aria-busy") === "true") event.preventDefault();
+  const picker = els.sessionForm.querySelector(".picker-popover:not([hidden])");
+  if (picker) {
+    event.preventDefault();
+    closePickers();
+    if (picker === els.sessionDatePicker) els.sessionDateTrigger.focus();
+  } else if (els.sessionForm.getAttribute("aria-busy") === "true") {
+    event.preventDefault();
+  }
+});
+els.campaignDefaultsDialog.addEventListener("submit", event => {
+  if (event.submitter?.value === "apply") {
+    applyCampaignDefaults(state.sessionCampaignId);
+  }
 });
 els.confirmForm.addEventListener("submit", handleConfirmSubmit);
 els.campaignForm.addEventListener("submit", saveCampaign);
@@ -744,7 +758,7 @@ function handleDocumentChange(event) {
     syncSessionKind();
     syncSessionKindDefaults();
   } else if (event.target.id === "session-campaign") {
-    applyCampaignDefaults(Number(event.target.value));
+    changeSessionCampaign(Number(event.target.value));
   } else if (event.target.id === "session-system") {
     syncNewSystemFields();
   } else if (event.target.id === "owner-gm") {
@@ -981,6 +995,7 @@ function calendarDensityClass(count) {
 }
 
 function openSessionDialog(options = {}) {
+  closePickers();
   els.sessionForm.reset();
   document.querySelector("#session-id").value = "";
   setSessionDate(today());
@@ -1018,6 +1033,7 @@ function openSessionDialog(options = {}) {
     setSessionDate(options.date);
   }
 
+  state.sessionCampaignId = Number(document.querySelector("#session-campaign").value);
   syncSessionKind();
   syncNewSystemFields();
   els.sessionDialog.showModal();
@@ -1051,7 +1067,7 @@ function syncSessionKindDefaults() {
   const kind = document.querySelector("#session-kind").value;
   if (kind === "campaign") {
     const campaignId = Number(document.querySelector("#session-campaign").value);
-    if (campaignId) {
+    if (campaignId && !document.querySelector("#session-id").value) {
       applyCampaignDefaults(campaignId, { onlyEmpty: true });
     }
   } else if (kind === "new-campaign") {
@@ -1074,6 +1090,24 @@ function syncNewSystemFields() {
   fields.hidden = !shouldShow;
   if (!shouldShow) clearFormErrors(fields);
   document.querySelector("#session-new-system-name").required = shouldShow;
+}
+
+function changeSessionCampaign(campaignId) {
+  const previousCampaignId = state.sessionCampaignId;
+  state.sessionCampaignId = campaignId;
+  if (!campaignId || campaignId === previousCampaignId) return;
+
+  if (!document.querySelector("#session-id").value) {
+    applyCampaignDefaults(campaignId);
+    return;
+  }
+
+  const campaign = findById(state.campaigns, campaignId);
+  if (!campaign) return;
+  closePickers();
+  document.querySelector("#campaign-defaults-message").textContent =
+    `Use the GM, system and link saved for “${campaign.name}”, or keep the values in this form?`;
+  els.campaignDefaultsDialog.showModal();
 }
 
 function applyCampaignDefaults(campaignId, options = {}) {
@@ -1129,7 +1163,7 @@ function clearFormErrors(form) {
   form.querySelectorAll("input, select, textarea").forEach(clearFieldError);
 }
 
-function beginFormSave(form) {
+function beginFormSave(form, { lockFields = false } = {}) {
   if (form.getAttribute("aria-busy") === "true") return null;
   let firstInvalid = null;
   for (const input of form.querySelectorAll("input, select, textarea")) {
@@ -1151,11 +1185,12 @@ function beginFormSave(form) {
     return null;
   }
   form.setAttribute("aria-busy", "true");
-  const buttons = [...form.querySelectorAll("button")].map(button => [button, button.disabled]);
-  for (const [button] of buttons) button.disabled = true;
+  const selector = lockFields ? "button, input, select, textarea" : "button";
+  const controls = [...form.querySelectorAll(selector)].map(control => [control, control.disabled]);
+  for (const [control] of controls) control.disabled = true;
   return () => {
     form.setAttribute("aria-busy", "false");
-    for (const [button, disabled] of buttons) button.disabled = disabled;
+    for (const [control, disabled] of controls) control.disabled = disabled;
   };
 }
 
@@ -1171,7 +1206,7 @@ document.addEventListener("reset", event => {
 
 async function saveSession(event) {
   event.preventDefault();
-  const finish = beginFormSave(els.sessionForm);
+  const finish = beginFormSave(els.sessionForm, { lockFields: true });
   if (!finish) return;
   try {
     const id = Number(document.querySelector("#session-id").value);
@@ -1196,10 +1231,15 @@ async function saveSession(event) {
       name,
       date: document.querySelector("#session-date").value,
       gm,
-      ...(system === "__new" ? { new_system: readInlineSessionSystem() } : { system_id: Number(system) }),
+      ...(system === "__new" ? {} : { system_id: Number(system) }),
       link: valueOrNull("#session-link"),
       notes: valueOrNull("#session-notes"),
     };
+    if (system === "__new") {
+      const choice = await chooseInlineSystem(readInlineSessionSystem());
+      if (!choice) return;
+      Object.assign(payload, choice);
+    }
     if (firstSession) {
       payload.campaign_name = document.querySelector("#session-new-campaign-name").value.trim();
       payload.default_gm = valueOrNull("#session-new-campaign-gm");
@@ -1246,6 +1286,26 @@ function readInlineSessionSystem() {
     name: document.querySelector("#session-new-system-name").value.trim(),
     color: document.querySelector("#session-new-system-color").value,
   };
+}
+
+async function chooseInlineSystem(proposal) {
+  let existing;
+  try {
+    existing = await api(`/api/systems/match?name=${encodeURIComponent(proposal.name)}`);
+  } catch {
+    showToast("Couldn't check for an existing system. Please try again.", true);
+    return null;
+  }
+  if (!existing) return { new_system: proposal };
+  const dialog = document.querySelector("#reuse-system-dialog");
+  document.querySelector("#reuse-system-message").textContent =
+    `“${existing.name}” already exists. Reusing it keeps its saved name and color (${existing.color}).`;
+  dialog.returnValue = "";
+  const reuse = await new Promise(resolve => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "reuse"), { once: true });
+    dialog.showModal();
+  });
+  return reuse ? { system_id: existing.id } : null;
 }
 
 function requestDeleteSession(id) {
@@ -1309,7 +1369,7 @@ function syncCampaignNewSystemFields() {
 
 function systemByName(name) {
   return state.systems.find((system) => {
-    return system.name.toLocaleLowerCase() === name.trim().toLocaleLowerCase();
+    return gmNameKey(system.name) === gmNameKey(name);
   });
 }
 
@@ -1320,13 +1380,15 @@ async function saveCampaign(event) {
   try {
     const id = Number(document.querySelector("#campaign-id").value);
     const name = document.querySelector("#campaign-system-name").value.trim();
-    const system = systemByName(name);
+    const original = findById(state.campaigns, id);
+    const choice = original?.system_name === name
+      ? { system_id: original.system_id }
+      : await chooseInlineSystem({ name, color: document.querySelector("#campaign-new-system-color").value });
+    if (!choice) return;
     const payload = {
       name: document.querySelector("#campaign-name").value.trim(),
       default_gm: document.querySelector("#campaign-gm").value.trim(),
-      ...(system ? { system_id: system.id } : {
-        new_system: { name, color: document.querySelector("#campaign-new-system-color").value },
-      }),
+      ...choice,
       default_link: valueOrNull("#campaign-link"),
       archived: document.querySelector("#campaign-archived").checked ? 1 : 0,
     };

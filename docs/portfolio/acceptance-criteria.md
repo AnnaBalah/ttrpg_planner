@@ -1,13 +1,16 @@
 # Acceptance criteria
 
-**Version:** 1.2 — approved baseline
+**Version:** 1.3 — agreed save behavior aligned
 
-**Status — 29 October 2026:** The owner approved AC-DA-17–21 and their linked
-requirements FR-DA-14–18 for full JSON backup/restore. Together with the 187
-version 1.1 criteria, all 192 criteria form the approved version 1.2 baseline.
-Affected import/export wording is aligned below. Full JSON backup/restore and
-separate CSV transfer of My GM name remain future-sprint work; implementation
-and verification are pending.
+**Status — 30 October 2026:** The existing 192 criteria are retained.
+Version 1.3 aligns form-save behavior with
+[Q-SH-01](requirements-and-rules.md#shared-decisions): related records save
+together, confirmed failures discard input and close/reset the form, and unknown
+results have separate feedback. Pre-submit validation still allows correction.
+Earlier unchanged approvals, including version 1.2 JSON backup/restore scope,
+remain in force. See the [follow-up register](requirements-and-rules.md#workflow-follow-up)
+for implementation status and the [execution results](test-records.md#execution-results)
+for scoped runtime evidence.
 
 <details>
 <summary><strong>Version 1.2 amendment scope — approved</strong></summary>
@@ -40,7 +43,7 @@ test results.
 | Import identity — R-01 | AC-DA-09–10 | Explicit file-ID remapping, normalized identity and occurrence counts; verify through TC-DA-01–04. |
 | Actual session system — R-02 | AC-SY-19, AC-ST-03 and AC-ST-08 | Distinguish the session's system from campaign defaults; verify through TC-ST-01 and TC-SY-01. |
 | Tied leaders — R-03 | AC-ST-05 and AC-ST-08 | Identify every leader in existing tied count highlights and every tied most-played system in its breakdown; implementation remains under FU-ST-01 and verification under TC-ST-02. |
-| Shared recovery scope — R-04 | Introduction and WF-CS-01 note linking AC-SH-06–08 | Applicability wording is addressed; detailed recovery design remains GAP-CS-01 / FU-SH-02. |
+| Shared recovery scope — R-04 | Introduction and WF-CS-01 note linking AC-SH-06–08 | Version 1.1 addressed applicability. Version 1.3 resolves the former GAP-CS-01 design boundary under Q-SH-01; implementation and verification remain FU-SH-02. |
 | Campaign identity wording | AC-CP-05; corresponding FR-CP-05 clarification | State explicitly that editing retains the campaign's ID, consistent with approved BR-CP-04. |
 
 The five review findings now live in the criteria and linked
@@ -62,8 +65,9 @@ Each workflow has a collapsed section with category toggles. Criterion IDs are
 unique within an area and continue across its workflows. Linked requirements
 determine priority; criteria for a **Should** requirement are identified explicitly.
 Shared criteria apply to every relevant workflow, including WF-CS-01.
-FR-SH-06 and AC-SH-09–10 apply to every session form. Detailed recovery design
-remains open under GAP-CS-01.
+FR-SH-06 and AC-SH-09–10 apply to every session form. Q-SH-01 specifies the
+latest form-save interaction; GAP-CS-01 records the superseded design boundary.
+Deletion, archive/status changes, settings and import retain their own recovery rules.
 
 Use fictional data and isolated storage for verification. Record test setup,
 cases, execution evidence and retests in [test records](test-records.md), including
@@ -84,9 +88,12 @@ or reset. Open decisions and follow-up work are listed under
 <details>
 <summary><strong>Shared acceptance criteria</strong></summary>
 
-**Source:** FR-SH-01–06; Q-SH-01; Q-CS-07. Apply to the workflows identified in the source
-shared-requirements table, where the operation is relevant. Creation-request
-identification and detailed recovery design remain open under GAP-CS-01.
+**Source:** FR-SH-01–06; Q-SH-01; Q-CS-07. Apply where the operation is relevant.
+The simple-save reset/discard policy applies to session, campaign and system
+create/update forms, including inline records and future Quick Add session forms.
+It does not replace other workflows' business interactions or reconciliation rules.
+In form-input criteria below, retained values refer to browser validation before
+submission; a server rejection of an already submitted save follows AC-SH-04.
 
 <details>
 <summary><strong>Validation and action control</strong></summary>
@@ -103,11 +110,11 @@ settings remain unchanged. Saving My GM name is verified separately as a write.
 
 (FR-SH-02)
 
-Given a session, campaign or system form, when required text is blank or
-whitespace-only, a date is invalid, a reference is missing, or a supplied link
-lacks an HTTP/HTTPS protocol or hostname, then the applicable error is explained,
-no invalid record is saved, and entered values remain available for correction.
-Optional fields may remain empty where the workflow permits them.
+Given a session, campaign or system form, when browser validation finds blank
+required text (including whitespace-only text), an invalid date, a missing reference
+or a supplied link without an HTTP/HTTPS protocol or hostname before submission,
+then explain the input, retain values for correction and send no write. Optional fields may remain empty where allowed.
+If the server rejects an already submitted save, apply AC-SH-04 instead.
 
 ### AC-SH-03 — Prevent repeated pending writes
 
@@ -117,13 +124,18 @@ Given a create, edit, delete, archive, setting or import request is pending, whe
 its action is repeated, then no additional request for that operation starts.
 This does not define deduplication of separate, deliberate later operations.
 
-### AC-SH-04 — Retain context after confirmed rejection
+<a id="ac-sh-04--retain-context-after-confirmed-rejection"></a>
 
-(FR-SH-04)
+### AC-SH-04 — Reset a form after confirmed save rejection
 
-Given the server confirms that a write was rejected, when the result is shown,
-then the business or input reason is readable, no success is claimed, and a usable
-form or action context remains for correction or a permitted next action.
+(FR-SH-04; Q-SH-01)
+
+Given a submitted session, campaign or system save is confirmed rejected with
+no committed changes, then preserve earlier records, discard entered values,
+close/reset the form and show: "Couldn't save: [reason]. No changes were saved.
+Please start again." Replace [reason] with the actual cause.
+No partial new records or edits from that attempt remain.
+Other write workflows retain the usable action context required by their own rules.
 
 ### AC-SH-05 — Cancel before submission
 
@@ -139,11 +151,14 @@ control, then no write request is sent and stored data remains unchanged.
 
 ### AC-SH-06 — Complete after confirmation and refresh
 
-(FR-SH-05)
+(FR-SH-05; Q-SH-01)
 
-Given a write is confirmed successful, when affected views refresh successfully,
-then those views reflect the confirmed state before normal completion feedback
-appears. Any view-specific month, period or history filters still apply.
+Given a session, campaign or system form save is confirmed successful, then
+close/reset the form, refresh affected views and show normal completion feedback
+only after refresh succeeds. The views reflect the saved state subject to their
+month, period and history filters. All related new records and parent changes
+commit in one server transaction. Other writes still refresh applicable views before
+normal completion feedback, while retaining their own interaction rules.
 
 ### AC-SH-07 — Separate write success from refresh failure
 
@@ -154,17 +169,23 @@ the result, then feedback says the write succeeded and the displayed view is
 outdated. Recovery refreshes the view without repeating the write or reporting
 the confirmed write as rejected.
 
-### AC-SH-08 — Reconcile an unknown write outcome
+<a id="ac-sh-08--reconcile-an-unknown-write-outcome"></a>
+
+### AC-SH-08 — Report an unknown write outcome accurately
 
 (FR-SH-05; Q-SH-01)
 
-Given a connection interruption loses the write result, when reporting the
-failure, then feedback says the outcome is unknown and claims neither success
-nor unchanged data. No automatic repeat write occurs. Check current stored state
-before offering a retry; if that check fails, retain the unknown status. For
-creation, a matching-looking record alone is not proof of which attempt created
-it: the identification mechanism and detailed interaction remain an open design
-action, not an agreed solution in this criterion.
+Given a submitted session, campaign or system form save has no confirmed result,
+then discard input, close/reset and show: "Save could not be confirmed. Check your
+history before starting again." For campaign or system forms, name the relevant
+list instead of history. Do not claim success, unchanged data or confirmed rollback,
+and do not repeat or undo the write automatically. Explicitly report uncertainty
+if rollback itself cannot be confirmed. No recovery draft, resume action or
+mandatory attempt-identification/reconciliation mechanism is required for these forms.
+
+For other write workflows, explain the unknown outcome and check current stored
+state before offering a retry, as required by that workflow. If the check fails,
+keep the outcome unknown. Never repeat a write automatically.
 
 </details>
 
@@ -196,8 +217,9 @@ used, then the form remains open with entered values retained. Escape may close
 an open picker while retaining the form. This applies during every pending stage,
 including creation of an inline campaign or system before the session save.
 Repeated Save or Enter actions start no additional save operation under AC-SH-03.
-Confirmed success and refresh follow AC-SH-06; lost responses and failed refreshes
-retain the recovery policy and open design boundaries in AC-SH-07–08.
+After the request ends, confirmed success follows AC-SH-06; failed refreshes and
+unknown save/rollback results follow AC-SH-07–08. These outcome rules do not
+permit dismissing a form while its request is still pending.
 
 </details>
 
@@ -216,9 +238,9 @@ new shared AC-SH-09–10. These are expected outcomes for
 not execution results. Existing requirement IDs and priorities are preserved.
 
 [Test data and setup](test-records.md#campaign-session-test-data-and-setup) are kept
-with the test records. For every validation failure below, reject the input,
-create no session and explain the reason. For form submissions, keep the form
-and entered values available for correction.
+with the test records. For browser validation failures before submission, explain
+the input, retain values for correction and send no write. A confirmed rejection
+of an already submitted save discards input and closes/resets under AC-SH-04.
 
 <a id="entry-and-defaults"></a>
 <details>
@@ -372,13 +394,16 @@ Given valid data, when creation and refresh succeed, then the form is closed,
 respects the displayed month; history respects its filters; statistics respect
 the selected period. Exclusion from a view does not delete the stored session.
 
-### AC-CS-19 — Correct validation errors
+<a id="ac-cs-19--correct-validation-errors"></a>
 
-(FR-CS-15)
+### AC-CS-19 — Correct validation errors before submission
 
-Given validation failed without creating a session, when the input is corrected
-and valid data resubmitted, then saving can proceed without reopening the form
-or re-entering unaffected values. Success adds one session.
+(FR-CS-15; FR-SH-02)
+
+Given browser validation prevents submission, when the owner corrects the input,
+then the same form retains unaffected values and can submit valid data. No write
+occurs until validation passes. A server rejection after submission follows
+AC-CS-21 rather than this correction path.
 
 ### AC-CS-20 — Cancel before saving
 
@@ -390,14 +415,16 @@ If a picker is open, Escape closes only that picker and retains the form and
 entered values. Reopening a discarded form starts with the initial values in
 AC-CS-01 or AC-CS-02. Closing during a save is covered by AC-CS-22.
 
-### AC-CS-21 — Recover from a rejected save
+<a id="ac-cs-21--recover-from-a-rejected-save"></a>
 
-(FR-CS-17)
+### AC-CS-21 — Reset after a confirmed rejected save
 
-Given a save is rejected and no session was created, when the failure is reported,
-then the form retains its values and shows an error. Correction or retry is
-available after the request ends. A successful retry adds exactly one session
-across the two attempts.
+(FR-CS-17; FR-SH-04; Q-SH-01)
+
+Given a submitted save is confirmed rejected and no session was created, then
+discard entered values, close/reset and show the failure message in AC-SH-04.
+Earlier records remain unchanged. A later deliberate attempt requires opening
+a fresh form; a successful new attempt creates one session.
 
 <a id="ac-cs-22-prevent-submissions-while-saving"></a>
 
@@ -429,10 +456,9 @@ its date. A different month's total is unchanged. No played/planned state is req
 (FR-CS-25; BR-CS-13; Q-CS-06)
 
 Given a session already exists for a campaign and date, when the owner deliberately
-submits another valid session for the same campaign and date, including otherwise
-identical values, then one additional session is created. Repeated pending actions
-remain covered by AC-CS-22; an unknown request outcome requires reconciliation
-under Q-SH-01 before retry.
+submits another valid session with the same campaign/date and even identical values,
+then one additional session is created. Repeated pending actions remain covered by
+AC-CS-22. An unknown result follows AC-SH-08 and is not automatically retried.
 
 ### AC-CS-32 — Apply campaign defaults to omitted API inputs
 
@@ -446,11 +472,10 @@ AC-CS-11; missing effective references remain covered by AC-CS-13.
 
 </details>
 
-All WF-CS-01 requirements have linked criteria. Shared AC-SH-06–08 cover the
-agreed completion and recovery principles, including refresh without repeating
-a confirmed write and reconciliation before retry. Creation identification,
-precise form state and detailed recovery messages remain
-[GAP-CS-01](requirements-and-rules.md#open-decision).
+All WF-CS-01 requirements have linked criteria. Shared AC-SH-04/06–08 cover
+confirmed rejection, successful completion, failed refresh and unknown results.
+[Q-SH-01](requirements-and-rules.md#shared-decisions) specifies the form-save policy;
+[GAP-CS-01](requirements-and-rules.md#open-decision) records the superseded boundary.
 
 </details>
 
@@ -476,7 +501,7 @@ respectively.
 
 Given one-shot entry, when the name or GM is blank or whitespace-only, Date is
 missing or impossible, or System is unselected or no longer exists, then explain
-the applicable input error, create no session and retain entered values. Otherwise
+the applicable input error before submission, create no session and retain entered values. Otherwise
 valid past, current, future and leap-day dates are accepted.
 
 ### AC-OS-03 — Save or clear optional values
@@ -486,7 +511,8 @@ valid past, current, future and leap-day dates are accepted.
 Given otherwise valid one-shot values, when Link and Notes are supplied or left
 empty and saving succeeds, then the session retains those final values. A supplied
 link must have an HTTP/HTTPS protocol and hostname; invalid links are rejected
-without creating a session and with values retained.
+before submission without creating a session and with values retained; a submitted
+server rejection follows AC-SH-04.
 
 ### AC-OS-04 — Allow deliberate repeated names or dates
 
@@ -514,20 +540,22 @@ association, and no change to existing campaigns or sessions.
 
 (FR-OS-04; FR-SH-05)
 
-Given confirmed creation and successful refresh, when the form closes and
-**Session saved** appears, then the calendar and history identify the record by
-its one-shot name where their current month and filters include it. Statistics
-include it in its recorded period.
+Given one-shot creation is confirmed, then close/reset the form and refresh
+affected views before showing **Session saved**. Calendar and history identify
+the record by its one-shot name where their current month and filters include it;
+statistics include it in its recorded period. Failed refresh follows AC-SH-07.
 
-### AC-OS-07 — Cancel or correct a rejected save
+<a id="ac-os-07--cancel-or-correct-a-rejected-save"></a>
+
+### AC-OS-07 — Cancel or reset after rejected one-shot saving
 
 (FR-OS-04; FR-SH-04, FR-SH-06; Q-CS-07)
 
-Given unsaved one-shot values, when cancelling before submission or receiving a
-confirmed rejection, then no session is created. Cancellation closes the form;
-rejection explains the reason and retains values for correction or permitted retry.
-Close, picker-first Escape and blocking form dismissal during saving follow
-AC-SH-09–10, as for every session form.
+Given unsaved one-shot values, cancellation before submission creates no session
+and discards the values. A submitted save confirmed rejected also creates no session,
+discards values, closes/resets and shows AC-SH-04's failure message.
+Pre-submit validation retains input under AC-SH-02. Picker-first Escape and
+pending-save protection follow AC-SH-09–10.
 
 </details>
 
@@ -573,41 +601,47 @@ and retain the entered values. Campaign-name uniqueness follows FR-CP-02.
 <details>
 <summary><strong>Saving, rollback and recovery</strong></summary>
 
-### AC-CS-27 — Save the campaign and its first session
+<a id="ac-cs-27--save-the-campaign-and-its-first-session"></a>
 
-(FR-CS-22)
+### AC-CS-27 — Save the campaign and its first session together
 
-Given valid campaign and session values using an existing system, when completion
-is confirmed and the app reloads, then one new campaign and one new session linked
-to its ID remain with their respective final values. Existing records are unchanged.
+(FR-CS-22; FR-SH-05)
 
-### AC-CS-28 — Roll back a campaign after confirmed first-session failure
+Given valid campaign and first-session values, when saving succeeds, then one
+server transaction commits both records and any inline new system. After reload,
+one new campaign and one linked first session retain their final values.
+Existing records are unchanged.
 
-(FR-CS-23; Q-CS-04)
+<a id="ac-cs-28--roll-back-a-campaign-after-confirmed-first-session-failure"></a>
 
-Given this attempt created a campaign but its first session is confirmed unsaved,
-when failure recovery completes, then that new campaign is removed, no first
-session remains, existing campaigns are unchanged, and feedback clearly reports
-the failed session save and confirmed rollback. Entered values remain available;
-a corrected retry can create one campaign and one session without an unused campaign.
-
-### AC-CS-29 — Reconcile before retry or rollback claims
+### AC-CS-28 — Leave no partial pair after confirmed save failure
 
 (FR-CS-23; Q-CS-04; Q-SH-01)
 
-Given the campaign or first-session save result cannot be confirmed, when recovery
-starts, then explain the uncertainty and reconcile the attempt before retrying
-or claiming rollback succeeded. A failed check or unconfirmed rollback must not
-be reported as successful cleanup. Creation identification remains an action below.
+Given the new campaign/first-session transaction fails and rollback is confirmed,
+then neither new record nor any system created by that attempt remains. Earlier
+records are unchanged. Discard input, close/reset and show AC-SH-04's failure
+message. No separately committed campaign is left for later cleanup.
+
+<a id="ac-cs-29--reconcile-before-retry-or-rollback-claims"></a>
+
+### AC-CS-29 — Report unknown pair-save or rollback results
+
+(FR-CS-23; Q-CS-04; Q-SH-01)
+
+Given the pair-save result or rollback cannot be confirmed, then close/reset and
+report uncertainty under AC-SH-08. Do not claim the pair is absent or cleanup
+succeeded, and do not automatically create another pair or undo a possible save.
+Mandatory request identification and reconciliation are outside this form-save scope.
 
 ### AC-CS-30 — Confirm completion only for the saved pair
 
 (FR-CS-24; FR-SH-05)
 
-Given both records are confirmed saved, when affected campaign choices, calendar,
-history and statistics refresh, then close the form and report completion. If
-refresh fails, describe the saved records and outdated view under AC-SH-07 without
-creating another pair.
+Given both records are confirmed saved, then close/reset the form and refresh
+campaign choices, calendar, history and statistics before normal completion
+feedback. If refresh fails, report the saved pair and outdated view under
+AC-SH-07; refresh without creating another pair or undoing the confirmed save.
 
 </details>
 
@@ -675,17 +709,20 @@ Creation's automatic replacement under Q-CS-01 is not applied to this edit.
 
 Given missing required values for the final type, an impossible date, a removed
 campaign or system, or an invalid supplied link, when saving, then explain the
-input error, retain edited values and leave the stored original unchanged.
+input error before submission, retain edited values and leave the stored original
+unchanged. Submitted server rejection follows AC-SE-07.
 
-### AC-SE-07 — Cancel or retain a rejected edit
+<a id="ac-se-07--cancel-or-retain-a-rejected-edit"></a>
+
+### AC-SE-07 — Cancel or reset after a rejected edit
 
 (FR-SE-04; FR-SH-04, FR-SH-06; Q-CS-07)
 
-Given unsaved edits, when cancelling before submission, then no update is sent.
-Given a confirmed rejected update, then explain the cause and retain a usable
-form. In both cases the stored original and campaign defaults are unchanged.
-The all-session-form keyboard rules in AC-SH-09–10 also apply: Escape closes a
-picker first, and Close/Escape cannot dismiss the form during a pending edit save.
+Given unsaved edits, cancellation before submission sends no update. A confirmed
+rejected submitted update discards edits, closes/resets and shows AC-SH-04's failure
+message. In either case, the stored original and campaign defaults are unchanged.
+Pre-submit validation retains input. Picker-first Escape and pending-save protection
+follow AC-SH-09–10.
 
 ### AC-SE-08 — Refresh the affected views
 
@@ -779,8 +816,9 @@ default GM, existing system and optional default link and choose archived instea
 
 Given a blank or whitespace-only name or default GM, missing system, invalid
 supplied HTTP/HTTPS link, or a name matching another campaign after trimming,
-character normalization and case-insensitive comparison, when saving, then create
-no campaign, explain the input error and retain values. An empty default link is valid.
+character normalization and case-insensitive comparison, when browser validation
+prevents submission, then create no campaign, explain the error and retain values.
+A submitted server rejection follows AC-SH-04. An empty default link is valid.
 
 </details>
 
@@ -791,18 +829,21 @@ no campaign, explain the input error and retain values. An empty default link is
 
 (FR-CP-03, FR-CP-04)
 
-Given valid values for either initial status, when saving and refreshing succeed,
-then one campaign is stored with its final defaults and status, campaign choices
-refresh, the form resets and **Campaign saved** appears. Reload retains the
-campaign; no session is created.
+Given valid values for either initial status, when saving is confirmed, then one
+campaign is stored with its final defaults and status. Close/reset the form,
+refresh campaign choices and show **Campaign saved** after refresh succeeds.
+Reload retains the campaign; no session is created. Failed refresh follows AC-SH-07.
 
-### AC-CP-04 — Reset or retain rejected creation values
+<a id="ac-cp-04--reset-or-retain-rejected-creation-values"></a>
 
-(FR-CP-04; FR-SH-04)
+### AC-CP-04 — Reset after cancelled or rejected creation
 
-Given unsaved creation values, when Reset is chosen before submission, then
-discard them without a write. Given a confirmed rejected save, then keep entered
-values, explain the cause and create no campaign.
+(FR-CP-04; FR-SH-04; Q-SH-01)
+
+Given unsaved creation values, Reset before submission discards them without a
+write. A confirmed rejected submitted save also creates no campaign, discards
+input, closes/resets and shows AC-SH-04's failure message.
+Browser validation before submission retains values for correction.
 
 </details>
 
@@ -831,7 +872,8 @@ its ID, creates no new campaign and retains the changes after reload.
 Given a campaign under edit, when its own unchanged name is saved with valid
 defaults, then it is accepted. A name matching another campaign under the shared
 normalization rule, blank required text, missing system or invalid supplied link
-is rejected with values retained and the stored campaign unchanged.
+prevents browser submission with values retained and the stored campaign unchanged.
+A submitted server rejection follows AC-SH-04.
 
 </details>
 
@@ -854,13 +896,16 @@ Given linked sessions, when a campaign rename is confirmed and views refresh,
 then existing history and applicable campaign labels use the new name while
 session IDs, campaign references and recorded session values remain unchanged.
 
-### AC-CP-09 — Reset or correct a rejected campaign edit
+<a id="ac-cp-09--reset-or-correct-a-rejected-campaign-edit"></a>
 
-(FR-CP-08; FR-SH-04)
+### AC-CP-09 — Reset after cancelled or rejected campaign editing
 
-Given unsaved edits, when Reset is chosen, then the stored campaign is unchanged.
-Given a confirmed rejected save, then edited values remain available with an
-explanation and the stored campaign is unchanged.
+(FR-CP-08; FR-SH-04; Q-SH-01)
+
+Given unsaved edits, Reset leaves the stored campaign unchanged. A confirmed
+rejected submitted save preserves the stored campaign and all sessions, discards
+edits, closes/resets and shows AC-SH-04's failure message. Pre-submit validation
+retains values for correction.
 
 </details>
 
@@ -1038,7 +1083,8 @@ Do not label the confirmed restriction as a connection error.
 Given Manage → Systems is opened for creation, when the form appears, then the
 name is blank and a primary color is suggested. A nonblank name and valid six-digit
 hexadecimal primary color can be entered; blank or whitespace-only names and
-invalid color values are rejected with values retained and no new system.
+invalid color values prevent browser submission, retaining values and creating no
+system. A submitted server rejection follows AC-SH-04.
 
 ### AC-SY-02 — Enforce normalized name uniqueness everywhere
 
@@ -1066,17 +1112,21 @@ with a unique name is still allowed and does not recolor the existing system.
 
 (FR-SY-03; FR-SH-05)
 
-Given valid values, when saving and refreshing succeed, then one system is stored,
-campaign and session system choices include it, the form clears and **System saved**
-appears. Reload retains the values; no campaign or session is created.
+Given valid values, when saving is confirmed, then one system is stored. Close/reset
+the form, refresh campaign and session system choices to include it, and show
+**System saved** after refresh succeeds. Reload retains the values; no campaign
+or session is created. Failed refresh follows AC-SH-07.
 
-### AC-SY-05 — Clear or retain a rejected system form
+<a id="ac-sy-05--clear-or-retain-a-rejected-system-form"></a>
 
-(FR-SY-04)
+### AC-SY-05 — Reset after cancelled or rejected system creation
 
-Given unsaved values, when Clear is chosen before saving, then discard them
-without a write. Given confirmed rejection, then no system is created and values
-remain with an explanation for correction.
+(FR-SY-04; Q-SH-01)
+
+Given unsaved values, Clear before submission discards them without a write.
+A confirmed rejected submitted save creates no system, discards input,
+closes/resets and shows AC-SH-04's failure message.
+Pre-submit validation retains values for correction.
 
 </details>
 
@@ -1121,33 +1171,40 @@ color, including when the typed proposal used a different color.
 <details>
 <summary><strong>Parent save and rollback</strong></summary>
 
-### AC-SY-09 — Associate the saved session with one reusable system
+<a id="ac-sy-09--associate-the-saved-session-with-one-reusable-system"></a>
 
-(FR-SY-07)
+### AC-SY-09 — Save the inline system and parent session together
 
-Given a unique valid new system and valid parent values, when the parent save
-succeeds, then exactly one new system is stored and the saved session references
-its ID. Both persist after reload, system choices include it, and existing systems
-are unchanged. Editing a parent retains its session ID.
+(FR-SY-07; FR-SH-05)
 
-### AC-SY-10 — Roll back only this attempt's new system
+Given valid new-system and parent values, when saving succeeds, then one server
+transaction saves the new system and session creation/update, including a new
+campaign if entered. The saved session references the reusable system ID.
+Both persist after reload; existing systems are unchanged and editing retains
+the parent session ID.
 
-(FR-SY-08; Q-SY-02)
+<a id="ac-sy-10--roll-back-only-this-attempts-new-system"></a>
 
-Given a new system was created but the parent session is confirmed unsaved, when
-recovery completes, then remove only that attempt's new system, retain form values
-and clearly explain the failed parent save and confirmed rollback. Existing systems
-and an edited parent's previously stored values remain unchanged. If this attempt
-also created a campaign for its first session, apply AC-CS-28 to that campaign too.
-
-### AC-SY-11 — Reconcile uncertain parent or cleanup results
+### AC-SY-10 — Leave no partial inline-system save after failure
 
 (FR-SY-08; Q-SY-02; Q-SH-01)
 
-Given the parent save or rollback result cannot be confirmed, when reporting the
-failure, then explain uncertainty, reconcile before retry or a rollback-success
-claim, and leave existing systems untouched. If an existing system was reused,
-no rollback may remove it. Creation identification remains an open design action.
+Given the inline-system/parent transaction fails with confirmed rollback, then
+no system or other new record from this attempt remains. Earlier systems and the
+edited parent's stored values are unchanged. Never remove a reused system.
+Discard input, close/reset and show AC-SH-04's failure message. Combined new
+campaign/first-session attempts also satisfy AC-CS-28.
+
+<a id="ac-sy-11--reconcile-uncertain-parent-or-cleanup-results"></a>
+
+### AC-SY-11 — Report unknown parent-save or rollback results
+
+(FR-SY-08; Q-SY-02; Q-SH-01)
+
+Given the parent save or rollback result cannot be confirmed, then close/reset
+and report uncertainty under AC-SH-08. Do not repeat or undo the save automatically,
+claim cleanup succeeded or remove a reused system. Mandatory attempt identification
+and reconciliation are outside these form saves.
 
 </details>
 
@@ -1192,24 +1249,27 @@ create neither record. On an edited parent, its stored values remain unchanged.
 <details>
 <summary><strong>Saving and rollback</strong></summary>
 
-### AC-SY-15 — Persist the campaign's system association
+<a id="ac-sy-15--persist-the-campaigns-system-association"></a>
 
-(FR-SY-11)
+### AC-SY-15 — Save the inline system and parent campaign together
 
-Given valid parent and system values, when saving succeeds and the app reloads,
-then the saved campaign references the chosen system ID. A newly created system
-remains reusable, and editing the parent retains its existing campaign ID.
+(FR-SY-11; FR-SH-05)
 
-### AC-SY-16 — Recover a failed parent campaign save
+Given valid parent and system values, when saving succeeds, then one server
+transaction saves the new system and campaign creation/update. After reload,
+the campaign references the chosen system ID and the new system remains reusable.
+Editing retains the campaign's existing ID.
+
+<a id="ac-sy-16--recover-a-failed-parent-campaign-save"></a>
+
+### AC-SY-16 — Reset after a failed inline-system campaign save
 
 (FR-SY-12; Q-SY-02; Q-SH-01)
 
-Given this attempt created a system but its parent campaign is confirmed unsaved,
-when recovery completes, then remove only that new system, retain entered values
-and explain the parent-save failure and confirmed rollback. Existing systems and
-the edited campaign's previously stored values are unchanged. Never remove a
-reused system. Reconcile unknown save or cleanup outcomes before retry or claiming
-rollback success, as in AC-SY-11.
+Given confirmed transaction failure, then no new system or campaign from that
+attempt remains, existing systems and the edited campaign's stored values are
+unchanged, and no reused system is removed. Discard input, close/reset and show
+AC-SH-04's failure message. Unknown save/rollback results follow AC-SY-11 instead.
 
 </details>
 
@@ -1237,8 +1297,8 @@ another system.
 
 Given an edited system, when its own name and a valid color are saved, then the
 name is not treated as a duplicate. Blank names, invalid colors or names matching
-another normalized system name are rejected with edited values retained and the
-stored system unchanged.
+another normalized system name prevent browser submission with edited values
+retained and the stored system unchanged. Submitted server rejection follows AC-SH-04.
 
 </details>
 
@@ -1261,13 +1321,16 @@ the session's derived color, while the campaign still references A and the sessi
 still references B. Campaign displays follow their own default system. The exact
 shade formula is not prescribed by this criterion.
 
-### AC-SY-20 — Clear or correct a rejected system edit
+<a id="ac-sy-20--clear-or-correct-a-rejected-system-edit"></a>
 
-(FR-SY-16)
+### AC-SY-20 — Reset after cancelled or rejected system editing
 
-Given unsaved system edits, when Clear is chosen, then the stored system remains
-intact. Given confirmed rejection, then the stored system remains intact and the
-edited values and error explanation remain available for correction.
+(FR-SY-16; Q-SH-01)
+
+Given unsaved system edits, Clear leaves the stored system intact. A confirmed
+rejected submitted save also preserves the stored system, discards edits,
+closes/resets and shows AC-SH-04's failure message.
+Pre-submit validation retains values for correction.
 
 </details>
 
@@ -2333,10 +2396,11 @@ session. Confirmed success refreshes applicable views before completion feedback
 
 (FR-QA-04; Q-SH-01)
 
-Given confirmed creation followed by refresh failure, when recovering, then
-refresh without another creation request. Given a lost creation result, then
-explain uncertainty and reconcile before retry; do not assume a failed write.
-Creation-request identification remains part of the shared design action.
+Given confirmed Quick Add session creation followed by refresh failure, then
+report the saved session and outdated view and refresh without another creation
+request. Given an unknown save or rollback result, then close/reset and use
+AC-SH-08's uncertainty feedback without automatically repeating or undoing the save.
+These criteria apply when Quick Add is implemented.
 
 </details>
 
@@ -2440,11 +2504,12 @@ separate criteria above.
 
 ## Actions needed
 
-**Current state:** All 192 version 1.2 criteria are approved, preserving earlier
-approvals. A-01 records the version 1.0–1.1 reviews; A-12 records version 1.2
-approval on 29 October 2026. Ten focused test cases remain drafts, Not run.
-Implementation and verification, including future JSON backup/restore under
-FU-DA-03, remain open. Approval does not establish that the app meets the criteria.
+**Current state:** Version 1.3 aligns the affected save criteria with Q-SH-01;
+all 192 existing IDs are preserved. A-01 and A-12 retain the earlier review history.
+A-02 records specification alignment separately from implementation and verification.
+The focused cases remain drafts. The [execution results](test-records.md#execution-results)
+record the local session form checks and their limits. Future JSON backup/restore
+remains FU-DA-03.
 
 <details>
 <summary><strong>Approval, recorded decisions and open design</strong></summary>
@@ -2452,9 +2517,9 @@ FU-DA-03, remain open. Approval does not establish that the app meets the criter
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
 | A-01 — Review acceptance criteria | Complete — the owner approved the version 1.0 baseline, all 14 version 1.1 new or amended criteria and the recovery-applicability clarification on 28 October 2026. All 187 version 1.1 criteria were approved; A-12 records version 1.2. Q-ST-01 records Favorite System as most played by session count, with all tied system leaders shown in the breakdown; no extra annual highlight is required. Implementation and verification remain open. | Version 1.1 amendment-scope table; FU-SH-01; Q-ST-01; FR-ST-07; AC-ST-05/08; TC-ST-02 |
-| A-02 — Finish save-recovery design | Define how a creation attempt is identified even when deliberate records can look identical. Specify messages, form state, safe reconciliation/retry and failed rollback handling. Update WF-CS-01 requirements and criteria only after its gap is resolved; the agreed Q-SH-01 principle does not itself close GAP-CS-01. | GAP-CS-01; Q-SH-01; AC-SH-07–08; AC-CS-29; AC-SY-11, AC-SY-16; AC-QA-05 |
+| A-02 — Align and deliver simple form saves | Q-SH-01 specifies the save outcomes and supersedes the earlier GAP-CS-01 design for these forms. FU-SH-02 records the current implementation and the remaining browser checks. | GAP-CS-01; Q-SH-01; AC-SH-07–08; AC-CS-29; AC-SY-11, AC-SY-16; AC-QA-05 |
 | A-03 — Decision recorded: repeated campaign-session entries | Q-CS-06 permits deliberate sessions for the same campaign and date. BR-CS-13, FR-CS-25 and approved AC-CS-31 record the result. Execution remains planned. | FU-CS-02; Q-CS-06; AC-CS-31 |
-| A-04 — Decision recorded: Escape and closing during save | The owner confirmed that Q-CS-07 applies to every session form. FR-SH-06 and FR-CS-16/18 record the result; AC-SH-09–10 and workflow references are approved in version 1.1. The date picker's Escape-first behavior still needs implementation; shared keyboard verification remains planned. | FU-CS-03; FU-SH-07; Q-CS-07; AC-SH-09–10; AC-CS-20/22; TC-SH-01–03 |
+| A-04 — Decision recorded: Escape and closing during save | Q-CS-07 applies to every session form. FR-SH-06, FR-CS-16/18 and AC-SH-09–10 record the decision. Escape now closes the date picker first, and the [local keyboard checks](test-records.md#execution-results) passed in the available paths tested. | FU-CS-03; FU-SH-07; Q-CS-07; AC-SH-09–10; AC-CS-20/22; TC-SH-01–03 |
 | A-05 — Decision recorded: API defaults and browser inputs | Q-CS-08 retains API fallback to campaign GM/System defaults for omitted inputs while keeping both required in the browser. FR-CS-11 and approved AC-CS-11/32 record the result; verification remains planned. | FU-CS-04; Q-CS-08; AC-CS-11/32 |
 | A-12 — Review version 1.2 backup/restore criteria | Complete — the owner approved AC-DA-17–21 and FR-DA-14–18 on 29 October 2026. The approved material is integrated into the JSON workflow and affected scope wording. Implementation and verification remain future work under FU-DA-03; CSV transfer of My GM name remains separate under FU-DA-02. | [JSON backup/restore criteria](#wf-da-03); [Requirements](requirements-and-rules.md#wf-da-03-requirements) |
 
@@ -2465,7 +2530,7 @@ FU-DA-03, remain open. Approval does not establish that the app meets the criter
 
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
-| A-06 — Implement and verify rollback behavior | Check campaign-plus-first-session and new-system parent saves, including creation and editing failures and combined new campaign/system attempts. Remove only records created by the failed attempt, preserve existing records and handle uncertain cleanup without false success. These outcomes are agreed intent, not evidence of an existing fix. | Q-CS-04–05; Q-SY-02–03; AC-CS-25–30; AC-SY-08–16 |
+| A-06 — Implement and verify rollback behavior | The server saves campaign/first-session pairs and inline systems with their parent changes in one transaction. Backend rollback checks passed. Complete browser verification of confirmed failure, preserved records and unknown-result feedback under FU-SH-02, FU-CS-05 and FU-SY-01. | Q-CS-04–05; Q-SY-02–03; AC-CS-25–30; AC-SY-08–16 |
 | A-07 — Reproduce and improve blocked campaign deletion | Capture the running version, request/response, console and server evidence for DEF-002. Distinguish a readable HTTP 409 from a connection/body-read failure; implement the agreed interaction while preserving the server guard, then retest active, archived, empty, stale-data and interrupted-deletion scenarios. | DEF-002; Q-CP-04–06; AC-CP-18–30 |
 | A-08 — Design and implement Quick Add | Specify the date-confirmation interaction and any separate Log today action, then implement active-campaign shortcuts and verify their save/recovery behavior. Keep this feature marked planned until implemented and tested. | WF-QA-01; Q-QA-01–02; AC-QA-01–05 |
 
@@ -2477,8 +2542,8 @@ FU-DA-03, remain open. Approval does not establish that the app meets the criter
 | Action | Required outcome | Related criteria or source |
 | --- | --- | --- |
 | A-09 — Align the data and backup guide | Correct the CSV description that currently says exports include “settings”: Q-DA-01 excludes My GM name. Explain full-backup settings coverage and record-backup limits; add custom-storage guidance, dated backup filenames and a copy-existence check. Document same-version restore checks, settings replacement and recovery using the preserved pre-restore copy. | [Data guide](../data-and-backups.md); Q-DA-01; FR-MA-09–16; AC-DA-04, AC-DA-08, AC-DA-16; AC-MA-09–17 |
-| A-10 — Write and execute linked tests | Ten focused cases and their scope/data are drafted: TC-DA-01–04, TC-ST-01–02, TC-SY-01 and TC-SH-01–03, all Not run. Record run-specific environment and evidence when execution is selected. The broader suite, both maintenance paths, automation, defect reproduction and retests remain separate work. | [Test plan](test-plan.md); [Focused cases](test-records.md#focused-review-test-cases); [Execution results](test-records.md#execution-results) |
-| A-11 — Update the portfolio index | Complete — the index records the approved version 1.1 baseline separately from draft focused cases awaiting execution. | [Documentation checklist](README.md) |
+| A-10 — Write and execute linked tests | Ten focused cases are drafted. The local run covered the available keyboard paths tested under TC-SH-01–03. TC-DA-01–04, TC-ST-01–02 and TC-SY-01 remain Not run as focused cases. The broader suite, maintenance paths, defect reproduction and retests remain separate work. | [Test plan](test-plan.md); [Focused cases](test-records.md#focused-review-test-cases); [Execution results](test-records.md#execution-results) |
+| A-11 — Update the portfolio index | Complete. The index identifies the current criteria baseline, scoped local results and open verification. | [Documentation checklist](README.md) |
 
 </details>
 
@@ -2489,6 +2554,7 @@ FU-DA-03, remain open. Approval does not establish that the app meets the criter
 | 1.0 | 28 October 2026 | First reviewed baseline: the owner approved all workflow and shared acceptance criteria, including Q-CS-06–08 updates. Recovery design, implementation and verification work remains tracked as follow-ups. |
 | 1.1 approved | 28 October 2026 | The owner approved all 14 new or amended criteria and the shared recovery-applicability clarification. Added AC-SH-09–10 for all-session-form keyboard scope; strengthened import identity, actual-system behavior and all-tied-leader outcomes; clarified retained campaign identity in AC-CP-05. Incorporated the separate review's dispositions into existing criteria and actions. Q-ST-01 defines Favorite System as most played by session count; tied system leaders appear in the breakdown without an extra annual highlight. All 187 criteria are approved; ten linked draft test cases are Not run. |
 | 1.2 approved | 29 October 2026 | The owner approved AC-DA-17–21 and FR-DA-14–18, bringing the acceptance baseline to 192 criteria. Integrated JSON backup/restore into WF-DA-03 and aligned existing import/export and backup-scope criteria. A-12 is complete; implementation and verification remain future work under FU-DA-03. CSV transfer of My GM name remains separate under FU-DA-02. |
+| 1.3 aligned | 30 October 2026 | Aligned existing save criteria with Q-SH-01: one transaction for related records, reset/discard after confirmed submitted-save failure, separate saved-but-outdated and unknown-result feedback. Preserved pre-submit validation correction, pending-save protection, all 192 IDs and other workflows' recovery rules. Implementation and runtime verification remain open. |
 
 ---
 
